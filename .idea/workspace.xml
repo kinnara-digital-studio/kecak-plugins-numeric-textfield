@@ -2,15 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7b36c3b3-1962-4dca-93a6-faf12ff2113f" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/NumericField.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/NumericField.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/resources/js/jquery.numericfield.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/resources/js/jquery.numericfield.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/templates/numericField.ftl" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/templates/numericField.ftl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/META-INF/MANIFEST.MF" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/META-INF/MANIFEST.MF" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/kinnara/kecakplugins/NumericField.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/kinnara/kecakplugins/NumericField.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/resources/js/jquery.numericfield.js" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/resources/js/jquery.numericfield.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/templates/numericField.ftl" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/templates/numericField.ftl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/kecak-plugins-numeric-textfield-1.0.0.jar" beforeDir="false" afterPath="$PROJECT_DIR$/target/kecak-plugins-numeric-textfield-1.0.0.jar" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/classes/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -28,8 +20,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/NumericField.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="378">
-              <caret line="184" column="58" selection-start-line="184" selection-start-column="58" selection-end-line="184" selection-end-column="58" />
+            <state relative-caret-position="191">
+              <caret line="142" column="54" selection-start-line="142" selection-start-column="54" selection-end-line="142" selection-end-column="54" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -74,8 +66,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/resources/properties/numericField.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="57" column="37" selection-start-line="57" selection-start-column="16" selection-end-line="57" selection-end-column="37" />
+            <state relative-caret-position="391">
+              <caret line="29" column="53" lean-forward="true" selection-start-line="29" selection-start-column="53" selection-end-line="29" selection-end-column="53" />
             </state>
           </provider>
         </entry>
@@ -127,6 +119,7 @@
       <find>setLoad</find>
       <find>Load Binder</find>
       <find>result</find>
+      <find>throw</find>
     </findStrings>
     <replaceStrings>
       <replace>numericField</replace>
@@ -362,9 +355,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/RestApiException.java">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/joget/wflow-core/5.0-SNAPSHOT/wflow-core-5.0-SNAPSHOT.jar!/org/joget/apps/form/service/FormServiceImpl.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
@@ -414,9 +404,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/resources/js/terbilang-spelling.js">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
     <entry file="jar://$MAVEN_REPOSITORY$/org/joget/wflow-plugin-base/5.0-SNAPSHOT/wflow-plugin-base-5.0-SNAPSHOT.jar!/org/joget/plugin/base/PluginManager.class">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="396">
@@ -445,14 +432,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/joget/wflow-core/5.0-SNAPSHOT/wflow-core-5.0-SNAPSHOT.jar!/org/joget/apps/form/model/Element.class">
+    <entry file="file://$PROJECT_DIR$/src/main/resources/properties/equationLoadBinder.json">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="226">
-          <caret line="38" column="16" selection-start-line="38" selection-start-column="16" selection-end-line="38" selection-end-column="16" />
-          <folding>
-            <element signature="e#1298#1299#0" expanded="true" />
-            <element signature="e#1342#1343#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="204">
+          <caret line="12" column="1" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/RestApiException.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="6" selection-start-line="7" selection-start-column="6" selection-end-line="7" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/templates/numericField.ftl">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-153">
+          <caret line="9" column="82" selection-start-line="9" selection-start-column="70" selection-end-line="9" selection-end-column="82" />
         </state>
       </provider>
     </entry>
@@ -470,26 +467,8 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/properties/numericField.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="57" column="37" selection-start-line="57" selection-start-column="16" selection-end-line="57" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/properties/equationLoadBinder.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="12" column="1" selection-start-line="12" selection-start-column="1" selection-end-line="12" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/templates/numericField.ftl">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-153">
-          <caret line="9" column="82" selection-start-line="9" selection-start-column="70" selection-end-line="9" selection-end-column="82" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/resources/js/terbilang-spelling.js">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/resources/resources/js/jquery.numericfield.js">
       <provider selected="true" editor-type-id="text-editor">
@@ -498,10 +477,24 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/properties/numericField.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="29" column="53" lean-forward="true" selection-start-line="29" selection-start-column="53" selection-end-line="29" selection-end-column="53" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/joget/wflow-core/5.0-SNAPSHOT/wflow-core-5.0-SNAPSHOT.jar!/org/joget/apps/form/model/Element.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="226">
+          <caret line="114" column="44" selection-start-line="114" selection-start-column="44" selection-end-line="114" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/NumericField.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="378">
-          <caret line="184" column="58" selection-start-line="184" selection-start-column="58" selection-end-line="184" selection-end-column="58" />
+        <state relative-caret-position="191">
+          <caret line="142" column="54" selection-start-line="142" selection-start-column="54" selection-end-line="142" selection-end-column="54" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

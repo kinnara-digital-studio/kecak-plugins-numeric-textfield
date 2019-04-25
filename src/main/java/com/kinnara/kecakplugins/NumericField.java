@@ -133,25 +133,15 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
     @Override
     public FormRowSet formatData(FormData formData) {
-        boolean dotAsThousands = "euro".equalsIgnoreCase(getPropertyString("style"));
+//        boolean dotAsThousands = "euro".equalsIgnoreCase(getPropertyString("style"));
         boolean storeValueUnormatted = "true".equalsIgnoreCase(getPropertyString("storeValueUnormatted"));
         FormRowSet rowSet = super.formatData(formData);
 
         // convert to default value
         String id = this.getPropertyString(FormUtil.PROPERTY_ID);
+        Map<String, Object> variables = (Map<String, Object>) getProperty("variables");
+        // TODO "Add Validation for Calculation Field"
 
-        for(FormRow row : rowSet) {
-            String value = row.getProperty(id);
-            if(!storeValueUnormatted) {
-                row.setProperty(id, value);
-            } else if(dotAsThousands) {
-                // remove thousands delimiter and convert decimal delimiter
-                row.setProperty(id, value.replaceAll("\\.", "").replaceAll(",", "."));
-            } else {
-                // remove thousands delimiter
-                row.setProperty(id, value.replaceAll(",", ""));
-            }
-        }
 
         return rowSet;
     }
@@ -205,8 +195,20 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 } catch (Exception e) {
                     LogUtil.error(getClassName(), e, "Error configuring load binder");
                 }
+                FormData formData = new FormData();
+                formData.setPrimaryKeyValue(primaryKey);
+                Iterator i = requestParameters.keys();
+                while (i.hasNext()) {
+                    String key = i.next().toString();
+                    try {
+                        String requestValue = requestParameters.getString(key);
+                        formData.addRequestParameterValues(key, new String[]{requestValue==null || value.isEmpty()? "0" : value});
+                    } catch (JSONException e) {
+                        LogUtil.warn(getClassName(), "JSON Exception for key parameter [" + key + "]");
+                    }
+                }
 
-                value = loadFormData(element, primaryKey, requestParameters);
+                value = loadFormData(element, formData);
 
             }
             FormData formData = new FormData();
@@ -351,23 +353,9 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         }
     }
 
-    private String loadFormData(Element element, String primaryKey, JSONObject jsonRequestParameter) throws JSONException {
+    private String loadFormData(Element element, FormData formData) {
         ApplicationContext appContext = AppUtil.getApplicationContext();
         FormService formService = (FormService) appContext.getBean("formService");
-
-        FormData formData = new FormData();
-        formData.setPrimaryKeyValue(primaryKey);
-
-        Iterator i = jsonRequestParameter.keys();
-        while (i.hasNext()) {
-            String key = i.next().toString();
-            try {
-                String value = jsonRequestParameter.getString(key);
-                formData.addRequestParameterValues(key, new String[]{value==null || value.isEmpty()? "0" : value});
-            } catch (JSONException e) {
-                LogUtil.warn(getClassName(), "JSON Exception for key parameter [" + key + "]");
-            }
-        }
 
         try {
             formData = formService.executeFormLoadBinders(element, formData);
