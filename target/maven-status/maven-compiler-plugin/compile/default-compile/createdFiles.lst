@@ -1,0 +1,4 @@
+com\kinnara\kecakplugins\EquationLoadBinder.class
+com\kinnara\kecakplugins\NumericField.class
+com\kinnara\kecakplugins\RestApiException.class
+com\kinnara\kecakplugins\Activator.class

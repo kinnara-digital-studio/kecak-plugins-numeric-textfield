@@ -1,0 +1,13 @@
+[
+  {
+    title : "@@equationLoadBinder.title@@",
+    properties : [
+      {
+        name : "equation",
+        label : '@@equationLoadBinder.equation@@',
+        type : 'textfield',
+        required : 'True'
+      }
+    ]
+  }
+]
