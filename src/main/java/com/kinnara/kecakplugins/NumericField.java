@@ -4,6 +4,7 @@ import org.joget.apps.app.dao.AppDefinitionDao;
 import org.joget.apps.app.dao.FormDefinitionDao;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.model.FormDefinition;
+import org.joget.apps.app.service.AppService;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.datalist.model.DataList;
 import org.joget.apps.datalist.model.DataListCollection;
@@ -85,26 +86,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     }
 
     private String formatValue(String value, FormData formData) {
-//        try {
-//            boolean dotAsThousands = "euro".equalsIgnoreCase(getPropertyString("style"));
-//            return Stream.of(value)
-//                    .map(s -> {
-//                        if(dotAsThousands)
-//                            return s.replaceAll("\\.", "").replaceAll(",", ".");
-//                        else
-//                            return s.replaceAll(",", "");
-//                    })
-//                    .filter(s -> !s.isEmpty())
-//                    .map(BigDecimal::new)
-//                    .map(BigDecimal::doubleValue)
-//                    .map(d -> String.format("%,." + getPropertyString("numOfDecimal") + "f", d))
-//                    .map(s -> dotAsThousands ? s.replaceAll(",", "_").replaceAll("\\.", ",").replaceAll("_", ".") : s)
-//                    .findFirst()
-//                    .orElse("");
-//        } catch (NumberFormatException e) {
-//            LogUtil.info(getClassName(), "Number format exception for value ["+value+"]");
-//            return value;
-//        }
         try {
             AppDefinition appDef = AppUtil.getCurrentAppDefinition();
             DataListColumnFormatDefault formatter = getFormatterPlugin(appDef.getAppId(), appDef.getVersion().toString(), this);
@@ -118,10 +99,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     private JSONObject generateJsonCalculationLoadBinderConf(Form form, FormData formData) {
         try {
             JSONObject requestBody = new JSONObject();
-//            Map<String, Object> calculationLoadBinder = (Map<String, Object>)getProperty("calculationLoadBinder");
-//            if(calculationLoadBinder != null)
-//                requestBody.put("calculationLoadBinder", "true");
-
             if(form != null)
                 requestBody.put("formDefId", form.getPropertyString("id"));
 
@@ -145,11 +122,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             jsonConfig.accumulate("fieldId", this.getPropertyString("id"));
             jsonConfig.put("appId", appDef.getAppId());
             jsonConfig.put("appVersion", appDef.getVersion().toString());
-//            jsonConfig.accumulate("format", this.getPropertyString("style"));
-//            jsonConfig.accumulate("numOfDecimal", this.getPropertyString("numOfDecimal"));
-//            jsonConfig.accumulate("prefix", this.getPropertyString("prefix"));
-//            jsonConfig.accumulate("postfix", this.getPropertyString("postfix"));
-//            jsonConfig.accumulate("useThousandSeparator", this.getPropertyString("useThousandSeparator"));
             jsonConfig.accumulate("variables", this.getProperty("variables"));
             jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(FormUtil.findRootForm(this), formData));
             return jsonConfig.toString();
@@ -186,49 +158,26 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
     @Override
     public void webService(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//        if("POST".equals(request.getMethod())) {
-//            String action = request.getParameter("action");
-//            try {
-//                if (action != null && !action.isEmpty()) {
-//                    Method method = this.getClass().getMethod(action, HttpServletRequest.class, HttpServletResponse.class);
-//                    method.invoke(this, request, response);
-//                }
-//            } catch (NoSuchMethodException e) {
-//                String messages = "Action cannot be null";
-//                LogUtil.warn(getClassName(), messages);
-//                response.sendError(HttpServletResponse.SC_BAD_REQUEST, messages);
-//            } catch (IllegalAccessException e) {
-//                LogUtil.error(this.getClassName(), e, null);
-//                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error occurred, please check log for details");
-//            } catch (InvocationTargetException e) {
-//                LogUtil.error(this.getClassName(), e, null);
-//                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error occurred, please check log for details");
-//            }
-//        } else {
-//            response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-//        }
 
         ApplicationContext appContext = AppUtil.getApplicationContext();
         try {
             JSONObject body = constructRequestBody(request);
             JSONObject data = new JSONObject();
-//            Map<String, Object> loadBinderProps = (Map<String, Object>) this.getProperty("calculationLoadBinder");
-//            JSONObject jsonLoadBinder = body.getJSONObject("calculationLoadBinder");
             String formDefId = body.getString("formDefId");
             String fieldId = body.getString("fieldId");
             String primaryKey = body.optString("primaryKey");
 
             // build form
 //            FormService formService = (FormService) appContext.getBean("formService");
-            Form form = generateForm(formDefId);
+            AppService appService = (AppService) AppUtil.getApplicationContext().getBean("appService");
+            AppDefinition appDef = appService.getAppDefinition(request.getParameter("appId"), request.getParameter("appVersion"));
+
+            Form form = generateForm(formDefId, appDef);
             Element element = FormUtil.findElement(fieldId, form, new FormData());
             Map<String, Object> loadBinderProps = (Map<String, Object>) element.getProperty("calculationLoadBinder");
             String value = "";
 
-            if(loadBinderProps != null && loadBinderProps.get(FormUtil.PROPERTY_CLASS_NAME) != null) {
-//                LogUtil.info(this.getClassName(), "=== CALC LOAD BINDER PROPS ===");
-//                loadBinderProps.forEach((k, v) -> {LogUtil.info(getClassName(), k + ", " + v);});
-//                LogUtil.info(this.getClassName(), "=== END PROPS ===");
+            if(loadBinderProps != null && loadBinderProps.containsKey(FormUtil.PROPERTY_CLASS_NAME) && !loadBinderProps.get(FormUtil.PROPERTY_CLASS_NAME).toString().isEmpty()) {
 
                 JSONObject requestParameters = body.getJSONObject("requestParams");
 
@@ -291,7 +240,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     private DataListColumnFormatDefault getFormatterPlugin(String appId, String appVersionStr, Element element) throws RestApiException, JSONException {
 
 
-        AppDefinitionDao appDefinitionDao = (AppDefinitionDao) AppUtil.getApplicationContext().getBean("appDefinitionDao");
+        AppService appService = (AppService) AppUtil.getApplicationContext().getBean("appService");
 
         if(appId == null || appId.isEmpty()) {
             throw new RestApiException(HttpServletResponse.SC_FORBIDDEN, "Parameter [appId] not provided");
@@ -302,53 +251,17 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             appVersion = Long.valueOf(appVersionStr);
         } catch (NumberFormatException ignored) { }
 
-        if(appVersion == null) {
-            // get published version
-            appVersion = appDefinitionDao.getPublishedVersion(appId);
-        }
-
-        if(appVersion == null) {
-            throw new RestApiException(HttpServletResponse.SC_NOT_FOUND, "Published version of appId ["+appId+"] cannot be defined");
-        }
-
-        AppDefinition appDefinition = appDefinitionDao.loadVersion(appId, appVersion);
+        AppDefinition appDefinition =  appService.getAppDefinition(appId, appVersionStr);
         if(appDefinition == null) {
             throw new RestApiException(HttpServletResponse.SC_NOT_FOUND, "App Definition for appId ["+appId+"] appVersion ["+appVersion+"] not found");
         }
 
-//            JSONObject body;
-//            try {
-//                body = constructRequestBody(request);
-//            } catch (IOException | JSONException e) {
-//                throw new RestApiException(HttpServletResponse.SC_NOT_ACCEPTABLE, "Error parsing HTTP body");
-//            }
-
-//            FormService formService = (FormService) AppUtil.getApplicationContext().getBean("formService");
-//            Form form = (Form)formService.createElementFromJson(body.optString("form"));
-//        if(form == null) {
-//            throw new RestApiException(HttpServletResponse.SC_NOT_ACCEPTABLE, "Error generating form");
-//        }
-//
-//            String value = body.optString("value");
-//        if(value == null) {
-//            throw new RestApiException(HttpServletResponse.SC_NOT_ACCEPTABLE, "Value not found");
-//        }
-
-//            JSONObject jsonFormatter = body.getJSONObject("formatter");
-//            Map<String, Object> properties = FormUtil.parsePropertyFromJsonObject(jsonFormatter);
         Map<String, Object> formatterBinderProps = (Map<String, Object>) element.getProperty("formatterPlugin");
         PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
         DataListColumnFormatDefault formatter = (DataListColumnFormatDefault) pluginManager.getPlugin((String) formatterBinderProps.get(FormUtil.PROPERTY_CLASS_NAME));
         if(formatter != null) {
             formatter.setProperties((Map<String, Object>) formatterBinderProps.get("properties"));
 
-//        String fieldId = element.getPropertyString(FormUtil.PROPERTY_ID);
-//
-//        FormData formData = new FormData();
-//        formData.setPrimaryKeyValue(primaryKey);
-//        String reformattedValue = reformatValue(fieldId, value, form, formData, formatter);
-
-//            response.getWriter().write(jsonResult.toString());
             return formatter;
         }
         else
@@ -403,22 +316,17 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
         if(formattedValue == null) {
             return value;
-//        } else if ("true".equalsIgnoreCase(getPropertyString(FormUtil.PROPERTY_READONLY)) && "true".equalsIgnoreCase(getPropertyString(FormUtil.PROPERTY_READONLY_LABEL))) {
-//            return formattedValue;
         } else {
             return formattedValue.replaceAll("<[^>]+>", "");
         }
     }
 
-    protected Form generateForm(String formDefId) {
+    protected Form generateForm(String formDefId, AppDefinition appDef) {
         // check in cache
-//        if(formCache != null && formCache.containsKey(formDefId))
-//            return formCache.get(formDefId);
 
         // proceed without cache
         FormService formService = (FormService) AppUtil.getApplicationContext().getBean("formService");
         Form form = null;
-        AppDefinition appDef = AppUtil.getCurrentAppDefinition();
         if (appDef != null && formDefId != null && !formDefId.isEmpty()) {
             FormDefinitionDao formDefinitionDao = (FormDefinitionDao) AppUtil.getApplicationContext().getBean("formDefinitionDao");
             FormDefinition formDef = formDefinitionDao.loadById(formDefId, appDef);
@@ -473,17 +381,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         }
         else
             return "";
-//        return formRowSetToJson(rowSet, element.getPropertyString(FormUtil.PROPERTY_ID));
     }
-
-//    private JSONObject formRowSetToJson(FormRowSet data, String fieldId) throws JSONException {
-//        JSONObject result = new JSONObject();
-//        if(data != null) {
-//            for(FormRow row : data) {
-//                result.put("value", row.get(fieldId));
-//            }
-//        }
-//        return result;
-//    }
 }
 

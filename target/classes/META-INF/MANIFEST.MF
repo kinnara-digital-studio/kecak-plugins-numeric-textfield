@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
-Bnd-LastModified: 1556177226663
+Bnd-LastModified: 1556182540528
 Build-Jdk: 1.8.0_201
 Built-By: Sintia
 Bundle-Activator: com.kinnara.kecakplugins.Activator
@@ -21,8 +21,8 @@ Embedded-Artifacts: dependency/jsr305-3.0.2.jar;g="com.google.code.findb
  et";a="servlet-api";v="2.5",dependency/exp4j-0.4.8.jar;g="net.objecthun
  ter";a="exp4j";v="0.4.8"
 Export-Package: com.kinnara.kecakplugins;uses:="javax.servlet.http,org.j
- oget.apps.form.lib,org.joget.apps.form.model,org.joget.plugin.base,org.
- osgi.framework";version="1.0.0"
+ oget.apps.app.model,org.joget.apps.form.lib,org.joget.apps.form.model,o
+ rg.joget.plugin.base,org.osgi.framework";version="1.0.0"
 Implementation-Title: kecak-plugins-numeric-textfield
 Implementation-URL: http://www.joget.org
 Implementation-Vendor-Id: com.kinnara.kecakplugins

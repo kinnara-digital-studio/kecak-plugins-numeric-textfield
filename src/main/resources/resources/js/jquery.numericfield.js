@@ -5,7 +5,7 @@
             var target = this;
             if($(target)){
                 if(o.readonly == undefined || o.readonly != 'true'){
-                    if(!(o.variables == undefined || o.variables == null)){
+                    if(!(o.variables == undefined || o.variables == null || o.variables.length == 0)){
                         $.each(o.variables, function(){
                             var variable = this;
                             var fieldId = variable.fieldId;
@@ -22,6 +22,16 @@
                             $(field).change(function(){
                                 numericCalc(target, o);
                             });
+                        });
+                    }
+                    else {
+                        $(target).focusout(function() {
+                            $(target).parent().find("input:hidden.primary_value").val($(target).val());
+                            numericCalc(target, o);
+                        });
+                        $(target).focusin(function() {
+                            var value = $(target).parent().find("input:hidden.primary_value").val();
+                            $(target).val(value);
                         });
                     }
                     // run on load 
