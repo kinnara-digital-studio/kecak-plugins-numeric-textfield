@@ -3,11 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="7b36c3b3-1962-4dca-93a6-faf12ff2113f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/NumericField.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/NumericField.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/messages/numericField.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/messages/numericField.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/properties/numericField.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/properties/numericField.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/resources/js/jquery.numericfield.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/resources/js/jquery.numericfield.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/kecak-plugins-numeric-textfield-1.0.0.jar" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/classes/" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -22,7 +18,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/NumericField.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="259">
@@ -91,11 +87,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/resources/resources/js/jquery.numericfield.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="73" column="59" lean-forward="true" selection-start-line="73" selection-start-column="59" selection-end-line="73" selection-end-column="59" />
+            <state relative-caret-position="274">
+              <caret line="138" column="50" selection-start-line="138" selection-start-column="50" selection-end-line="138" selection-end-column="50" />
             </state>
           </provider>
         </entry>
@@ -143,6 +139,7 @@
       <find>catch</find>
       <find>numeric</find>
       <find>properties</find>
+      <find>imageLoader</find>
     </findStrings>
     <replaceStrings>
       <replace>numericField</replace>
@@ -165,11 +162,11 @@
         <option value="$PROJECT_DIR$/src/main/resources/message/equationLoadBinder.properties" />
         <option value="$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/Activator.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/EquationLoadBinder.java" />
-        <option value="$PROJECT_DIR$/src/main/resources/resources/js/jquery.numericfield.js" />
         <option value="$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/NumericField.java" />
         <option value="$PROJECT_DIR$/src/main/resources/properties/numericField.json" />
         <option value="$PROJECT_DIR$/src/main/resources/messages/numericField.properties" />
         <option value="$PROJECT_DIR$/src/main/resources/templates/numericField.ftl" />
+        <option value="$PROJECT_DIR$/src/main/resources/resources/js/jquery.numericfield.js" />
       </list>
     </option>
   </component>
@@ -488,20 +485,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/resources/js/jquery.numericfield.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="73" column="59" lean-forward="true" selection-start-line="73" selection-start-column="59" selection-end-line="73" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/resources/messages/numericField.properties">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="593">
-          <caret line="44" column="59" selection-start-line="44" selection-start-column="59" selection-end-line="44" selection-end-column="59" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/kinnara/kecakplugins/EquationLoadBinder.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
@@ -535,6 +518,20 @@
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/messages/numericField.properties">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="593">
+          <caret line="44" column="59" selection-start-line="44" selection-start-column="59" selection-end-line="44" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/resources/resources/js/jquery.numericfield.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="274">
+          <caret line="138" column="50" selection-start-line="138" selection-start-column="50" selection-end-line="138" selection-end-column="50" />
         </state>
       </provider>
     </entry>

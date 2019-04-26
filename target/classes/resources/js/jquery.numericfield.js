@@ -75,6 +75,11 @@
             if(imageLoader)
                 $(imageLoader).show();
 
+            var submitButton = $(target).parents("form:first").find("input[type='submit']");
+            if(submitButton) {
+                $(submitButton).prop("disabled", true);
+            }
+
             $.ajax({
                 url: loadBinder.url + urlParams,
                 type : 'POST',
@@ -129,6 +134,10 @@
         var imageLoader = $(target).parent().find("img.loader");
         if(imageLoader)
             $(imageLoader).hide();
+        var submitButton = $(target).parents("form:first").find("input[type='submit']");
+        if(submitButton) {
+            $(submitButton).prop("disabled", false);
+        }
     }
     
     function getValue(fieldId, operation, format){
