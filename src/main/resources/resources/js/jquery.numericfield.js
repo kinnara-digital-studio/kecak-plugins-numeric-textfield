@@ -66,6 +66,10 @@
             if(formatValue) {
                 loadBinder.formatValue = formatValue;
             }
+            if(o.currencyRefField) {
+                var selector = FormUtil.getField(o.currencyRefField);
+                loadBinder.currencyValue = $(selector).val();
+            }
 
             var imageLoader = $(target).parent().find("img.loader");
             if(imageLoader)
