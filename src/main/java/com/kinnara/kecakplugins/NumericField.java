@@ -27,10 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class NumericField extends Element implements FormBuilderPaletteElement, PluginWebSupport {
@@ -89,7 +86,15 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         try {
             AppDefinition appDef = AppUtil.getCurrentAppDefinition();
             DataListColumnFormatDefault formatter = getFormatterPlugin(appDef.getAppId(), appDef.getVersion().toString(), this);
-            return reformatValue(this.getPropertyString(FormUtil.PROPERTY_ID), value, FormUtil.findRootForm(this), formData, formatter);
+            String currencyRef = getPropertyString("currencyRefField");
+            Map.Entry<String, String> currency = null;
+            if(currencyRef!=null && !currencyRef.isEmpty()) {
+                String currencyValue = formData.getRequestParameter(currencyRef);
+                if(currencyValue!=null) {
+                    currency = new AbstractMap.SimpleEntry<>(currencyRef, currencyValue);
+                }
+            }
+            return reformatValue(this.getPropertyString(FormUtil.PROPERTY_ID), value, FormUtil.findRootForm(this), formData, formatter, currency);
         } catch (Exception e) {
             LogUtil.error(this.getClassName(), e, null);
             return value;
@@ -123,6 +128,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             jsonConfig.put("appId", appDef.getAppId());
             jsonConfig.put("appVersion", appDef.getVersion().toString());
             jsonConfig.accumulate("variables", this.getProperty("variables"));
+            jsonConfig.put("currencyRefField", getPropertyString("currencyRefField"));
             jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(FormUtil.findRootForm(this), formData));
             return jsonConfig.toString();
         }
@@ -139,8 +145,8 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
         // convert to default value
         String id = this.getPropertyString(FormUtil.PROPERTY_ID);
-        Map<String, Object> variables = (Map<String, Object>) getProperty("variables");
         // TODO "Add Validation for Calculation Field"
+//        Map<String, Object> variables = (Map<String, Object>) getProperty("variables");
 
 
         return rowSet;
@@ -156,6 +162,8 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             String formDefId = body.getString("formDefId");
             String fieldId = body.getString("fieldId");
             String primaryKey = body.optString("primaryKey");
+            String currencyVal = body.optString("currencyValue");
+            Map.Entry<String, String> currencyField = null;
 
             // build form
 //            FormService formService = (FormService) appContext.getBean("formService");
@@ -166,6 +174,12 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             Element element = FormUtil.findElement(fieldId, form, new FormData());
             Map<String, Object> loadBinderProps = (Map<String, Object>) element.getProperty("calculationLoadBinder");
             String value = "";
+
+            //add Reference for currency field
+            if(currencyVal!=null && !currencyVal.isEmpty()) {
+                String currencyKey = element.getPropertyString("currencyRefField");
+                currencyField = new AbstractMap.SimpleEntry<>(currencyKey, currencyVal);
+            }
 
             if(loadBinderProps != null && loadBinderProps.containsKey(FormUtil.PROPERTY_CLASS_NAME) && !loadBinderProps.get(FormUtil.PROPERTY_CLASS_NAME).toString().isEmpty()) {
 
@@ -218,9 +232,9 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             if(formatter!=null) {
                 if (!body.isNull("formatValue") && value.isEmpty()) {
                     value = body.getString("formatValue");
-                    formatValue = reformatValue(fieldId, body.getString("formatValue"), form, formData, formatter);
+                    formatValue = reformatValue(fieldId, body.getString("formatValue"), form, formData, formatter, currencyField);
                 } else {
-                    formatValue = reformatValue(fieldId, value, form, formData, formatter);
+                    formatValue = reformatValue(fieldId, value, form, formData, formatter, currencyField);
                 }
             }
             else
@@ -288,7 +302,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         return formatterPlugin;
     }
 
-    private String reformatValue(@Nonnull String fieldId, @Nonnull String value, Form form, @Nonnull FormData formData, DataListColumnFormatDefault formatterPlugin) {
+    private String reformatValue(@Nonnull String fieldId, @Nonnull String value, Form form, @Nonnull FormData formData, DataListColumnFormatDefault formatterPlugin, Map.Entry<String,String> currency) {
         FormDataDao formDataDao = (FormDataDao) AppUtil.getApplicationContext().getBean("formDataDao");
         FormRow formRow = null;
         if(formData.getPrimaryKeyValue() != null) {
@@ -297,6 +311,10 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
         if(formRow == null) {
             formRow = new FormRow();
+        }
+
+        if(currency!=null) {
+            formRow.put(currency.getKey(), currency.getValue());
         }
 
         Map<String, String> row = formRow.entrySet().stream()

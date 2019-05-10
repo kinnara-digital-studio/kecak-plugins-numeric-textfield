@@ -66,10 +66,19 @@
             if(formatValue) {
                 loadBinder.formatValue = formatValue;
             }
+            if(o.currencyRefField) {
+                var selector = FormUtil.getField(o.currencyRefField);
+                loadBinder.currencyValue = $(selector).val();
+            }
 
             var imageLoader = $(target).parent().find("img.loader");
             if(imageLoader)
                 $(imageLoader).show();
+
+            var submitButton = $(target).parents("form:first").find("input[type='submit']");
+            if(submitButton) {
+                $(submitButton).prop("disabled", true);
+            }
 
             $.ajax({
                 url: loadBinder.url + urlParams,
@@ -125,6 +134,10 @@
         var imageLoader = $(target).parent().find("img.loader");
         if(imageLoader)
             $(imageLoader).hide();
+        var submitButton = $(target).parents("form:first").find("input[type='submit']");
+        if(submitButton) {
+            $(submitButton).prop("disabled", false);
+        }
     }
     
     function getValue(fieldId, operation, format){
