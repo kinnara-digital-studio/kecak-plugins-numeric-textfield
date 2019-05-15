@@ -23,10 +23,9 @@ public class EquationLoadBinder extends WorkflowFormBinder {
         LogUtil.info(this.getClassName(), "Equation : " + equation);
         try {
             Expression e = new ExpressionBuilder(equation).variables(params.keySet()).build();
-            for (Map.Entry entry : params.entrySet()) {
-                String[] values = (String[]) entry.getValue();
-                String value = values[0];
-                e.setVariable((String) entry.getKey(), value==null? 0 : Double.valueOf(value));
+            for (Map.Entry<String, String[]> entry : params.entrySet()) {
+                String value = entry.getValue()[0];
+                e.setVariable(entry.getKey(), (value==null || value.isEmpty()) ? (0) : (Double.valueOf(value)));
             }
             Double result = e.evaluate();
             FormRow row = new FormRow();

@@ -6,8 +6,8 @@
             if($(target)){
                 if(o.readonly == undefined || o.readonly != 'true'){
                     if(!(o.variables == undefined || o.variables == null || o.variables.length == 0)){
-                        $.each(o.variables, function(){
-                            var variable = this;
+                        $.each(o.variables, function(index){
+                            var variable = o.variables[index];
                             var fieldId = variable.fieldId;
                             if(fieldId.indexOf(".") != -1){
                                 fieldId = fieldId.substring(0, fieldId.indexOf("."));
@@ -54,10 +54,10 @@
             loadBinder.requestParams = {};
             loadBinder.fieldId = o.fieldId;
             var urlParams = "?appId=" + o.appId + "&appVersion=" + o.appVersion;
-            $.each(o.variables, function(){
-                var variable = this;
-                var selector = FormUtil.getField(variable.fieldId);
-                var value = $(selector).val();
+            $.each(o.variables, function(index){
+                var variable = o.variables[index];
+                var element = FormUtil.getField(variable.fieldId);
+                var value = element.val();
                 loadBinder.requestParams[variable.variableName] = value;
                 urlParams += "&";
                 urlParams += variable.variableName + "=" + value;
@@ -67,8 +67,8 @@
                 loadBinder.formatValue = formatValue;
             }
             if(o.currencyRefField) {
-                var selector = FormUtil.getField(o.currencyRefField);
-                loadBinder.currencyValue = $(selector).val();
+                var element = FormUtil.getField(o.currencyRefField);
+                loadBinder.currencyValue = element.val();
             }
 
             var imageLoader = $(target).parent().find("img.loader");

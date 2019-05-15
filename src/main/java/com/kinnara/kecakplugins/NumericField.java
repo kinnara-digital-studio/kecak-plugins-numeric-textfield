@@ -216,7 +216,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                     String key = i.next().toString();
                     try {
                         String requestValue = requestParameters.getString(key);
-                        formData.addRequestParameterValues(key, new String[]{requestValue==null || value.isEmpty()? "0" : value});
+                        formData.addRequestParameterValues(key, new String[]{requestValue==null || requestValue.isEmpty()? "0" : requestValue});
                     } catch (JSONException e) {
                         LogUtil.warn(getClassName(), "JSON Exception for key parameter [" + key + "]");
                     }
