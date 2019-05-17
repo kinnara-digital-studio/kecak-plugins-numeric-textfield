@@ -12,6 +12,7 @@ import org.joget.apps.form.model.FormRowSet;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 public class EquationLoadBinder extends WorkflowFormBinder {
@@ -27,7 +28,8 @@ public class EquationLoadBinder extends WorkflowFormBinder {
                 String value = entry.getValue()[0];
                 e.setVariable(entry.getKey(), (value==null || value.isEmpty()) ? (0) : (Double.valueOf(value)));
             }
-            Double result = e.evaluate();
+            Double res = e.evaluate();
+            BigDecimal result = BigDecimal.valueOf(res);
             FormRow row = new FormRow();
             row.put(element.getPropertyString(FormUtil.PROPERTY_ID), result);
             rowSet.add(row);
