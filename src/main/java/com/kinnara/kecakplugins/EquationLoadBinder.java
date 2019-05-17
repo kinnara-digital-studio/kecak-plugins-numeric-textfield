@@ -20,7 +20,6 @@ public class EquationLoadBinder extends WorkflowFormBinder {
         FormRowSet rowSet = new FormRowSet();
         Map<String, String[]> params = formData.getRequestParams();
         String equation = getPropertyString("equation");
-        LogUtil.info(this.getClassName(), "Equation : " + equation);
         try {
             Expression e = new ExpressionBuilder(equation).variables(params.keySet()).build();
             for (Map.Entry<String, String[]> entry : params.entrySet()) {
@@ -32,7 +31,7 @@ public class EquationLoadBinder extends WorkflowFormBinder {
             row.put(element.getPropertyString(FormUtil.PROPERTY_ID), result);
             rowSet.add(row);
         } catch (Exception e) {
-            LogUtil.error(this.getClassName(), e, null);
+            LogUtil.error(this.getClassName(), e, e.getMessage());
         }
         return rowSet;
     }
