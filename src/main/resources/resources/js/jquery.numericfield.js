@@ -23,8 +23,7 @@
                                 numericCalc(target, o);
                             });
                         });
-                    }
-                    else {
+                    } else {
                         $(target).focusout(function() {
                             $(target).parent().find("input:hidden.primary_value").val($(target).val());
                             numericCalc(target, o);
@@ -34,6 +33,13 @@
                             $(target).val(value);
                         });
                     }
+
+                    if(o.currencyRefField != undefined) {
+                        $(target).change(function() {
+                            numericCalc(target, o);
+                        });
+                    }
+
                     // run on load 
                     $(document).ready(function() {
                         numericCalc(target, o);
