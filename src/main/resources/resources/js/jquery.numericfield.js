@@ -79,8 +79,9 @@
                 loadBinder.formatValue = formatValue;
             }
             if(o.currencyRefField) {
-                var element = FormUtil.getField(o.currencyRefField);
-                loadBinder.currencyValue = element.val();
+                var fieldId = o.currencyRefField;
+                var element = FormUtil.getField(fieldId);
+                loadBinder.requestParams[fieldId] = element.val();
             }
 
             var imageLoader = $(target).parent().find("img.loader");

@@ -99,7 +99,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                     currency = new AbstractMap.SimpleEntry<>(currencyRef, currencyValue);
                 }
             }
-            return reformatValue(this.getPropertyString(FormUtil.PROPERTY_ID), value, FormUtil.findRootForm(this), formData, formatter, currency);
+            return reformatValue(this.getPropertyString(FormUtil.PROPERTY_ID), value, FormUtil.findRootForm(this), formData, formatter);
         } catch (Exception e) {
             LogUtil.error(this.getClassName(), e, null);
             return value;
@@ -144,10 +144,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
     @Override
     public FormRowSet formatData(FormData formData) {
-//        boolean dotAsThousands = "euro".equalsIgnoreCase(getPropertyString("style"));
-        boolean storeValueUnormatted = "true".equalsIgnoreCase(getPropertyString("storeValueUnormatted"));
         FormRowSet rowSet = super.formatData(formData);
-
         // convert to default value
         String id = this.getPropertyString(FormUtil.PROPERTY_ID);
         // TODO "Add Validation for Calculation Field"
@@ -169,8 +166,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             String formDefId = body.getString("formDefId");
             String fieldId = body.getString("fieldId");
             String primaryKey = body.optString("primaryKey");
-            String currencyVal = body.optString("currencyValue");
-            Map.Entry<String, String> currencyField = null;
 
             // Application Definition
             String appId = request.getParameter("appId");
@@ -192,18 +187,12 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Field [" + fieldId + "] in form [" + formDefId + "] cannot be defined");
             }
 
+            String currencyField = element.getPropertyString("currencyRefField");
+
             Map<String, Object> calculationLoadBinder = (Map<String, Object>) element.getProperty("calculationLoadBinder");
-//            String value = "";
-
-            //add Reference for currency field
-            if(currencyVal != null && !currencyVal.isEmpty()) {
-                String currencyKey = element.getPropertyString("currencyRefField");
-                currencyField = new AbstractMap.SimpleEntry<>(currencyKey, currencyVal);
-            }
-
             JSONObject requestParameters = body.optJSONObject("requestParams");
-            Locale locale = getLocale(currencyVal);
-            FormData formData = generateFormData(primaryKey, requestParameters, locale);
+            Locale locale = getLocale(requestParameters.optString("currencyField"));
+            FormData formData = generateFormData(element, primaryKey, requestParameters, locale);
             BigDecimal value;
 
             FormLoadBinder loadBinderPlugins = Utilities.getPluginObject(calculationLoadBinder, pluginManager);
@@ -216,17 +205,14 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 value = determineNumber(body.optString("formatValue"), locale);
             }
 
-            String formatValue = value.toString();
-
+            ;
             Map<String, Object> formatterPlugin = (Map<String, Object>) element.getProperty("formatterPlugin");
-            //            DataListColumnFormatDefault formatter = getFormatterPlugin(request.getParameter("appId"), request.getParameter("appVersion"), element);;
             DataListColumnFormatDefault formatter = Utilities.getPluginObject(formatterPlugin, pluginManager);
-            if(formatter != null) {
-                formatValue = reformatValue(fieldId, value.toString(), form, formData, formatter, currencyField);
-            }
+            String formattedValue = formatter == null ? value.toString()
+                    : reformatValue(fieldId, value.toString(), form, formData, formatter);
 
             data.put("value", value.doubleValue());
-            data.put("mask_value", formatValue);
+            data.put("mask_value", formattedValue);
 
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(data.toString());
@@ -243,7 +229,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
      * @return numeric representation
      */
     private BigDecimal determineNumber(String input, Locale locale) {
-
         try {
             NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
             if (numberFormat == null) {
@@ -289,7 +274,8 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
      * @param locale
      * @return
      */
-    private FormData generateFormData(String primaryKey, JSONObject requestParameters, Locale locale) {
+    private FormData generateFormData(Element element, String primaryKey, JSONObject requestParameters, Locale locale) {
+        String currencyField = element.getPropertyString("currencyRefField");
         FormData formData = new FormData();
         formData.setPrimaryKeyValue(primaryKey);
         if(requestParameters != null) {
@@ -297,7 +283,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             while (i.hasNext()) {
                 String key = i.next();
                 String requestValue = requestParameters.optString(key);
-                formData.addRequestParameterValues(key, new String[]{ determineNumber(requestValue, locale).toString() });
+                formData.addRequestParameterValues(key, new String[]{ key.equals(currencyField) ? requestValue : determineNumber(requestValue, locale).toString() });
             }
         }
         return formData;
@@ -339,40 +325,36 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 //
 //    }
 
-    private DataListColumnFormatDefault generateFormatterPlugin(Map<String, Object> prop) {
-        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
-        if (prop == null)
-            return null;
+//    private DataListColumnFormatDefault generateFormatterPlugin(Map<String, Object> prop) {
+//        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
+//        if (prop == null)
+//            return null;
+//
+//        Map<String, Object> pluginProperties = (Map<String, Object>) prop.get("properties");
+//        String pluginClassName = prop.get("className").toString();
+//
+//        DataListColumnFormatDefault formatterPlugin = (DataListColumnFormatDefault) pluginManager.getPlugin(pluginClassName);
+//        if (formatterPlugin == null)
+//            return null;
+//
+//        formatterPlugin.setProperties(pluginProperties);
+//
+//        return formatterPlugin;
+//    }
 
-        Map<String, Object> pluginProperties = (Map<String, Object>) prop.get("properties");
-        String pluginClassName = prop.get("className").toString();
-
-        DataListColumnFormatDefault formatterPlugin = (DataListColumnFormatDefault) pluginManager.getPlugin(pluginClassName);
-        if (formatterPlugin == null)
-            return null;
-
-        formatterPlugin.setProperties(pluginProperties);
-
-        return formatterPlugin;
-    }
-
-    private String reformatValue(@Nonnull String fieldId, @Nonnull String value, Form form, @Nonnull FormData formData, DataListColumnFormatDefault formatterPlugin, Map.Entry<String,String> currency) {
+    private String reformatValue(@Nonnull String fieldId, @Nonnull String value, Form form, @Nonnull FormData formData, DataListColumnFormatDefault formatterPlugin) {
         FormDataDao formDataDao = (FormDataDao) AppUtil.getApplicationContext().getBean("formDataDao");
-        FormRow formRow = null;
-        if(formData.getPrimaryKeyValue() != null) {
-            formRow = formDataDao.load(form, formData.getPrimaryKeyValue());
-        }
+        String primaryKey = formData.getPrimaryKeyValue();
 
-        if(formRow == null) {
-            formRow = new FormRow();
-        }
-
-        if(currency!=null) {
-            formRow.put(currency.getKey(), currency.getValue());
-        }
-
-        Map<String, String> row = formRow.entrySet().stream()
+        // get initial row from database
+        Map<String, String> row = Optional.ofNullable(primaryKey)
+                .map(s -> formDataDao.load(form, s))
+                .orElse(new FormRow())
+                .entrySet().stream()
                 .collect(HashMap::new, (m, e) -> m.put(String.valueOf(e.getKey()), String.valueOf(e.getValue())), Map::putAll);
+
+        // replace some key with data passed from formData
+        formData.getRequestParams().forEach((key, value1) -> row.put(key, String.join(";", value1)));
 
         if(formatterPlugin == null)
             return value;
