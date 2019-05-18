@@ -4,22 +4,28 @@
         numericField : function(o){
             var target = this;
             if($(target)){
-                if(o.readonly == undefined || o.readonly != 'true'){
-                    if(!(o.variables == undefined || o.variables == null || o.variables.length == 0)){
+                var form = $(target).parents('form');
+                if(!o.readonly || o.readonly != 'true'){
+                    if(!(!o.variables || o.variables.length == 0)){
                         $.each(o.variables, function(index){
                             var variable = o.variables[index];
                             var fieldId = variable.fieldId;
-                            if(fieldId.indexOf(".") != -1){
-                                fieldId = fieldId.substring(0, fieldId.indexOf("."));
-                            }
-                            var field = $("[name='" + fieldId + "']");
-                            if ($(field).length == 0) {
-                                field = $("[name$='_" + fieldId + "']");
-                            }
-                            
-                            $(field).addClass("control-field");
-                            
-                            $(field).change(function(){
+//                            if(fieldId.indexOf(".") != -1){
+//                                fieldId = fieldId.substring(0, fieldId.indexOf("."));
+//                            }
+//                            var field = $("[name='" + fieldId + "']");
+//                            if ($(field).length == 0) {
+//                                field = $("[name$='_" + fieldId + "']");
+//                            }
+//
+//                            FormUtil.getField(fieldId);
+//                            $(field).addClass("control-field");
+//
+//                            $(field).focusout(function(){
+//                                numericCalc(target, o);
+//                            });
+
+                            FormUtil.getField(fieldId).focusout(function(){
                                 numericCalc(target, o);
                             });
                         });
@@ -34,8 +40,8 @@
                         });
                     }
 
-                    if(o.currencyRefField != undefined) {
-                        $(target).change(function() {
+                    if(o.currencyRefField) {
+                        FormUtil.getField(o.currencyRefField).change(function() {
                             numericCalc(target, o);
                         });
                     }
@@ -146,65 +152,65 @@
         }
     }
     
-    function getValue(fieldId, operation, format){
-        if(format.toUpperCase() == "EURO"){
-            $.Calculation.setDefaults({
-                reNumbers: /(-?\s?\$?\s?)(\d+(\.\d{3})*(,\d{1,})?|,\d{1,})/g,
-                cleanseNumber: function (v){
-                	v = v.replace(/\.+/g,'');
-	            	v = v.replace(/\,+/,'.');
-	            	v = v.replace(/\.00+/,'');
-                    return v.replace(/[^0-9,\-]/g, "").replace(/,/g, ".");
-                }
-            });
-        }else{
-            $.Calculation.setDefaults({
-                reNumbers: /(-?\s?\$?\s?)(\d+(,\d{3})*(\.\d{1,})?|\.\d{1,})/g,
-                cleanseNumber: function (v){
-                    return v.replace(/[^0-9.\-]/g, "");
-                }
-            });
-        }
-        
-        var value = 0;
-        
-        if (fieldId.indexOf(".") != -1) {
-            selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
-        } else {
-            selector = FormUtil.getField(fieldId);
-            
-            //fix for IE (Grid values should not added even its have same id)
-            selector = $(selector).filter(":not(.grid-cell)");
-        }
-        
-        //if radio or checkbox, count oni checked
-        var type = $(selector).attr('type');
-        if (type != undefined && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
-           selector = $(selector).filter(":checked");
-        }
-        if(operation.toUpperCase() == "AVG"){
-            value = $(selector).avg();
-        }else if(operation.toUpperCase() == "MIN"){
-            value = $(selector).min();
-        }else if(operation.toUpperCase() == "MAX"){
-            value = $(selector).max();
-        }else if(operation.toUpperCase() == "COUNT"){
-            value = $(selector).length;
-        }else{
-            value = $(selector).sum();
-        }
-        
-        if (!isFinite(value)) {
-            value = 0;
-        }
-        
-        return value;
-    }
+//    function getValue(fieldId, operation, format){
+//        if(format.toUpperCase() == "EURO"){
+//            $.Calculation.setDefaults({
+//                reNumbers: /(-?\s?\$?\s?)(\d+(\.\d{3})*(,\d{1,})?|,\d{1,})/g,
+//                cleanseNumber: function (v){
+//                	v = v.replace(/\.+/g,'');
+//	            	v = v.replace(/\,+/,'.');
+//	            	v = v.replace(/\.00+/,'');
+//                    return v.replace(/[^0-9,\-]/g, "").replace(/,/g, ".");
+//                }
+//            });
+//        }else{
+//            $.Calculation.setDefaults({
+//                reNumbers: /(-?\s?\$?\s?)(\d+(,\d{3})*(\.\d{1,})?|\.\d{1,})/g,
+//                cleanseNumber: function (v){
+//                    return v.replace(/[^0-9.\-]/g, "");
+//                }
+//            });
+//        }
+//
+//        var value = 0;
+//
+//        if (fieldId.indexOf(".") != -1) {
+//            selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
+//        } else {
+//            selector = FormUtil.getField(fieldId);
+//
+//            //fix for IE (Grid values should not added even its have same id)
+//            selector = $(selector).filter(":not(.grid-cell)");
+//        }
+//
+//        //if radio or checkbox, count oni checked
+//        var type = $(selector).attr('type');
+//        if (type && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
+//           selector = $(selector).filter(":checked");
+//        }
+//        if(operation.toUpperCase() == "AVG"){
+//            value = $(selector).avg();
+//        }else if(operation.toUpperCase() == "MIN"){
+//            value = $(selector).min();
+//        }else if(operation.toUpperCase() == "MAX"){
+//            value = $(selector).max();
+//        }else if(operation.toUpperCase() == "COUNT"){
+//            value = $(selector).length;
+//        }else{
+//            value = $(selector).sum();
+//        }
+//
+//        if (!isFinite(value)) {
+//            value = 0;
+//        }
+//
+//        return value;
+//    }
     
-    function replaceVariable(equation, variableName, value){
-        var match = new RegExp(variableName, "ig"); 
-        return equation.replace(match, value);
-    }
+//    function replaceVariable(equation, variableName, value){
+//        var match = new RegExp(variableName, "ig");
+//        return equation.replace(match, value);
+//    }
     
 //    function formatResult(result, o){
 //        var numOfDecimal = parseInt(o.numOfDecimal);

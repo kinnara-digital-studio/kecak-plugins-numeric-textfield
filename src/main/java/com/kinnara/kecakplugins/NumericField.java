@@ -1,6 +1,5 @@
 package com.kinnara.kecakplugins;
 
-import org.joget.apps.app.dao.AppDefinitionDao;
 import org.joget.apps.app.dao.FormDefinitionDao;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.model.FormDefinition;
@@ -27,8 +26,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class NumericField extends Element implements FormBuilderPaletteElement, PluginWebSupport {
     public String getName() {
@@ -85,7 +88,9 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     private String formatValue(String value, FormData formData) {
         try {
             AppDefinition appDef = AppUtil.getCurrentAppDefinition();
-            DataListColumnFormatDefault formatter = getFormatterPlugin(appDef.getAppId(), appDef.getVersion().toString(), this);
+            PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
+//            DataListColumnFormatDefault formatter = getFormatterPlugin(appDef.getAppId(), appDef.getVersion().toString(), this);
+            DataListColumnFormatDefault formatter = Utilities.getPluginObject((Map<String, Object>) getProperty("formatterPlugin"), pluginManager);
             String currencyRef = getPropertyString("currencyRefField");
             Map.Entry<String, String> currency = null;
             if(currencyRef!=null && !currencyRef.isEmpty()) {
@@ -154,8 +159,10 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
     @Override
     public void webService(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
         ApplicationContext appContext = AppUtil.getApplicationContext();
+        PluginManager pluginManager = (PluginManager) appContext.getBean("pluginManager");
+        AppService appService = (AppService) appContext.getBean("appService");
+
         try {
             JSONObject body = constructRequestBody(request);
             JSONObject data = new JSONObject();
@@ -165,84 +172,61 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             String currencyVal = body.optString("currencyValue");
             Map.Entry<String, String> currencyField = null;
 
-            // build form
-//            FormService formService = (FormService) appContext.getBean("formService");
-            AppService appService = (AppService) AppUtil.getApplicationContext().getBean("appService");
-            AppDefinition appDef = appService.getAppDefinition(request.getParameter("appId"), request.getParameter("appVersion"));
+            // Application Definition
+            String appId = request.getParameter("appId");
+            String appVersion = request.getParameter("appVersion");
+            AppDefinition appDef = appService.getAppDefinition(appId, appVersion);
+            if(appDef == null) {
+                throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Application" + appId + "] version [" + appVersion + "] cannot be defined");
+            }
 
+            // Form
             Form form = generateForm(formDefId, appDef);
+            if (form == null) {
+                throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Form [" + formDefId + "] cannot be defined");
+            }
+
+            // Numeric Field Element
             Element element = FormUtil.findElement(fieldId, form, new FormData());
-            Map<String, Object> loadBinderProps = (Map<String, Object>) element.getProperty("calculationLoadBinder");
-            String value = "";
+            if(element == null) {
+                throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Field [" + fieldId + "] in form [" + formDefId + "] cannot be defined");
+            }
+
+            Map<String, Object> calculationLoadBinder = (Map<String, Object>) element.getProperty("calculationLoadBinder");
+//            String value = "";
 
             //add Reference for currency field
-            if(currencyVal!=null && !currencyVal.isEmpty()) {
+            if(currencyVal != null && !currencyVal.isEmpty()) {
                 String currencyKey = element.getPropertyString("currencyRefField");
                 currencyField = new AbstractMap.SimpleEntry<>(currencyKey, currencyVal);
             }
 
-            if(loadBinderProps != null && loadBinderProps.containsKey(FormUtil.PROPERTY_CLASS_NAME) && !loadBinderProps.get(FormUtil.PROPERTY_CLASS_NAME).toString().isEmpty()) {
+            JSONObject requestParameters = body.optJSONObject("requestParams");
+            Locale locale = getLocale(currencyVal);
+            FormData formData = generateFormData(primaryKey, requestParameters, locale);
+            BigDecimal value;
 
-                JSONObject requestParameters = body.getJSONObject("requestParams");
-
-                PluginManager pluginManager = (PluginManager) appContext.getBean("pluginManager");
-                FormBinder loadBinder = (FormBinder) pluginManager.getPlugin((String) loadBinderProps.get(FormUtil.PROPERTY_CLASS_NAME));
-
-                if (form == null) {
-                    String message = "Form cannot be defined";
-                    LogUtil.warn(getClassName(), message);
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, message);
-                    return;
-                }
-
-                if (loadBinder == null) {
-                    String message = "Load Binder cannot be defined";
-                    LogUtil.warn(getClassName(), message);
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, message);
-                    return;
-                }
-
-
-                try {
-                    loadBinder.setProperties((Map<String, Object>) loadBinderProps.get("properties"));
-                    element.setLoadBinder((FormLoadElementBinder) loadBinder);
-                } catch (Exception e) {
-                    LogUtil.error(getClassName(), e, "Error configuring load binder");
-                }
-                FormData formData = new FormData();
-                formData.setPrimaryKeyValue(primaryKey);
-                Iterator i = requestParameters.keys();
-                while (i.hasNext()) {
-                    String key = i.next().toString();
-                    try {
-                        String requestValue = requestParameters.getString(key);
-                        formData.addRequestParameterValues(key, new String[]{requestValue==null || requestValue.isEmpty()? "0" : requestValue});
-                    } catch (JSONException e) {
-                        LogUtil.warn(getClassName(), "JSON Exception for key parameter [" + key + "]");
-                    }
-                }
-
-                value = loadFormData(element, formData);
-
+            FormLoadBinder loadBinderPlugins = Utilities.getPluginObject(calculationLoadBinder, pluginManager);
+            if(loadBinderPlugins != null) {
+                // value is calculated by calculation load binder
+                element.setLoadBinder(loadBinderPlugins);
+                value = executeCalculation(element, formData);
+            } else {
+                // value from user input
+                value = determineNumber(body.optString("formatValue"), locale);
             }
-            FormData formData = new FormData();
-            formData.setPrimaryKeyValue(primaryKey);
-            DataListColumnFormatDefault formatter = getFormatterPlugin(request.getParameter("appId"), request.getParameter("appVersion"), element);
-            String formatValue = "";
-            if(formatter!=null) {
-                if (!body.isNull("formatValue") && value.isEmpty()) {
-                    value = body.getString("formatValue");
-                    formatValue = reformatValue(fieldId, body.getString("formatValue"), form, formData, formatter, currencyField);
-                } else {
-                    formatValue = reformatValue(fieldId, value, form, formData, formatter, currencyField);
-                }
-            }
-            else
-                formatValue = value;
 
-            data.put("value", value);
+            String formatValue = value.toString();
+
+            Map<String, Object> formatterPlugin = (Map<String, Object>) element.getProperty("formatterPlugin");
+            //            DataListColumnFormatDefault formatter = getFormatterPlugin(request.getParameter("appId"), request.getParameter("appVersion"), element);;
+            DataListColumnFormatDefault formatter = Utilities.getPluginObject(formatterPlugin, pluginManager);
+            if(formatter != null) {
+                formatValue = reformatValue(fieldId, value.toString(), form, formData, formatter, currencyField);
+            }
+
+            data.put("value", value.doubleValue());
             data.put("mask_value", formatValue);
-
 
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(data.toString());
@@ -253,37 +237,107 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         }
     }
 
-    private DataListColumnFormatDefault getFormatterPlugin(String appId, String appVersionStr, Element element) throws RestApiException, JSONException {
+    /**
+     * Determine the numeric value of input string
+     * @param input input string
+     * @return numeric representation
+     */
+    private BigDecimal determineNumber(String input, Locale locale) {
 
+        try {
+            NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
+            if (numberFormat == null) {
+                LogUtil.warn(getClassName(), "Number format for locale [" + locale.getISO3Language() + "] it not found");
+                return new BigDecimal("0");
+            }
 
-        AppService appService = (AppService) AppUtil.getApplicationContext().getBean("appService");
+            try {
+                Number number = numberFormat.parse(input);
+                return new BigDecimal(number.doubleValue());
+            } catch (ParseException e) {
+                LogUtil.warn(getClassName(), e.getMessage());
+            }
 
-        if(appId == null || appId.isEmpty()) {
-            throw new RestApiException(HttpServletResponse.SC_FORBIDDEN, "Parameter [appId] not provided");
+            try {
+                String assumptionAsInternationalFormat = input.replaceAll(",", "").replaceAll("\\.", ".");
+                Number number = numberFormat.parse(assumptionAsInternationalFormat);
+                return new BigDecimal(number.doubleValue());
+            } catch (ParseException e) {
+                LogUtil.warn(getClassName(), e.getMessage());
+            }
+
+            try {
+                String assumptionAsDotAsThousands = input.replaceAll("\\.", "").replaceAll(",", ".");
+                Number number = numberFormat.parse(assumptionAsDotAsThousands);
+                return new BigDecimal(number.doubleValue());
+            } catch (ParseException e) {
+                LogUtil.warn(getClassName(), e.getMessage());
+            }
+
+            LogUtil.warn(getClassName(), "Cannot determine input ["+input+"] with locale [" + locale + "] as numbers");
+        } catch (NumberFormatException e) {
+            LogUtil.error(getClassName(), e, e.getMessage());
         }
 
-        Long appVersion = null;
-        try{
-            appVersion = Long.valueOf(appVersionStr);
-        } catch (NumberFormatException ignored) { }
-
-        AppDefinition appDefinition =  appService.getAppDefinition(appId, appVersionStr);
-        if(appDefinition == null) {
-            throw new RestApiException(HttpServletResponse.SC_NOT_FOUND, "App Definition for appId ["+appId+"] appVersion ["+appVersion+"] not found");
-        }
-
-        Map<String, Object> formatterBinderProps = (Map<String, Object>) element.getProperty("formatterPlugin");
-        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
-        DataListColumnFormatDefault formatter = (DataListColumnFormatDefault) pluginManager.getPlugin((String) formatterBinderProps.get(FormUtil.PROPERTY_CLASS_NAME));
-        if(formatter != null) {
-            formatter.setProperties((Map<String, Object>) formatterBinderProps.get("properties"));
-
-            return formatter;
-        }
-        else
-            return null;
-
+        return new BigDecimal("0");
     }
+
+    /**
+     * Generate FormData based on request
+     * @param primaryKey
+     * @param requestParameters
+     * @param locale
+     * @return
+     */
+    private FormData generateFormData(String primaryKey, JSONObject requestParameters, Locale locale) {
+        FormData formData = new FormData();
+        formData.setPrimaryKeyValue(primaryKey);
+        if(requestParameters != null) {
+            Iterator<String> i = requestParameters.keys();
+            while (i.hasNext()) {
+                String key = i.next();
+                String requestValue = requestParameters.optString(key);
+                formData.addRequestParameterValues(key, new String[]{ determineNumber(requestValue, locale).toString() });
+            }
+        }
+        return formData;
+    }
+
+    private Locale getLocale(String locale) {
+        String value = locale == null || locale.isEmpty() ? "en_US" : locale;
+        String[] split = value.split("_");
+        return new Locale(split[0].trim(), split.length > 1 ? split[1].trim() : "");
+    }
+
+//    private DataListColumnFormatDefault getFormatterPlugin(String appId, String appVersionStr, Element element) throws RestApiException, JSONException {
+//        AppService appService = (AppService) AppUtil.getApplicationContext().getBean("appService");
+//
+//        if(appId == null || appId.isEmpty()) {
+//            throw new RestApiException(HttpServletResponse.SC_FORBIDDEN, "Parameter [appId] not provided");
+//        }
+//
+//        Long appVersion = null;
+//        try{
+//            appVersion = Long.valueOf(appVersionStr);
+//        } catch (NumberFormatException ignored) { }
+//
+//        AppDefinition appDefinition =  appService.getAppDefinition(appId, appVersionStr);
+//        if(appDefinition == null) {
+//            throw new RestApiException(HttpServletResponse.SC_NOT_FOUND, "App Definition for appId ["+appId+"] appVersion ["+appVersion+"] not found");
+//        }
+//
+//        Map<String, Object> formatterBinderProps = (Map<String, Object>) element.getProperty("formatterPlugin");
+//        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
+//        DataListColumnFormatDefault formatter = (DataListColumnFormatDefault) pluginManager.getPlugin((String) formatterBinderProps.get(FormUtil.PROPERTY_CLASS_NAME));
+//        if(formatter != null) {
+//            formatter.setProperties((Map<String, Object>) formatterBinderProps.get("properties"));
+//
+//            return formatter;
+//        }
+//        else
+//            return null;
+//
+//    }
 
     private DataListColumnFormatDefault generateFormatterPlugin(Map<String, Object> prop) {
         PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
@@ -371,7 +425,13 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         }
     }
 
-    private String loadFormData(Element element, FormData formData) {
+    /**
+     * Execute calculation load binder
+     * @param element
+     * @param formData
+     * @return
+     */
+    private BigDecimal executeCalculation(Element element, FormData formData) {
         ApplicationContext appContext = AppUtil.getApplicationContext();
         FormService formService = (FormService) appContext.getBean("formService");
 
@@ -382,11 +442,11 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         }
 
         FormRowSet rowSet = formData.getLoadBinderData(element);
-        if(!rowSet.isEmpty()) {
-            return rowSet.get(0).get(element.getPropertyString(FormUtil.PROPERTY_ID)).toString();
-        }
-        else
-            return "";
+        return Optional.ofNullable(rowSet).map(Collection::stream).orElse(Stream.empty())
+                .findFirst()
+                .map(row -> row.getProperty(element.getPropertyString(FormUtil.PROPERTY_ID)))
+                .map(BigDecimal::new)
+                .orElse(new BigDecimal("0"));
     }
 }
 
