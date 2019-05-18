@@ -135,6 +135,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             jsonConfig.accumulate("variables", this.getProperty("variables"));
             jsonConfig.put("currencyRefField", getPropertyString("currencyRefField"));
             jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(FormUtil.findRootForm(this), formData));
+            jsonConfig.put("spellingTarget", getPropertyString("spellingTarget"));
             return jsonConfig.toString();
         }
         catch (Exception e) {

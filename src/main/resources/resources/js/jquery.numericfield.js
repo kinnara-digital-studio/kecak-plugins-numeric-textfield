@@ -136,12 +136,14 @@
 //        var formattedResult  = formatResult(result, o);
 
         $(target).val(result.mask_value);
+
         if ($(target).parent().find(".calculationField_value").length > 0) {
             $(target).parent().find(".calculationField_value").text(result.mask_value);
         }
         if ($(target).parent().find("input:hidden.primary_value").length > 0) {
             $(target).parent().find("input:hidden.primary_value").val(result.value);
         }
+
         $(target).trigger("change");
 
         var imageLoader = $(target).parent().find("img.loader");
@@ -150,6 +152,12 @@
         var submitButton = $(target).parents("form:first").find("input[type='submit']");
         if(submitButton) {
             $(submitButton).prop("disabled", false);
+        }
+
+        if(o.spellingTarget) {
+            var spellingElement = FormUtil.getField(o.spellingTarget);
+            spellingElement.val(terbilang(result.value).trim());
+            spellingElement.attr("readonly","true");
         }
     }
     

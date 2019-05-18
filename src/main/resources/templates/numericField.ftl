@@ -15,6 +15,7 @@
                     var amount = $(this).val();
 
                     <!-- ${element.properties.spellingTarget!} -->
+                    <!--
                     <#if (element.properties.spellingTarget! != '') >
 		            	amount = amount.replace(/\.+/g,'');
 		            	amount = amount.replace(/\,+/,'.');
@@ -27,6 +28,7 @@
 	                    }
 	                    $("#${element.properties.spellingTarget!}").attr("readonly","true");
                     </#if>
+                    -->
                 });
             });
         </script>
