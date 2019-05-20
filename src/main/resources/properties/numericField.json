@@ -95,26 +95,6 @@
         type : 'textfield'
       },
       {
-          name : 'alignment',
-          type : 'selectbox',
-          label : '@@form.numericfield.alignment@@',
-          value : 'left',
-          options : [
-            {
-              value : 'left',
-              label : '@@form.numericfield.left@@'
-            },
-            {
-              value : 'center',
-              label : '@@form.numericfield.center@@'
-            },
-            {
-              value : 'right',
-              label : '@@form.numericfield.right@@'
-            }
-          ]
-      },
-      {
           label : '@@form.numericfield.ui@@',
           type : 'header'
       },

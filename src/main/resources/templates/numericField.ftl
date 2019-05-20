@@ -53,8 +53,8 @@
             <span class="calculationField_value">${formattedValue!?html}</span>
             <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" type="hidden" value="${value!?html}" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontLoadAjax} />
         <#else>
-            <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_value" readonly style="text-align: ${element.properties.alignment};"/>
-            <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" value="${formattedValue!?html}" <#if element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly</#if> style="text-align: ${element.properties.alignment};" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontLoadAjax} />
+            <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_value" readonly style="text-align: right;"/>
+            <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" value="${formattedValue!?html}" <#if element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly</#if> style="text-align: right;" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontLoadAjax} />
         </#if>
         <img id="${elementParamName!}${element.properties.elementUniqueKey!}_loading" class="loader" src="${request.contextPath}/plugin/${className}/images/spin.gif" height="24" width="24" style="vertical-align: middle; display: none;">
     </#if>
