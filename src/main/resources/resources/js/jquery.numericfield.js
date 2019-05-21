@@ -25,17 +25,22 @@
 //                                numericCalc(target, o);
 //                            });
 
-                            FormUtil.getField(fieldId).focusout(function(){
+                            var operandField = FormUtil.getField(fieldId);
+                            operandField.focusout(function(){
                                 numericCalc(target, o);
                             });
+
                         });
                     } else {
+                        var elementPrimary = $(target).parent().find("input:hidden.primary_value");
                         $(target).focusout(function() {
-                            $(target).parent().find("input:hidden.primary_value").val($(target).val());
+                            elementPrimary.val($(target).val());
                             numericCalc(target, o);
+
+                            elementPrimary.focusout();
                         });
                         $(target).focusin(function() {
-                            var value = $(target).parent().find("input:hidden.primary_value").val();
+                            var value = elementPrimary.val();
                             $(target).val(value);
                         });
                     }

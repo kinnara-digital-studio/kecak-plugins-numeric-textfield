@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins;
+package com.kinnara.kecakplugins.numerictextfield;
 
 import org.joget.apps.app.dao.FormDefinitionDao;
 import org.joget.apps.app.model.AppDefinition;

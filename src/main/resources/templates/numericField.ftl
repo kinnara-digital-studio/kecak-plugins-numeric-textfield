@@ -39,7 +39,6 @@
     <#else>
         <#assign attrDontLoadAjax = '' >
     </#if>
-
     <#if element.properties.hidden! == 'true'>
         <#if includeMetaData!>
             <label class="label">${element.properties.id}</label>
@@ -52,7 +51,7 @@
         <#if element.properties.readonlyLabel! == 'true' || element.properties.readonly! == 'true'>
             <span class="calculationField_value">${formattedValue!?html}</span>
             <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" type="hidden" value="${value!?html}" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontLoadAjax} />
-        <#else>
+          <#else>
             <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_value" readonly style="text-align: right;"/>
             <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" value="${formattedValue!?html}" <#if element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly</#if> style="text-align: right;" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontLoadAjax} />
         </#if>

@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins;
+package com.kinnara.kecakplugins.numerictextfield;
 
 import org.joget.commons.util.LogUtil;
 import org.joget.plugin.base.PluginManager;

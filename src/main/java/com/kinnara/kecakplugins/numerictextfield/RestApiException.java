@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins;
+package com.kinnara.kecakplugins.numerictextfield;
 
 public class RestApiException extends Exception {
     private int httpErrorCode;

@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins;
+package com.kinnara.kecakplugins.numerictextfield;
 
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
