@@ -29,6 +29,9 @@
                             operandField.focusout(function(){
                                 numericCalc(target, o);
                             });
+                            $('select').on('change', function() {
+                                numericCalc(target, o);
+                            });
 
                         });
                     } else {
