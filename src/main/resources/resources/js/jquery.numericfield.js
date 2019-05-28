@@ -32,6 +32,17 @@
                             $('select[name="'+fieldId+'"]').on('change', function() {
                                 numericCalc(target, o);
                             });
+                            $("input[type='radio']").on('click', function () {
+                                var selectedValue = $('input[name='+fieldId+']:checked').val();
+                                if (selectedValue) {
+                                    numericCalc(target, o);
+                                }
+                            });
+
+//                            var radioVal = $('input[type="radio"]').val();
+//                            if(radioVal) {
+//                            numericCalc(target, o);
+//                            }
 
                         });
                     } else {
@@ -77,19 +88,22 @@
             $.each(o.variables, function(index){
                 var variable = o.variables[index];
                 var element = FormUtil.getField(variable.fieldId);
-                var value = element.val();
+
+                var value = FormUtil.getValue(variable.fieldId);
                 loadBinder.requestParams[variable.variableName] = value;
-                urlParams += "&";
-                urlParams += variable.variableName + "=" + value;
+//                urlParams += "&";
+//                urlParams += variable.variableName + "=" + value;
             });
             var formatValue = $(target).parent().find("input:hidden.primary_value").val();
             if(formatValue) {
                 loadBinder.formatValue = formatValue;
             }
+
+            // buat ambil currency
             if(o.currencyRefField) {
                 var fieldId = o.currencyRefField;
                 var element = FormUtil.getField(fieldId);
-                loadBinder.requestParams[fieldId] = element.val();
+                loadBinder.requestParams[fieldId] = FormUtil.getValue(fieldId);
             }
 
             var imageLoader = $(target).parent().find("img.loader");
