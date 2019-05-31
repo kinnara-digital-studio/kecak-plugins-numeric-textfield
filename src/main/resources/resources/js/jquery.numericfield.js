@@ -83,7 +83,8 @@
             $.each(o.variables, function(index){
                 var variable = o.variables[index];
                 var element = FormUtil.getField(variable.fieldId);
-                if($("input[type='checkbox']")){
+                var operation = variable.operation;
+                if($("input[type='checkbox']") && operation=="sum"){
                 	var values = FormUtil.getValues(variable.fieldId);
                 	var sum = 0;
                 	for (var i = 0; i < values.length; i++) {
