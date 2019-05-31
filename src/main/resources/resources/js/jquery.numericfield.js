@@ -32,17 +32,12 @@
                             $('select[name="'+fieldId+'"]').on('change', function() {
                                 numericCalc(target, o);
                             });
-                            $("input[type='radio']").on('click', function () {
-                                var selectedValue = $('input[name='+fieldId+']:checked').val();
-                                if (selectedValue) {
-                                    numericCalc(target, o);
-                                }
+                            $("input[type='radio']").on('change', function () {
+                                numericCalc(target, o);
                             });
-
-//                            var radioVal = $('input[type="radio"]').val();
-//                            if(radioVal) {
-//                            numericCalc(target, o);
-//                            }
+                            $("input[type='checkbox']").on('change', function () {
+                                numericCalc(target, o);
+                            });
 
                         });
                     } else {
@@ -88,8 +83,17 @@
             $.each(o.variables, function(index){
                 var variable = o.variables[index];
                 var element = FormUtil.getField(variable.fieldId);
-
-                var value = FormUtil.getValue(variable.fieldId);
+                if($("input[type='checkbox']")){
+                	var values = FormUtil.getValues(variable.fieldId);
+                	var sum = 0;
+                	for (var i = 0; i < values.length; i++) {
+                        sum += parseInt(values[i]);
+                        var value = sum;
+                    }
+                }
+                else{
+                    var value = FormUtil.getValue(variable.fieldId);
+                }
                 loadBinder.requestParams[variable.variableName] = value;
 //                urlParams += "&";
 //                urlParams += variable.variableName + "=" + value;
