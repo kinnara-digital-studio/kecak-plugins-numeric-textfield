@@ -112,8 +112,7 @@
                     var value = val.toFixed();
                 }
                 else if($("input[type='checkbox']") && operation=="count"){
-                    var count = valIndex;
-                    var value = count;
+                    var value = valIndex;
                 }
                 else{
                     var value = FormUtil.getValue(variable.fieldId);
