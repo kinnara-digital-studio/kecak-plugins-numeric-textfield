@@ -84,18 +84,32 @@
                 var variable = o.variables[index];
                 var element = FormUtil.getField(variable.fieldId);
                 var operation = variable.operation;
+                var values = FormUtil.getValues(variable.fieldId);
+                var valIndex = values.length;
+
+                // Checkbox Operation Calculation
                 if($("input[type='checkbox']") && operation=="sum"){
-                	var values = FormUtil.getValues(variable.fieldId);
                 	var sum = 0;
-                	for (var i = 0; i < values.length; i++) {
+                	for (var i = 0; i < valIndex; i++) {
                         sum += parseInt(values[i]);
                         var value = sum;
                     }
                 }
                 else if($("input[type='checkbox']") && operation=="min"){
-                    var values = FormUtil.getValues(variable.fieldId);
                     var min = Math.min(...values)
                     var value = min;
+                }
+                else if($("input[type='checkbox']") && operation=="max"){
+                    var max = Math.max(...values)
+                    var value = max;
+                }
+                else if($("input[type='checkbox']") && operation=="avg"){
+                    var sum = 0;
+                    for (var i = 0; i < valIndex; i++) {
+                        sum += parseInt(values[i]);
+                    }
+                    var val = sum/valIndex;
+                    var value = val.toFixed();
                 }
                 else{
                     var value = FormUtil.getValue(variable.fieldId);
