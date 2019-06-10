@@ -92,6 +92,11 @@
                         var value = sum;
                     }
                 }
+                else if($("input[type='checkbox']") && operation=="min"){
+                    var values = FormUtil.getValues(variable.fieldId);
+                    var min = Math.min(...values)
+                    var value = min;
+                }
                 else{
                     var value = FormUtil.getValue(variable.fieldId);
                 }
