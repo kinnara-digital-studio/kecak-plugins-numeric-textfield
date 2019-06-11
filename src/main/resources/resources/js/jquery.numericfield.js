@@ -29,6 +29,7 @@
                             operandField.focusout(function(){
                                 numericCalc(target, o);
                             });
+
                             $('select[name="'+fieldId+'"]').on('change', function() {
                                 numericCalc(target, o);
                             });
@@ -86,22 +87,24 @@
                 var operation = variable.operation;
                 var values = FormUtil.getValues(variable.fieldId);
                 var valIndex = values.length;
-
+                if (values === undefined || valIndex == 0) {
+                    value += 0;
+                }
                 // Checkbox Operation Calculation
                 if($("input[type='checkbox']") && operation=="sum"){
                 	var sum = 0;
                 	for (var i = 0; i < valIndex; i++) {
                         sum += parseInt(values[i]);
-                        var value = sum;
+                        value = sum;
                     }
                 }
                 else if($("input[type='checkbox']") && operation=="min"){
                     var min = Math.min(...values)
-                    var value = min;
+                    value = min;
                 }
                 else if($("input[type='checkbox']") && operation=="max"){
                     var max = Math.max(...values)
-                    var value = max;
+                    value = max;
                 }
                 else if($("input[type='checkbox']") && operation=="avg"){
                     var sum = 0;
@@ -109,10 +112,10 @@
                         sum += parseInt(values[i]);
                     }
                     var val = sum/valIndex;
-                    var value = val.toFixed();
+                    value = val.toFixed();
                 }
                 else if($("input[type='checkbox']") && operation=="count"){
-                    var value = valIndex;
+                    value = valIndex;
                 }
                 else{
                     var value = FormUtil.getValue(variable.fieldId);
