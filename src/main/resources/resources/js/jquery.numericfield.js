@@ -30,7 +30,7 @@
                                 numericCalc(target, o);
                             });
 
-                            $('select[name="'+fieldId+'"]').on('change', function() {
+                            $('select[name="'+fieldId+'"]').blur(function() {
                                 numericCalc(target, o);
                             });
                             $("input[type='radio']").on('change', function () {
