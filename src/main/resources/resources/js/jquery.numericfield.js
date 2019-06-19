@@ -10,20 +10,24 @@
                         $.each(o.variables, function(index){
                             var variable = o.variables[index];
                             var fieldId = variable.fieldId;
-//                            if(fieldId.indexOf(".") != -1){
-//                                fieldId = fieldId.substring(0, fieldId.indexOf("."));
-//                            }
-//                            var field = $("[name='" + fieldId + "']");
-//                            if ($(field).length == 0) {
-//                                field = $("[name$='_" + fieldId + "']");
-//                            }
-//
-//                            FormUtil.getField(fieldId);
-//                            $(field).addClass("control-field");
-//
-//                            $(field).focusout(function(){
-//                                numericCalc(target, o);
-//                            });
+                            if(fieldId.indexOf(".") != -1){
+                                fieldId = fieldId.substring(0, fieldId.indexOf("."));
+                            }
+                            var field = $("[name='" + fieldId + "']");
+                            if ($(field).length == 0) {
+                                field = $("[name$='_" + fieldId + "']");
+                            }
+
+                            FormUtil.getField(fieldId);
+                            $(field).addClass("control-field");
+
+                            $(field).focusout(function(){
+                                numericCalc(target, o);
+                            });
+
+                            $(field).change(function(){
+                                numericCalc(target,o);
+                            });
 
                             var operandField = FormUtil.getField(fieldId);
                             operandField.focusout(function(){
@@ -83,7 +87,22 @@
             var urlParams = "?appId=" + o.appId + "&appVersion=" + o.appVersion;
             $.each(o.variables, function(index){
                 var variable = o.variables[index];
-                var element = FormUtil.getField(variable.fieldId);
+                var fieldId = "";
+                    if(fieldId.indexOf(".") != -1){
+                        fieldId = fieldId.substring(0, fieldId.indexOf("."));
+                    }
+                    else{
+                    var fieldId = variable.fieldId;
+                    }
+
+                if (fieldId.indexOf(".") != -1) {
+                    var element = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
+                } else {
+                    element = FormUtil.getField(fieldId);
+
+                    //fix for IE (Grid values should not added even its have same id)
+                    element = $(element).filter(":not(.grid-cell)");
+                }
                 var operation = variable.operation;
                 var values = FormUtil.getValues(variable.fieldId);
                 var valIndex = values.length;
