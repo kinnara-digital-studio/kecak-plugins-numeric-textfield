@@ -13,7 +13,6 @@ import org.joget.apps.form.dao.FormDataDao;
 import org.joget.apps.form.model.*;
 import org.joget.apps.form.service.FormService;
 import org.joget.apps.form.service.FormUtil;
-import org.joget.commons.util.LogUtil;
 import org.joget.plugin.base.PluginManager;
 import org.joget.plugin.base.PluginWebSupport;
 import org.joget.workflow.util.WorkflowUtil;
@@ -101,7 +100,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             }
             return reformatValue(this.getPropertyString(FormUtil.PROPERTY_ID), value, FormUtil.findRootForm(this), formData, formatter);
         } catch (Exception e) {
-            LogUtil.error(this.getClassName(), e, null);
             return value;
         }
     }
@@ -119,7 +117,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
             return requestBody;
         } catch (Exception e) {
-            LogUtil.error(getClassName(), e, "Error generating form json");
         }
         return null;
     }
@@ -219,7 +216,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             response.getWriter().write(data.toString());
 
         } catch (Exception e) {
-            LogUtil.error(getClassName(), e, e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
@@ -233,7 +229,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         try {
             NumberFormat numberFormat = NumberFormat.getNumberInstance(locale);
             if (numberFormat == null) {
-                LogUtil.warn(getClassName(), "Number format for locale [" + locale.getISO3Language() + "] it not found");
                 return new BigDecimal("0");
             }
 
@@ -241,7 +236,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 Number number = numberFormat.parse(input);
                 return new BigDecimal(number.doubleValue());
             } catch (ParseException e) {
-                LogUtil.warn(getClassName(), e.getMessage());
             }
 
             try {
@@ -249,7 +243,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 Number number = numberFormat.parse(assumptionAsInternationalFormat);
                 return new BigDecimal(number.doubleValue());
             } catch (ParseException e) {
-                LogUtil.warn(getClassName(), e.getMessage());
             }
 
             try {
@@ -257,12 +250,9 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 Number number = numberFormat.parse(assumptionAsDotAsThousands);
                 return new BigDecimal(number.doubleValue());
             } catch (ParseException e) {
-                LogUtil.warn(getClassName(), e.getMessage());
             }
 
-            LogUtil.warn(getClassName(), "Cannot determine input ["+input+"] with locale [" + locale + "] as numbers");
         } catch (NumberFormatException e) {
-            LogUtil.error(getClassName(), e, e.getMessage());
         }
 
         return new BigDecimal("0");
@@ -421,7 +411,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         try {
             formData = formService.executeFormLoadBinders(element, formData);
         } catch (Exception e) {
-            LogUtil.error(getClassName(), e, e.getMessage());
         }
 
         FormRowSet rowSet = formData.getLoadBinderData(element);

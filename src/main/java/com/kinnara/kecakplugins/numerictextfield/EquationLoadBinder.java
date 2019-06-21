@@ -2,7 +2,6 @@ package com.kinnara.kecakplugins.numerictextfield;
 
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
-import org.joget.apps.app.service.AppPluginUtil;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.lib.WorkflowFormBinder;
 import org.joget.apps.form.model.Element;
@@ -10,7 +9,6 @@ import org.joget.apps.form.model.FormData;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.apps.form.service.FormUtil;
-import org.joget.commons.util.LogUtil;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -29,7 +27,6 @@ public class EquationLoadBinder extends WorkflowFormBinder {
                     e.setVariable(entry.getKey(), (value == null || value.isEmpty()) ? (0) : (Double.valueOf(value)));
                 } catch (NumberFormatException ex) {
                     e.setVariable(entry.getKey(), 0);
-                    LogUtil.error(getClassName(), ex, ex.getMessage());
                 }
             }
 
@@ -38,7 +35,6 @@ public class EquationLoadBinder extends WorkflowFormBinder {
             row.put(element.getPropertyString(FormUtil.PROPERTY_ID), result.toString());
             rowSet.add(row);
         } catch (Exception e) {
-            LogUtil.error(this.getClassName(), e, e.getMessage());
         }
         return rowSet;
     }
