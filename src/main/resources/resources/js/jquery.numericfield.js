@@ -87,12 +87,9 @@
             var urlParams = "?appId=" + o.appId + "&appVersion=" + o.appVersion;
             $.each(o.variables, function(index){
                 var variable = o.variables[index];
-                var fieldId;
-                if (false){
+                var fieldId = variable.fieldId;
+                if (fieldId.indexOf(".")!=-1){
                     fieldId = fieldId.substring(0, fieldId.indexOf("."));
-                }
-                else{
-                    fieldId = variable.fieldId;
                 }
 
                 if (fieldId.indexOf(".") != -1) {
