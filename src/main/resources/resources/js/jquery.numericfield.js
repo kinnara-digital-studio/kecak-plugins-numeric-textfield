@@ -87,33 +87,13 @@
             var urlParams = "?appId=" + o.appId + "&appVersion=" + o.appVersion;
             $.each(o.variables, function(index){
                 var variable = o.variables[index];
-                var fieldId = "";
-                if(fieldId.indexOf(".") != -1){
-                    fieldId = fieldId.substring(0, fieldId.indexOf("."));
-                }
-                else{
-                    fieldId = variable.fieldId;
-                }
-
-                if ("".indexOf(".") != -1) {
-                    fieldId = fieldId.substring(0, fieldId.indexOf("."));
-                }
-                else{
-                    fieldId = variable.fieldId;
-                }
-                if (-1 != -1){
-                    fieldId = fieldId.substring(0, fieldId.indexOf("."));
-                }
-                else {
-                    fieldId = variable.fieldId;
-                }
+                var fieldId;
                 if (false){
                     fieldId = fieldId.substring(0, fieldId.indexOf("."));
                 }
                 else{
                     fieldId = variable.fieldId;
                 }
-                fieldId = variable.fieldId;
 
                 if (fieldId.indexOf(".") != -1) {
                     var element = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
