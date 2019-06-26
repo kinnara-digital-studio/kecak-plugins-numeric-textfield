@@ -13,6 +13,7 @@ import org.joget.apps.form.dao.FormDataDao;
 import org.joget.apps.form.model.*;
 import org.joget.apps.form.service.FormService;
 import org.joget.apps.form.service.FormUtil;
+import org.joget.commons.util.LogUtil;
 import org.joget.plugin.base.PluginManager;
 import org.joget.plugin.base.PluginWebSupport;
 import org.joget.workflow.util.WorkflowUtil;
@@ -189,8 +190,9 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
             Map<String, Object> calculationLoadBinder = (Map<String, Object>) element.getProperty("calculationLoadBinder");
             JSONObject requestParameters = body.optJSONObject("requestParams");
-            Locale locale = getLocale(requestParameters.optString("currencyField"));
+            Locale locale = getLocale(requestParameters.optString(currencyField));
             FormData formData = generateFormData(element, primaryKey, requestParameters, locale);
+
             BigDecimal value;
 
             FormLoadBinder loadBinderPlugins = Utilities.getPluginObject(calculationLoadBinder, pluginManager);
@@ -274,7 +276,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             while (i.hasNext()) {
                 String key = i.next();
                 String requestValue = requestParameters.optString(key);
-                formData.addRequestParameterValues(key, new String[]{ key.equals(currencyField) ? requestValue : determineNumber(requestValue, locale).toString() });
+                formData.addRequestParameterValues(key, new String[]{ key.equals(currencyField) ? requestValue : requestValue });
             }
         }
         return formData;
@@ -285,53 +287,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         String[] split = value.split("_");
         return new Locale(split[0].trim(), split.length > 1 ? split[1].trim() : "");
     }
-
-//    private DataListColumnFormatDefault getFormatterPlugin(String appId, String appVersionStr, Element element) throws RestApiException, JSONException {
-//        AppService appService = (AppService) AppUtil.getApplicationContext().getBean("appService");
-//
-//        if(appId == null || appId.isEmpty()) {
-//            throw new RestApiException(HttpServletResponse.SC_FORBIDDEN, "Parameter [appId] not provided");
-//        }
-//
-//        Long appVersion = null;
-//        try{
-//            appVersion = Long.valueOf(appVersionStr);
-//        } catch (NumberFormatException ignored) { }
-//
-//        AppDefinition appDefinition =  appService.getAppDefinition(appId, appVersionStr);
-//        if(appDefinition == null) {
-//            throw new RestApiException(HttpServletResponse.SC_NOT_FOUND, "App Definition for appId ["+appId+"] appVersion ["+appVersion+"] not found");
-//        }
-//
-//        Map<String, Object> formatterBinderProps = (Map<String, Object>) element.getProperty("formatterPlugin");
-//        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
-//        DataListColumnFormatDefault formatter = (DataListColumnFormatDefault) pluginManager.getPlugin((String) formatterBinderProps.get(FormUtil.PROPERTY_CLASS_NAME));
-//        if(formatter != null) {
-//            formatter.setProperties((Map<String, Object>) formatterBinderProps.get("properties"));
-//
-//            return formatter;
-//        }
-//        else
-//            return null;
-//
-//    }
-
-//    private DataListColumnFormatDefault generateFormatterPlugin(Map<String, Object> prop) {
-//        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
-//        if (prop == null)
-//            return null;
-//
-//        Map<String, Object> pluginProperties = (Map<String, Object>) prop.get("properties");
-//        String pluginClassName = prop.get("className").toString();
-//
-//        DataListColumnFormatDefault formatterPlugin = (DataListColumnFormatDefault) pluginManager.getPlugin(pluginClassName);
-//        if (formatterPlugin == null)
-//            return null;
-//
-//        formatterPlugin.setProperties(pluginProperties);
-//
-//        return formatterPlugin;
-//    }
 
     private String reformatValue(@Nonnull String fieldId, @Nonnull String value, Form form, @Nonnull FormData formData, DataListColumnFormatDefault formatterPlugin) {
         FormDataDao formDataDao = (FormDataDao) AppUtil.getApplicationContext().getBean("formDataDao");
