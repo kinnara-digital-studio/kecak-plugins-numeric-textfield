@@ -51,6 +51,10 @@
               {
                   value : 'count',
                   label : '@@form.numericfield.multivalueOperation.count@@'
+              },
+              {
+                value : 'text',
+                label : '@@form.numericfield.multivalueOperation.text@@'
               }]
           }]
       },

@@ -2,6 +2,7 @@
     <#if includeMetaData!>
         <span class="form-floating-label">NUMERIC FIELD</span>
     <#elseif element.properties.readonly! != 'true'>
+        <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/jquery.calculation.min.js"></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/jquery.numericfield.js"></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/terbilang-spelling.js"/></script>
         <script type="text/javascript">

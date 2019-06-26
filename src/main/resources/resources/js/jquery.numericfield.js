@@ -89,54 +89,44 @@
                 var variable = o.variables[index];
                 var fieldId = variable.fieldId;
                 var element;
-                if (fieldId.indexOf(".")!=-1){
-                    fieldId = fieldId.substring(0, fieldId.indexOf("."));
-                    element = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
-                }
-                else {
-                    element = FormUtil.getField(fieldId);
+
+                var value = 0;
+
+                if (fieldId.indexOf(".") != -1) {
+                    selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
+                } else {
+                    selector = FormUtil.getField(fieldId);
+
                     //fix for IE (Grid values should not added even its have same id)
-                    element = $(element).filter(":not(.grid-cell)");
+                    selector = $(selector).filter(":not(.grid-cell)");
+                }
+
+                //if radio or checkbox, count oni checked
+                var type = $(selector).attr('type');
+                if (type != undefined && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
+                   selector = $(selector).filter(":checked");
                 }
                 var operation = variable.operation;
-                var values = FormUtil.getValues(variable.fieldId);
-                var valIndex = values.length;
-                if (values === undefined || valIndex == 0) {
-                    value += 0;
+                if(operation == "avg"){
+                    value = $(selector).avg();
+                }else if(operation== "min"){
+                    value = $(selector).min();
+                }else if(operation == "max"){
+                    value = $(selector).max();
+                }else if(operation == "count"){
+                    value = $(selector).length;
+                }else if(operation == "sum"){
+                    value = $(selector).sum();
+                } else {
+                    value = "";
+                    $(selector).each((i, e) => value += e.value);
                 }
-                // Checkbox Operation Calculation
-                if($("input[name='"+fieldId+"'][type='checkbox']") && operation=="sum"){
-                	var sum = 0;
-                	for (var i = 0; i < valIndex; i++) {
-                        sum += parseInt(values[i]);
-                        value = sum;
-                    }
+
+                if ($.isNumeric(value) && !isFinite(value)) {
+                    value = 0;
                 }
-                else if($("input[name='"+fieldId+"'][type='checkbox']") && operation=="min"){
-                    var min = Math.min(...values)
-                    value = min;
-                }
-                else if($("input[name='"+fieldId+"'][type='checkbox']") && operation=="max"){
-                    var max = Math.max(...values)
-                    value = max;
-                }
-                else if($("input[name='"+fieldId+"'][type='checkbox']") && operation=="avg"){
-                    var sum = 0;
-                    for (var i = 0; i < valIndex; i++) {
-                        sum += parseInt(values[i]);
-                    }
-                    var val = sum/valIndex;
-                    value = val.toFixed();
-                }
-                else if($("input[name='"+fieldId+"'][type='checkbox']") && operation=="count"){
-                    value = valIndex;
-                }
-                else{
-                    var value = FormUtil.getValue(variable.fieldId);
-                }
+
                 loadBinder.requestParams[variable.variableName] = value;
-//                urlParams += "&";
-//                urlParams += variable.variableName + "=" + value;
             });
             var formatValue = $(target).parent().find("input:hidden.primary_value").val();
             if(formatValue) {
