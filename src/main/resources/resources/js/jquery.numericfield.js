@@ -88,15 +88,13 @@
             $.each(o.variables, function(index){
                 var variable = o.variables[index];
                 var fieldId = variable.fieldId;
+                var element;
                 if (fieldId.indexOf(".")!=-1){
                     fieldId = fieldId.substring(0, fieldId.indexOf("."));
+                    element = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
                 }
-
-                if (fieldId.indexOf(".") != -1) {
-                    var element = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
-                } else {
+                else {
                     element = FormUtil.getField(fieldId);
-
                     //fix for IE (Grid values should not added even its have same id)
                     element = $(element).filter(":not(.grid-cell)");
                 }
