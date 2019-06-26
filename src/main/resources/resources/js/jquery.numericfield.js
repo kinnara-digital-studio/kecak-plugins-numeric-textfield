@@ -88,12 +88,32 @@
             $.each(o.variables, function(index){
                 var variable = o.variables[index];
                 var fieldId = "";
-                    if(fieldId.indexOf(".") != -1){
-                        fieldId = fieldId.substring(0, fieldId.indexOf("."));
-                    }
-                    else{
-                    var fieldId = variable.fieldId;
-                    }
+                if(fieldId.indexOf(".") != -1){
+                    fieldId = fieldId.substring(0, fieldId.indexOf("."));
+                }
+                else{
+                    fieldId = variable.fieldId;
+                }
+
+                if ("".indexOf(".") != -1) {
+                    fieldId = fieldId.substring(0, fieldId.indexOf("."));
+                }
+                else{
+                    fieldId = variable.fieldId;
+                }
+                if (-1 != -1){
+                    fieldId = fieldId.substring(0, fieldId.indexOf("."));
+                }
+                else {
+                    fieldId = variable.fieldId;
+                }
+                if (false){
+                    fieldId = fieldId.substring(0, fieldId.indexOf("."));
+                }
+                else{
+                    fieldId = variable.fieldId;
+                }
+                fieldId = variable.fieldId;
 
                 if (fieldId.indexOf(".") != -1) {
                     var element = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
@@ -110,22 +130,22 @@
                     value += 0;
                 }
                 // Checkbox Operation Calculation
-                if($("input[type='checkbox']") && operation=="sum"){
+                if($("input[name='"+fieldId+"'][type='checkbox']") && operation=="sum"){
                 	var sum = 0;
                 	for (var i = 0; i < valIndex; i++) {
                         sum += parseInt(values[i]);
                         value = sum;
                     }
                 }
-                else if($("input[type='checkbox']") && operation=="min"){
+                else if($("input[name='"+fieldId+"'][type='checkbox']") && operation=="min"){
                     var min = Math.min(...values)
                     value = min;
                 }
-                else if($("input[type='checkbox']") && operation=="max"){
+                else if($("input[name='"+fieldId+"'][type='checkbox']") && operation=="max"){
                     var max = Math.max(...values)
                     value = max;
                 }
-                else if($("input[type='checkbox']") && operation=="avg"){
+                else if($("input[name='"+fieldId+"'][type='checkbox']") && operation=="avg"){
                     var sum = 0;
                     for (var i = 0; i < valIndex; i++) {
                         sum += parseInt(values[i]);
@@ -133,7 +153,7 @@
                     var val = sum/valIndex;
                     value = val.toFixed();
                 }
-                else if($("input[type='checkbox']") && operation=="count"){
+                else if($("input[name='"+fieldId+"'][type='checkbox']") && operation=="count"){
                     value = valIndex;
                 }
                 else{
