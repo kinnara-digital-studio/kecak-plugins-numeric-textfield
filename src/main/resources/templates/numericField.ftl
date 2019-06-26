@@ -1,7 +1,10 @@
 <div class="form-cell" ${elementMetaData!}>
     <#if includeMetaData!>
+        <label class="label">${element.properties.label}</label>
         <span class="form-floating-label">NUMERIC FIELD</span>
-    <#elseif element.properties.readonly! != 'true'>
+        <input id="${elementParamName!}" name="${elementParamName!}" type="text" value="${value!?html}" readonly />
+
+    <#else>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/jquery.calculation.min.js"></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/jquery.numericfield.js"></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/terbilang-spelling.js"/></script>
@@ -33,29 +36,31 @@
                 });
             });
         </script>
-    </#if>
 
-    <#if element.properties.readonly! == 'true'>
-        <#assign attrDontLoadAjax = 'data-dontloadajax' >
-    <#else>
-        <#assign attrDontLoadAjax = '' >
-    </#if>
-    <#if element.properties.hidden! == 'true'>
-        <#if includeMetaData!>
-            <label class="label">${element.properties.id}</label>
-            <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" value="${value!?html}" readonly style="text-align: right;" ${attrDontLoadAjax} />
+
+        <#if element.properties.readonly! == 'true'>
+            <#assign attrDontTrigger = 'data-donttrigger' >
         <#else>
-            <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontLoadAjax} />
+            <#assign attrDontTrigger = '' >
         </#if>
-    <#else>
-        <label class="label">${element.properties.label} <span class="form-cell-validator">${decoration}</span><#if error??> <span class="form-error-message">${error}</span></#if></label>
-        <#if element.properties.readonlyLabel! == 'true' || element.properties.readonly! == 'true'>
-            <span class="calculationField_value">${formattedValue!?html}</span>
-            <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" type="hidden" value="${value!?html}" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontLoadAjax} />
-          <#else>
-            <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_value" readonly style="text-align: right;"/>
-            <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" value="${formattedValue!?html}" <#if element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly</#if> style="text-align: right;" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontLoadAjax} />
+
+        <#if element.properties.hidden! == 'true'>
+            <#if includeMetaData!>
+                <label class="label">${element.properties.id}</label>
+                <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" value="${value!?html}" readonly style="text-align: right;" ${attrDontTrigger} />
+            <#else>
+                <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontTrigger} />
+            </#if>
+        <#else>
+            <label class="label">${element.properties.label} <span class="form-cell-validator">${decoration}</span><#if error??> <span class="form-error-message">${error}</span></#if></label>
+            <#if element.properties.readonlyLabel! == 'true' && element.properties.readonly! == 'true'>
+                <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontTrigger} />
+                <span class="calculationField_value">${formattedValue!?html}</span>
+            <#else>
+                <input id="${elementParamName!}${element.properties.elementUniqueKey!}"      name="${elementParamName!}"        type="hidden" value="${value!?html}" class="primary_value"/>
+                <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask"                 value="${formattedValue!?html}" <#if element.properties.readonly! == 'true' || element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly</#if> style="text-align: right;" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontTrigger} />
+            </#if>
+            <img id="${elementParamName!}${element.properties.elementUniqueKey!}_loading" class="loader" src="${request.contextPath}/plugin/${className}/images/spin.gif" height="16" width="16" style="vertical-align: middle; display: none;">
         </#if>
-        <img id="${elementParamName!}${element.properties.elementUniqueKey!}_loading" class="loader" src="${request.contextPath}/plugin/${className}/images/spin.gif" height="24" width="24" style="vertical-align: middle; display: none;">
     </#if>
 </div>

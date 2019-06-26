@@ -13,24 +13,24 @@
                             if(fieldId.indexOf(".") != -1){
                                 fieldId = fieldId.substring(0, fieldId.indexOf("."));
                             }
-                            var field = $("[name='" + fieldId + "']");
-                            if ($(field).length == 0) {
-                                field = $("[name$='_" + fieldId + "']");
+
+                            var field;
+                            if (fieldId.indexOf(".") != -1) {
+                                field = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
+                            } else {
+                                field = FormUtil.getField(fieldId);
+
+                                //fix for IE (Grid values should not added even its have same id)
+                                field = $(field).filter(":not(.grid-cell)");
                             }
 
-                            FormUtil.getField(fieldId);
                             $(field).addClass("control-field");
-
-                            $(field).focusout(function(){
-                                numericCalc(target, o);
-                            });
 
                             $(field).change(function(){
                                 numericCalc(target,o);
                             });
 
-                            var operandField = FormUtil.getField(fieldId);
-                            operandField.focusout(function(){
+                            $(field).focusout(function(){
                                 numericCalc(target, o);
                             });
 
@@ -53,6 +53,7 @@
 
                             elementPrimary.focusout();
                         });
+
                         $(target).focusin(function() {
                             var value = elementPrimary.val();
                             $(target).val(value);
@@ -80,7 +81,7 @@
     });
     
     function numericCalc(target, o){
-//        if(o.loadBinder && o.loadBinder.calculationLoadBinder && $(target).attr('data-dontloadajax') == undefined) {
+//        if(!($(target).attr('data-donttrigger'))) {
             var loadBinder = o.loadBinder;
             loadBinder.requestParams = {};
             loadBinder.fieldId = o.fieldId;
@@ -92,7 +93,7 @@
 
                 var value = 0;
 
-                if (fieldId.indexOf(".") != -1) {
+                if(fieldId.indexOf(".") != -1) {
                     selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
                 } else {
                     selector = FormUtil.getField(fieldId);
@@ -107,15 +108,15 @@
                    selector = $(selector).filter(":checked");
                 }
                 var operation = variable.operation;
-                if(operation == "avg"){
+                if (operation == "avg") {
                     value = $(selector).avg();
-                }else if(operation== "min"){
+                } else if (operation== "min") {
                     value = $(selector).min();
-                }else if(operation == "max"){
+                } else if (operation == "max") {
                     value = $(selector).max();
-                }else if(operation == "count"){
+                } else if( operation == "count") {
                     value = $(selector).length;
-                }else if(operation == "sum"){
+                } else if (operation == "sum") {
                     value = $(selector).sum();
                 } else {
                     value = "";
@@ -128,6 +129,7 @@
 
                 loadBinder.requestParams[variable.variableName] = value;
             });
+
             var formatValue = $(target).parent().find("input:hidden.primary_value").val();
             if(formatValue) {
                 loadBinder.formatValue = formatValue;
@@ -169,6 +171,7 @@
                 result.mask_value=0;
                 apply(target, result, o);
             });
+//        }
         /*} else {
             var equation = o.equation;
             if(o.equation == ""){
@@ -200,9 +203,10 @@
             $(target).parent().find("input:hidden.primary_value").val(result.value);
         }
 
-        $(target).trigger("change");
+        var elementBlock = $(target).closest(".form-cell");
+        elementBlock.find(".primary-value").trigger("change");
 
-        var imageLoader = $(target).parent().find("img.loader");
+        var imageLoader = elementBlock.find("img.loader");
         if(imageLoader)
             $(imageLoader).hide();
         var submitButton = $(target).parents("form:first").find("input[type='submit']");
@@ -216,126 +220,4 @@
             spellingElement.attr("readonly","true");
         }
     }
-    
-//    function getValue(fieldId, operation, format){
-//        if(format.toUpperCase() == "EURO"){
-//            $.Calculation.setDefaults({
-//                reNumbers: /(-?\s?\$?\s?)(\d+(\.\d{3})*(,\d{1,})?|,\d{1,})/g,
-//                cleanseNumber: function (v){
-//                	v = v.replace(/\.+/g,'');
-//	            	v = v.replace(/\,+/,'.');
-//	            	v = v.replace(/\.00+/,'');
-//                    return v.replace(/[^0-9,\-]/g, "").replace(/,/g, ".");
-//                }
-//            });
-//        }else{
-//            $.Calculation.setDefaults({
-//                reNumbers: /(-?\s?\$?\s?)(\d+(,\d{3})*(\.\d{1,})?|\.\d{1,})/g,
-//                cleanseNumber: function (v){
-//                    return v.replace(/[^0-9.\-]/g, "");
-//                }
-//            });
-//        }
-//
-//        var value = 0;
-//
-//        if (fieldId.indexOf(".") != -1) {
-//            selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
-//        } else {
-//            selector = FormUtil.getField(fieldId);
-//
-//            //fix for IE (Grid values should not added even its have same id)
-//            selector = $(selector).filter(":not(.grid-cell)");
-//        }
-//
-//        //if radio or checkbox, count oni checked
-//        var type = $(selector).attr('type');
-//        if (type && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
-//           selector = $(selector).filter(":checked");
-//        }
-//        if(operation.toUpperCase() == "AVG"){
-//            value = $(selector).avg();
-//        }else if(operation.toUpperCase() == "MIN"){
-//            value = $(selector).min();
-//        }else if(operation.toUpperCase() == "MAX"){
-//            value = $(selector).max();
-//        }else if(operation.toUpperCase() == "COUNT"){
-//            value = $(selector).length;
-//        }else{
-//            value = $(selector).sum();
-//        }
-//
-//        if (!isFinite(value)) {
-//            value = 0;
-//        }
-//
-//        return value;
-//    }
-    
-//    function replaceVariable(equation, variableName, value){
-//        var match = new RegExp(variableName, "ig");
-//        return equation.replace(match, value);
-//    }
-    
-//    function formatResult(result, o){
-//        var numOfDecimal = parseInt(o.numOfDecimal);
-//        var decimalSeperator = ".";
-//        var thousandSeparator = ",";
-//        if(o.format.toUpperCase() == "EURO"){
-//            decimalSeperator = ",";
-//            thousandSeparator = ".";
-//        }
-//
-//        var number = result;
-//        var exponent = "";
-//        if (!isFinite(number)) {
-//            number = 0;
-//        } else {
-//            var numberstr = result.toString();
-//            var eindex = numberstr.indexOf("e");
-//            if (eindex > -1){
-//                exponent = numberstr.substring(eindex);
-//                number = parseFloat(numberstr.substring(0, eindex));
-//            }
-//
-//            if (numOfDecimal != null){
-//                var temp = Math.pow(10, numOfDecimal);
-//                number = Math.round(number * temp) / temp;
-//            }
-//        }
-//
-//        var sign = number < 0 ? "-" : "";
-//
-//        var integer = (number > 0 ? Math.floor (number) : Math.abs (Math.ceil (number))).toString ();
-//        var fractional = number.toString ().substring (integer.length + sign.length);
-//        fractional = numOfDecimal != null && numOfDecimal > 0 || fractional.length > 1 ? (decimalSeperator + fractional.substring (1)) : "";
-//        if(numOfDecimal != null && numOfDecimal > 0){
-//            for (i = fractional.length - 1, z = numOfDecimal; i < z; ++i){
-//                fractional += "0";
-//            }
-//        }
-//
-//        if(o.useThousandSeparator.toUpperCase() == "TRUE"){
-//            for (i = integer.length - 3; i > 0; i -= 3){
-//                integer = integer.substring (0 , i) + thousandSeparator + integer.substring (i);
-//            }
-//        }
-//
-//        var resultString = "";
-//        if(sign != ""){
-//            resultString += sign;
-//        }
-//        if(o.prefix != ""){
-//            resultString += o.prefix + ' ';
-//        }
-//        resultString += integer + fractional;
-//        if(exponent != ""){
-//            resultString += ' ' + exponent;
-//        }
-//        if(o.postfix != ""){
-//            resultString += ' ' + o.postfix;
-//        }
-//
-//        return  resultString;
-//    }
 })(jQuery);
