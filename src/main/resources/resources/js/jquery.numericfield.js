@@ -1,12 +1,11 @@
 (function($){
-    
     $.fn.extend({
         numericField : function(o){
             var target = this;
             if($(target)){
                 var form = $(target).parents('form');
                 if(!o.readonly || o.readonly != 'true'){
-                    if(!(!o.variables || o.variables.length == 0)){
+                    if(o.variables && o.variables.length != 0){
                         $.each(o.variables, function(index){
                             var variable = o.variables[index];
                             var fieldId = variable.fieldId;
@@ -21,37 +20,32 @@
                                 field = FormUtil.getField(fieldId);
 
                                 //fix for IE (Grid values should not added even its have same id)
-                                field = $(field).filter(":not(.grid-cell)");
+                                field = field.filter(":not(.grid-cell)");
                             }
 
-                            $(field).addClass("control-field");
+                            field.addClass("control-field");
 
-                            $(field).change(function(){
-                                numericCalc(target,o);
-                            });
-
-                            $(field).focusout(function(){
-                                numericCalc(target, o);
-                            });
-
-                            $('select[name="'+fieldId+'"]').blur(function() {
-                                numericCalc(target, o);
-                            });
-                            $("input[type='radio']").on('change', function () {
-                                numericCalc(target, o);
-                            });
-                            $("input[type='checkbox']").on('change', function () {
-                                numericCalc(target, o);
-                            });
-
+                            if(field.is("checkbox, radio, select")) {
+                                $(field).on('change', function () {
+                                    numericCalc(target, o);
+                                });
+                            } else if(field.is(".numeric-text-field")) {
+                                field.on('change', function(){
+                                    numericCalc(target,o);
+                                });
+                            } else {
+                                field.focusout(function(){
+                                    numericCalc(target,o);
+                                });
+                            }
                         });
                     } else {
-                        var elementPrimary = $(target).parent().find("input:hidden.primary_value");
+                        var elementPrimary = $(target).closest(".form-cell").find(".primary_value");
                         $(target).focusout(function() {
                             elementPrimary.val($(target).val());
                             numericCalc(target, o);
 
-                            elementPrimary.focusout();
+//                            elementPrimary.focusout();
                         });
 
                         $(target).focusin(function() {
@@ -70,6 +64,7 @@
                     $(document).ready(function() {
                         numericCalc(target, o);
                     });
+
                     // handle mobile page show
                     $(document).bind("pageshow", function() {
                         numericCalc(target, o);
@@ -130,7 +125,7 @@
                 loadBinder.requestParams[variable.variableName] = value;
             });
 
-            var formatValue = $(target).parent().find("input:hidden.primary_value").val();
+            var formatValue = $(target).closest(".form-cell").find(".primary_value").val();
             if(formatValue) {
                 loadBinder.formatValue = formatValue;
             }
@@ -142,11 +137,11 @@
                 loadBinder.requestParams[fieldId] = FormUtil.getValue(fieldId);
             }
 
-            var imageLoader = $(target).parent().find("img.loader");
+            var imageLoader = $(target).closest(".form-cell").find("img.loader");
             if(imageLoader)
                 $(imageLoader).show();
 
-            var submitButton = $(target).parents("form:first").find("input[type='submit']");
+            var submitButton = $(target).closest("form:first").find("input[type='submit']");
             if(submitButton) {
                 $(submitButton).prop("disabled", true);
             }
@@ -166,9 +161,10 @@
                 apply(target, result, o);
             })
             .fail(function() {
-                var result = {};
-                result.value = 0;
-                result.mask_value=0;
+                var result = {
+                    value: 0,
+                    mask_value: 0
+                };
                 apply(target, result, o);
             });
 //        }
@@ -193,18 +189,15 @@
 
     function apply(target, result, o) {
 //        var formattedResult  = formatResult(result, o);
-
+        var elementBlock = $(target).closest(".form-cell");
         $(target).val(result.mask_value);
 
         if ($(target).parent().find(".calculationField_value").length > 0) {
             $(target).parent().find(".calculationField_value").text(result.mask_value);
         }
-        if ($(target).parent().find("input:hidden.primary_value").length > 0) {
-            $(target).parent().find("input:hidden.primary_value").val(result.value);
-        }
 
-        var elementBlock = $(target).closest(".form-cell");
-        elementBlock.find(".primary-value").trigger("change");
+        elementBlock.find(".primary_value").val(result.value);
+//        elementBlock.find(".primary_value").trigger("change");
 
         var imageLoader = elementBlock.find("img.loader");
         if(imageLoader)
