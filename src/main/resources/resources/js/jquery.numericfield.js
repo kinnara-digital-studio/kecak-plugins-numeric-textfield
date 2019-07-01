@@ -197,7 +197,7 @@
         }
 
         elementBlock.find(".primary_value").val(result.value);
-//        elementBlock.find(".primary_value").trigger("change");
+        elementBlock.find(".primary_value").trigger("change");
 
         var imageLoader = elementBlock.find("img.loader");
         if(imageLoader)
