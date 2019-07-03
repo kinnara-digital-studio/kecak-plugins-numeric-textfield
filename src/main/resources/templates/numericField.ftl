@@ -44,7 +44,7 @@
             <#assign attrDontTrigger = '' >
         </#if>
 
-        <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_value numeric-text-field calFiel_${element.properties.elementUniqueKey!}"/>
+        <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_value"/>
 
         <#if element.properties.hidden! != 'true'>
             <label class="label">${element.properties.label} <span class="form-cell-validator">${decoration}</span><#if error??> <span class="form-error-message">${error}</span></#if></label>

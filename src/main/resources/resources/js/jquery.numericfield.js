@@ -29,7 +29,7 @@
                                 $(field).on('change', function () {
                                     numericCalc(target, o);
                                 });
-                            } else if(field.is(".numeric-text-field")) {
+                            } else if(field.is(".primary_value")) {
                                 field.on('change', function(){
                                     numericCalc(target,o);
                                 });
