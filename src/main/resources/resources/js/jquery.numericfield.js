@@ -34,7 +34,7 @@
                                     numericCalc(target,o);
                                 });
                             } else {
-                                field.focusout(function(){
+                                field.change(function(){
                                     numericCalc(target,o);
                                 });
                             }
