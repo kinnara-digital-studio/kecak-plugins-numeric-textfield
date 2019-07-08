@@ -49,7 +49,7 @@
         <#if element.properties.hidden! != 'true'>
             <label class="label">${element.properties.label} <span class="form-cell-validator">${decoration}</span><#if error??> <span class="form-error-message">${error}</span></#if></label>
             <#if element.properties.readonlyLabel! == 'true' && element.properties.readonly! == 'true'>
-                <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontTrigger} />
+                <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_key" ${attrDontTrigger} />
                 <span class="calculationField_value">${formattedValue!?html}</span>
             <#else>
                 <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask"                 value="${formattedValue!?html}" <#if element.properties.readonly! == 'true' || element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly</#if> style="text-align: right;" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontTrigger} />
