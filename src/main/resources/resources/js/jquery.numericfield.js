@@ -189,7 +189,7 @@
 
     function apply(target, result, o) {
 //        var formattedResult  = formatResult(result, o);
-        var elementBlock = $(target).closest(".form-cell");
+        var elementBlock = $(target).closest("div");
         $(target).val(result.mask_value);
 
         if ($(target).parent().find(".calculationField_value").length > 0) {
