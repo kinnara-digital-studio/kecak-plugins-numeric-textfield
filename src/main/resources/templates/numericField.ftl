@@ -8,40 +8,39 @@
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/jquery.calculation.min.js"></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/jquery.numericfield.js"></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/terbilang-spelling.js"/></script>
-        <script type="text/javascript">
-            var options_calField_${element.properties.elementUniqueKey} = ${configJson!};
-            $(document).ready(function(){
-                $('.calFiel_${element.properties.elementUniqueKey!}').numericField(options_calField_${element.properties.elementUniqueKey});
-
-                var val = $("#${elementParamName!}${element.properties.elementUniqueKey!}").val();
-
-                $("#${elementParamName!}${element.properties.elementUniqueKey!}").change(function(){
-                    var amount = $(this).val();
-
-                    <!-- ${element.properties.spellingTarget!} -->
-                    <!--
-                    <#if (element.properties.spellingTarget! != '') >
-		            	amount = amount.replace(/\.+/g,'');
-		            	amount = amount.replace(/\,+/,'.');
-		            	amount = amount.replace(/\.00+/,'');
-		            	
-		                var spelled = terbilang(amount).trim();
-		                var fieldSpellingTarget = FormUtil.getField("${element.properties.spellingTarget!}");
-		                if(fieldSpellingTarget && spelled){
-		                	$(fieldSpellingTarget).val(spelled);
-	                    }
-	                    $("#${element.properties.spellingTarget!}").attr("readonly","true");
-                    </#if>
-                    -->
-                });
-            });
-        </script>
-
 
         <#if element.properties.readonly! == 'true'>
             <#assign attrDontTrigger = 'readonly data-donttrigger="true"' >
         <#else>
             <#assign attrDontTrigger = '' >
+            <script type="text/javascript">
+                var options_calField_${element.properties.elementUniqueKey} = ${configJson!};
+                $(document).ready(function(){
+                    $('.calFiel_${element.properties.elementUniqueKey!}').numericField(options_calField_${element.properties.elementUniqueKey});
+
+                    var val = $("#${elementParamName!}${element.properties.elementUniqueKey!}").val();
+
+                    $("#${elementParamName!}${element.properties.elementUniqueKey!}").change(function(){
+                        var amount = $(this).val();
+
+                        <!-- ${element.properties.spellingTarget!} -->
+                        <!--
+                        <#if (element.properties.spellingTarget! != '') >
+                            amount = amount.replace(/\.+/g,'');
+                            amount = amount.replace(/\,+/,'.');
+                            amount = amount.replace(/\.00+/,'');
+
+                            var spelled = terbilang(amount).trim();
+                            var fieldSpellingTarget = FormUtil.getField("${element.properties.spellingTarget!}");
+                            if(fieldSpellingTarget && spelled){
+                                $(fieldSpellingTarget).val(spelled);
+                            }
+                            $("#${element.properties.spellingTarget!}").attr("readonly","true");
+                        </#if>
+                        -->
+                    });
+                });
+            </script>
         </#if>
 
         <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_value"/>
