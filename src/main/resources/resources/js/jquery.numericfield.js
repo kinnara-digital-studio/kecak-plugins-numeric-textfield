@@ -76,7 +76,7 @@
     });
     
     function numericCalc(target, o){
-//        if(!($(target).attr('data-donttrigger'))) {
+        if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
             var loadBinder = o.loadBinder;
             loadBinder.requestParams = {};
             loadBinder.fieldId = o.fieldId;
@@ -167,7 +167,7 @@
                 };
                 apply(target, result, o);
             });
-//        }
+        }
         /*} else {
             var equation = o.equation;
             if(o.equation == ""){

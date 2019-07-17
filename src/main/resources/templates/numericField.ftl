@@ -39,7 +39,7 @@
 
 
         <#if element.properties.readonly! == 'true'>
-            <#assign attrDontTrigger = 'data-donttrigger' >
+            <#assign attrDontTrigger = 'readonly data-donttrigger="true"' >
         <#else>
             <#assign attrDontTrigger = '' >
         </#if>
