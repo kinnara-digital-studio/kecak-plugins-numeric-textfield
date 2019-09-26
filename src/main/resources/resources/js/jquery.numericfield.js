@@ -80,7 +80,7 @@
             var loadBinder = o.loadBinder;
             loadBinder.requestParams = {};
             loadBinder.fieldId = o.fieldId;
-            var urlParams = "?appId=" + o.appId + "&appVersion=" + o.appVersion;
+
             $.each(o.variables, function(index){
                 var variable = o.variables[index];
                 var fieldId = variable.fieldId;
@@ -114,8 +114,7 @@
                 } else if (operation == "sum") {
                     value = $(selector).sum();
                 } else {
-                    value = "";
-                    $(selector).each((i, e) => value += e.value);
+                    $(selector).each((i, e) => value = e.value);
                 }
 
                 if ($.isNumeric(value) && !isFinite(value)) {
@@ -147,7 +146,7 @@
             }
 
             $.ajax({
-                url: loadBinder.url + urlParams,
+                url: loadBinder.url,
                 type : 'POST',
                 headers : { 'Content-Type' : 'application/json' },
                 data : JSON.stringify(loadBinder)

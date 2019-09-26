@@ -13,6 +13,7 @@ import org.joget.apps.form.dao.FormDataDao;
 import org.joget.apps.form.model.*;
 import org.joget.apps.form.service.FormService;
 import org.joget.apps.form.service.FormUtil;
+import org.joget.commons.util.LogUtil;
 import org.joget.plugin.base.PluginManager;
 import org.joget.plugin.base.PluginWebSupport;
 import org.joget.workflow.util.WorkflowUtil;
@@ -110,7 +111,10 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             if(form != null)
                 requestBody.put("formDefId", form.getPropertyString("id"));
 
-            requestBody.put("url", WorkflowUtil.getHttpServletRequest().getContextPath() + "/web/json/plugin/" + getClassName() + "/service");
+
+            AppDefinition appDefinition = AppUtil.getCurrentAppDefinition();
+
+            requestBody.put("url", WorkflowUtil.getHttpServletRequest().getContextPath() + "/web/json/app/" + appDefinition.getAppId() + "/" +appDefinition.getVersion() + "/plugin/" + getClassName() + "/service");
             requestBody.put("baseUrl", WorkflowUtil.getHttpServletRequest().getContextPath());
             requestBody.put("primaryKey", formData.getPrimaryKeyValue());
             requestBody.put("field", "");
@@ -165,12 +169,9 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             String fieldId = body.getString("fieldId");
             String primaryKey = body.optString("primaryKey");
 
-            // Application Definition
-            String appId = request.getParameter("appId");
-            String appVersion = request.getParameter("appVersion");
-            AppDefinition appDef = appService.getAppDefinition(appId, appVersion);
+            AppDefinition appDef = AppUtil.getCurrentAppDefinition();
             if(appDef == null) {
-                throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Application" + appId + "] version [" + appVersion + "] cannot be defined");
+                throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Application definition cannot be defined");
             }
 
             // Form
@@ -213,6 +214,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             data.put("value", value.doubleValue());
             data.put("mask_value", formattedValue);
 
+            LogUtil.info(getClassName(), "data ["+data.toString()+"]");
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(data.toString());
 
@@ -276,6 +278,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 String key = i.next();
                 String requestValue = requestParameters.optString(key);
                 formData.addRequestParameterValues(key, new String[]{ key.equals(currencyField) ? requestValue : requestValue });
+                LogUtil.info(getClassName(), "FormData ["+key+"]=>["+requestValue+"]");
             }
         }
         return formData;
