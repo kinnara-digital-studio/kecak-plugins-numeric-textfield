@@ -13,7 +13,6 @@ import org.joget.apps.form.dao.FormDataDao;
 import org.joget.apps.form.model.*;
 import org.joget.apps.form.service.FormService;
 import org.joget.apps.form.service.FormUtil;
-import org.joget.commons.util.LogUtil;
 import org.joget.plugin.base.PluginManager;
 import org.joget.plugin.base.PluginWebSupport;
 import org.joget.workflow.util.WorkflowUtil;
@@ -214,7 +213,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             data.put("value", value.doubleValue());
             data.put("mask_value", formattedValue);
 
-            LogUtil.info(getClassName(), "data ["+data.toString()+"]");
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(data.toString());
 
@@ -278,7 +276,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 String key = i.next();
                 String requestValue = requestParameters.optString(key);
                 formData.addRequestParameterValues(key, new String[]{ key.equals(currencyField) ? requestValue : requestValue });
-                LogUtil.info(getClassName(), "FormData ["+key+"]=>["+requestValue+"]");
             }
         }
         return formData;
