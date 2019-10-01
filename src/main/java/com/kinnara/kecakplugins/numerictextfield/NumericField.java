@@ -13,6 +13,7 @@ import org.joget.apps.form.dao.FormDataDao;
 import org.joget.apps.form.model.*;
 import org.joget.apps.form.service.FormService;
 import org.joget.apps.form.service.FormUtil;
+import org.joget.commons.util.LogUtil;
 import org.joget.plugin.base.PluginManager;
 import org.joget.plugin.base.PluginWebSupport;
 import org.joget.workflow.util.WorkflowUtil;
@@ -21,6 +22,7 @@ import org.json.JSONObject;
 import org.springframework.context.ApplicationContext;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
@@ -78,7 +80,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         String value = FormUtil.getElementPropertyValue(this, formData);
         dataModel.put("value", value);
         dataModel.put("formattedValue", formatValue(value, formData));
-        dataModel.put("configJson", this.getConfigJson(formData));
+        dataModel.put("configJson", getConfigJson(formData));
         dataModel.put("className", getClassName());
         String html = FormUtil.generateElementHtml(this, formData, template, dataModel);
         return html;
@@ -125,22 +127,74 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     }
 
     public String getConfigJson(FormData formData) {
+        Form rootForm = FormUtil.findRootForm(this);
         try {
             AppDefinition appDef = AppUtil.getCurrentAppDefinition();
             JSONObject jsonConfig = new JSONObject();
-            jsonConfig.accumulate("equation", this.getPropertyString("equation"));
-            jsonConfig.accumulate("fieldId", this.getPropertyString("id"));
+            jsonConfig.accumulate("equation", getPropertyString("equation"));
+//            jsonConfig.accumulate("fieldId", getPropertyString("id"));
+            jsonConfig.accumulate("fieldId", getFullFieldPath(rootForm, this));
             jsonConfig.put("appId", appDef.getAppId());
             jsonConfig.put("appVersion", appDef.getVersion().toString());
-            jsonConfig.accumulate("variables", this.getProperty("variables"));
+            jsonConfig.accumulate("variables", getProperty("variables"));
             jsonConfig.put("currencyRefField", getPropertyString("currencyRefField"));
-            jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(FormUtil.findRootForm(this), formData));
+            jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(rootForm, formData));
             jsonConfig.put("spellingTarget", getPropertyString("spellingTarget"));
             return jsonConfig.toString();
         }
         catch (Exception e) {
             return "{}";
         }
+    }
+
+    private String getFullFieldPath(@Nonnull Form form, @Nonnull Element element) {
+        return getFullFieldPathRec(form, element, "");
+    }
+
+    private String getFullFieldPathRec(@Nonnull Form form, Element element, @Nonnull String trailingPath) {
+        if(element == null || form == element) {
+            return trailingPath;
+        }
+
+        trailingPath = Stream.concat(
+            Stream.of(element)
+                    .map(e -> e.getPropertyString(FormUtil.PROPERTY_ID))
+                    .filter(Objects::nonNull)
+                    .filter(s -> !s.isEmpty()),
+
+            Stream.of(trailingPath).filter(s -> !s.isEmpty())
+        ).collect(Collectors.joining("."));
+        return getFullFieldPathRec(form, element.getParent(), trailingPath);
+    }
+
+    private Element getElement(@Nonnull Form form, String fullPath) {
+        return getElementRec(form, fullPath, "");
+    }
+
+    @Nullable
+    private Element getElementRec(Element element, @Nonnull final String fullPath, @Nonnull final String path) {
+        if(element == null) {
+            return null;
+        }
+
+        if(fullPath.equalsIgnoreCase(path)) {
+            return element;
+        }
+
+        return Optional.of(element)
+                .map(Element::getChildren)
+                .map(Collection::stream)
+                .orElseGet(Stream::empty)
+                .map(child -> {
+                    final String currentPath = Stream.concat(
+                        Stream.of(path).filter(s -> !s.isEmpty()),
+                        Stream.of(child).map(e -> e.getPropertyString(FormUtil.PROPERTY_ID)).filter(Objects::nonNull).filter(s -> !s.isEmpty())
+                    ).collect(Collectors.joining("."));
+                    return getElementRec(child, fullPath, currentPath);
+                })
+                .filter(Objects::nonNull)
+                .findAny()
+                .orElse(null);
     }
 
     @Override
@@ -180,7 +234,8 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             }
 
             // Numeric Field Element
-            Element element = FormUtil.findElement(fieldId, form, new FormData());
+//            Element element = FormUtil.findElement(fieldId, form, new FormData());
+            Element element = getElement(form, fieldId);
             if(element == null) {
                 throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Field [" + fieldId + "] in form [" + formDefId + "] cannot be defined");
             }
@@ -217,6 +272,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             response.getWriter().write(data.toString());
 
         } catch (Exception e) {
+            LogUtil.error(getClassName(), e, e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }

@@ -4,16 +4,18 @@
             var target = this;
             if($(target)){
                 var form = $(target).parents('form');
-                if(!o.readonly || o.readonly != 'true'){
+
+                // not readonly
+                if((!o.readonly || o.readonly != 'true')){
                     if(o.variables && o.variables.length != 0){
                         $.each(o.variables, function(index){
-                            var variable = o.variables[index];
-                            var fieldId = variable.fieldId;
+                            let variable = o.variables[index];
+                            let fieldId = variable.fieldId;
                             if(fieldId.indexOf(".") != -1){
                                 fieldId = fieldId.substring(0, fieldId.indexOf("."));
                             }
 
-                            var field;
+                            let field;
                             if (fieldId.indexOf(".") != -1) {
                                 field = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
                             } else {
@@ -27,20 +29,23 @@
 
                             if(field.is("checkbox, radio, select")) {
                                 $(field).on('change', function () {
-                                    numericCalc(target, o);
+                                    if($(field).parents('.form-section, .subform-section').is(":visible"))
+                                        numericCalc(target, o);
                                 });
                             } else if(field.is(".primary_value")) {
                                 field.on('change', function(){
-                                    numericCalc(target,o);
+                                    if($(field).parents('.form-section, .subform-section').is(":visible"))
+                                        numericCalc(target,o);
                                 });
                             } else {
                                 field.change(function(){
-                                    numericCalc(target,o);
+                                    if($(field).parents('.form-section, .subform-section').is(":visible"))
+                                        numericCalc(target,o);
                                 });
                             }
                         });
                     } else {
-                        var elementPrimary = $(target).closest(".form-cell").find(".primary_value");
+                        let elementPrimary = $(target).closest(".form-cell, .subform-cell").find(".primary_value");
                         $(target).focusout(function() {
                             elementPrimary.val($(target).val());
                             numericCalc(target, o);
@@ -49,14 +54,16 @@
                         });
 
                         $(target).focusin(function() {
-                            var value = elementPrimary.val();
+                            let value = elementPrimary.val();
                             $(target).val(value);
                         });
                     }
 
                     if(o.currencyRefField) {
-                        FormUtil.getField(o.currencyRefField).change(function() {
-                            numericCalc(target, o);
+                        let currencyRefField = FormUtil.getField(o.currencyRefField);
+                        currencyRefField.change(function() {
+                            if($(currencyRefField).parents('.form-section, .subform-section').is(":visible"))
+                                numericCalc(target, o);
                         });
                     }
 
@@ -76,7 +83,7 @@
     });
     
     function numericCalc(target, o){
-        if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
+        if(!$(target).closest(".form-section, .subform-section").hasClass("section-visibility-hidden") && !$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
             var loadBinder = o.loadBinder;
             loadBinder.requestParams = {};
             loadBinder.fieldId = o.fieldId;
@@ -97,34 +104,37 @@
                     selector = $(selector).filter(":not(.grid-cell)");
                 }
 
-                //if radio or checkbox, count oni checked
-                var type = $(selector).attr('type');
-                if (type != undefined && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
-                   selector = $(selector).filter(":checked");
-                }
-                var operation = variable.operation;
-                if (operation == "avg") {
-                    value = $(selector).avg();
-                } else if (operation== "min") {
-                    value = $(selector).min();
-                } else if (operation == "max") {
-                    value = $(selector).max();
-                } else if( operation == "count") {
-                    value = $(selector).length;
-                } else if (operation == "sum") {
-                    value = $(selector).sum();
-                } else {
-                    $(selector).each((i, e) => value = e.value);
-                }
+                if(!$(selector).closest(".form-section, .subform-section").hasClass("section-visibility-hidden")) {
 
-                if ($.isNumeric(value) && !isFinite(value)) {
-                    value = 0;
-                }
+                    //if radio or checkbox, count oni checked
+                    var type = $(selector).attr('type');
+                    if (type != undefined && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
+                       selector = $(selector).filter(":checked");
+                    }
+                    var operation = variable.operation;
+                    if (operation == "avg") {
+                        value = $(selector).avg();
+                    } else if (operation== "min") {
+                        value = $(selector).min();
+                    } else if (operation == "max") {
+                        value = $(selector).max();
+                    } else if( operation == "count") {
+                        value = $(selector).length;
+                    } else if (operation == "sum") {
+                        value = $(selector).sum();
+                    } else {
+                        $(selector).each((i, e) => value = e.value);
+                    }
 
-                loadBinder.requestParams[variable.variableName] = value;
+                    if ($.isNumeric(value) && !isFinite(value)) {
+                        value = 0;
+                    }
+
+                    loadBinder.requestParams[variable.variableName] = value;
+                }
             });
 
-            var formatValue = $(target).closest(".form-cell").find(".primary_value").val();
+            var formatValue = $(target).closest(".form-cell, .subform-cell").find(".primary_value").val();
             if(formatValue) {
                 loadBinder.formatValue = formatValue;
             }
@@ -136,7 +146,7 @@
                 loadBinder.requestParams[fieldId] = FormUtil.getValue(fieldId);
             }
 
-            var imageLoader = $(target).closest(".form-cell").find("img.loader");
+            var imageLoader = $(target).closest(".form-cell, .subform-cell").find("img.loader");
             if(imageLoader)
                 $(imageLoader).show();
 
