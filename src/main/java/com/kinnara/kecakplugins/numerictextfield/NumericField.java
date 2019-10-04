@@ -10,6 +10,7 @@ import org.joget.apps.datalist.model.DataListCollection;
 import org.joget.apps.datalist.model.DataListColumn;
 import org.joget.apps.datalist.model.DataListColumnFormatDefault;
 import org.joget.apps.form.dao.FormDataDao;
+import org.joget.apps.form.lib.BeanShellFormBinder;
 import org.joget.apps.form.model.*;
 import org.joget.apps.form.service.FormService;
 import org.joget.apps.form.service.FormUtil;
@@ -334,6 +335,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 formData.addRequestParameterValues(key, new String[]{ key.equals(currencyField) ? requestValue : requestValue });
             }
         }
+
         return formData;
     }
 
@@ -424,9 +426,13 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         }
 
         FormRowSet rowSet = formData.getLoadBinderData(element);
-        return Optional.ofNullable(rowSet).map(Collection::stream).orElse(Stream.empty())
+        return Optional.ofNullable(rowSet)
+                .map(Collection::stream)
+                .orElse(Stream.empty())
                 .findFirst()
                 .map(row -> row.getProperty(element.getPropertyString(FormUtil.PROPERTY_ID)))
+                .filter(Objects::nonNull)
+                .filter(s -> !s.isEmpty())
                 .map(BigDecimal::new)
                 .orElse(new BigDecimal("0"));
     }

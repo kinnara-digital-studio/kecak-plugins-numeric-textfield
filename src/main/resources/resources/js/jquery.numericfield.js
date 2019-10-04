@@ -27,22 +27,51 @@
 
                             field.addClass("control-field");
 
+                            const TIMEOUT = 100;
+
                             if(field.is("checkbox, radio, select")) {
                                 $(field).on('change', function () {
-                                    if($(field).parents('.form-section, .subform-section').is(":visible"))
-                                        numericCalc(target, o);
+                                    let $section = $(this).parents('.form-section, .subform-section');
+                                    setTimeout(function() {
+                                        if($section.is(":visible"))
+                                            numericCalc(target, o);
+                                    }, TIMEOUT);
+
                                 });
                             } else if(field.is(".primary_value")) {
                                 field.on('change', function(){
-                                    if($(field).parents('.form-section, .subform-section').is(":visible"))
-                                        numericCalc(target,o);
+                                    let $section = $(this).parents('.form-section, .subform-section');
+                                    setTimeout(function() {
+                                        if($section.is(":visible"))
+                                            numericCalc(target,o);
+                                    }, TIMEOUT);
                                 });
                             } else {
-                                field.change(function(){
-                                    if($(field).parents('.form-section, .subform-section').is(":visible"))
-                                        numericCalc(target,o);
+                                field.on('change', function(){
+                                    let $section = $(this).parents('.form-section, .subform-section');
+                                    setTimeout(function() {
+                                        if($section.is(":visible"))
+                                            numericCalc(target,o);
+                                    }, TIMEOUT);
+
                                 });
                             }
+
+//                            var observer = new MutationObserver(function(mutations) {
+//                              mutations.forEach(function(mutation) {
+//                                if (mutation.attributeName === "class") {
+//                                  var attributeValue = $(mutation.target).prop(mutation.attributeName);
+//                                  if($(mutation.target).is(":visible"))
+//                                    numericCalc(target,o);
+//                                }
+//                              });
+//                            });
+//
+//                            $section.each(function(i) {
+//                                observer.observe($section[i], {
+//                                  attributes: true
+//                                });
+//                            });
                         });
                     } else {
                         let elementPrimary = $(target).closest(".form-cell, .subform-cell").find(".primary_value");
@@ -83,7 +112,7 @@
     });
     
     function numericCalc(target, o){
-        if(!$(target).closest(".form-section, .subform-section").hasClass("section-visibility-hidden") && !$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
+        if($(target).is(":visible") && !$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
             var loadBinder = o.loadBinder;
             loadBinder.requestParams = {};
             loadBinder.fieldId = o.fieldId;
@@ -95,35 +124,36 @@
 
                 var value = 0;
 
+                let $selector;
                 if(fieldId.indexOf(".") != -1) {
-                    selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
+                    $selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
                 } else {
-                    selector = FormUtil.getField(fieldId);
+                    $selector = FormUtil.getField(fieldId);
 
                     //fix for IE (Grid values should not added even its have same id)
-                    selector = $(selector).filter(":not(.grid-cell)");
+                    $selector = $($selector).filter(":not(.grid-cell)");
                 }
 
-                if(!$(selector).closest(".form-section, .subform-section").hasClass("section-visibility-hidden")) {
+                if($selector.length > 0 && !$($selector).closest(".form-section, .subform-section").hasClass("section-visibility-hidden")) {
 
-                    //if radio or checkbox, count oni checked
-                    var type = $(selector).attr('type');
+                    //if radio or checkbox, count only checked
+                    var type = $($selector).attr('type');
                     if (type != undefined && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
-                       selector = $(selector).filter(":checked");
+                       $selector = $($selector).filter(":checked");
                     }
                     var operation = variable.operation;
                     if (operation == "avg") {
-                        value = $(selector).avg();
+                        value = $($selector).avg();
                     } else if (operation== "min") {
-                        value = $(selector).min();
+                        value = $($selector).min();
                     } else if (operation == "max") {
-                        value = $(selector).max();
+                        value = $($selector).max();
                     } else if( operation == "count") {
-                        value = $(selector).length;
+                        value = $($selector).length;
                     } else if (operation == "sum") {
-                        value = $(selector).sum();
+                        value = $($selector).sum();
                     } else {
-                        $(selector).each((i, e) => value = e.value);
+                        $($selector).each((i, e) => value = e.value);
                     }
 
                     if ($.isNumeric(value) && !isFinite(value)) {
