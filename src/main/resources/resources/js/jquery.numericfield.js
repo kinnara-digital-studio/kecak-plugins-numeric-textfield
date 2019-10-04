@@ -36,7 +36,6 @@
                                         if($section.is(":visible"))
                                             numericCalc(target, o);
                                     }, TIMEOUT);
-
                                 });
                             } else if(field.is(".primary_value")) {
                                 field.on('change', function(){
@@ -53,7 +52,6 @@
                                         if($section.is(":visible"))
                                             numericCalc(target,o);
                                     }, TIMEOUT);
-
                                 });
                             }
 
