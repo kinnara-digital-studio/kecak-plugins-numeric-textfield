@@ -19,17 +19,14 @@
                             if (fieldId.indexOf(".") != -1) {
                                 field = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
                             } else {
-                                field = FormUtil.getField(fieldId);
-
-                                //fix for IE (Grid values should not added even its have same id)
-                                field = field.filter(":not(.grid-cell)");
+                                field = FormUtil.getField(fieldId).filter(":not(.grid-cell)");
                             }
 
                             field.addClass("control-field");
 
                             const TIMEOUT = 100;
 
-                            if(field.is("checkbox, radio, select")) {
+                            if(field.is(":checkbox, :radio, select")) {
                                 $(field).on('change', function () {
                                     let $section = $(this).parents('.form-section, .subform-section');
                                     setTimeout(function() {
