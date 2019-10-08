@@ -126,29 +126,29 @@
                     $selector = FormUtil.getField(fieldId);
 
                     //fix for IE (Grid values should not added even its have same id)
-                    $selector = $($selector).filter(":not(.grid-cell)");
+                    $selector = $selector.filter(":not(.grid-cell)");
                 }
 
-                if($selector.length > 0 && !$($selector).closest(".form-section, .subform-section").hasClass("section-visibility-hidden")) {
+                if($selector.length > 0 && !$selector.closest(".form-section, .subform-section").hasClass("section-visibility-hidden")) {
 
                     //if radio or checkbox, count only checked
-                    var type = $($selector).attr('type');
+                    var type = $selector.attr('type');
                     if (type != undefined && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
-                       $selector = $($selector).filter(":checked");
+                       $selector = $selector.filter(":checked");
                     }
                     var operation = variable.operation;
                     if (operation == "avg") {
-                        value = $($selector).avg();
+                        value = $selector.avg();
                     } else if (operation== "min") {
-                        value = $($selector).min();
+                        value = $selector.min();
                     } else if (operation == "max") {
-                        value = $($selector).max();
+                        value = $selector.max();
                     } else if( operation == "count") {
-                        value = $($selector).length;
+                        value = $selector.length;
                     } else if (operation == "sum") {
-                        value = $($selector).sum();
+                        value = $selector.sum();
                     } else {
-                        $($selector).each((i, e) => value = e.value);
+                        $selector.each((i, e) => value = e.value);
                     }
 
                     if ($.isNumeric(value) && !isFinite(value)) {
@@ -156,6 +156,8 @@
                     }
 
                     loadBinder.requestParams[variable.variableName] = value;
+                } else {
+                    loadBinder.requestParams[variable.variableName] = 0;
                 }
             });
 
