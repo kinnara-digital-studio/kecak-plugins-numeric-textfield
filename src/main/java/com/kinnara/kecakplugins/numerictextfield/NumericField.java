@@ -34,7 +34,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class NumericField extends Element implements FormBuilderPaletteElement, PluginWebSupport {
+public class NumericField extends Element implements FormBuilderPaletteElement, PluginWebSupport, AceFormElement, AdminLteFormElement {
     public String getName() {
         return "Numeric Field";
     }
@@ -77,13 +77,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
     public String renderTemplate(FormData formData, Map dataModel) {
         String template = "numericField.ftl";
-        String value = FormUtil.getElementPropertyValue(this, formData);
-        dataModel.put("value", value);
-        dataModel.put("formattedValue", formatValue(value, formData));
-        dataModel.put("configJson", getConfigJson(formData));
-        dataModel.put("className", getClassName());
-        String html = FormUtil.generateElementHtml(this, formData, template, dataModel);
-        return html;
+        return renderTemplate(template, formData, dataModel);
     }
 
     private String formatValue(String value, FormData formData) {
@@ -434,6 +428,28 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 .filter(s -> !s.isEmpty())
                 .map(BigDecimal::new)
                 .orElse(new BigDecimal("0"));
+    }
+
+    private String renderTemplate(String template, FormData formData, @SuppressWarnings("rawtypes") Map dataModel){
+        String value = FormUtil.getElementPropertyValue(this, formData);
+        dataModel.put("value", value);
+        dataModel.put("formattedValue", formatValue(value, formData));
+        dataModel.put("configJson", getConfigJson(formData));
+        dataModel.put("className", getClassName());
+        String html = FormUtil.generateElementHtml(this, formData, template, dataModel);
+        return html;
+    }
+
+    @Override
+    public String renderAceTemplate(FormData formData, Map map) {
+        String template = "AceNumericField.ftl";
+        return renderTemplate(template, formData, map);
+    }
+
+    @Override
+    public String renderAdminLteTemplate(FormData formData, Map map) {
+        String template = "AdminLteNumericField.ftl";
+        return renderTemplate(template, formData, map);
     }
 }
 
