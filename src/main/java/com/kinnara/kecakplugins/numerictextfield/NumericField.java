@@ -56,7 +56,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     }
 
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(this.getClass().getName(), "/properties/numericField.json", null, true, "messages/numericField");
+        return AppUtil.readPluginResource(this.getClass().getName(), "/properties/numericField.json", new String[] {EquationLoadBinder.class.getName()}, true, "messages/numericField");
     }
 
     public String getFormBuilderCategory() {

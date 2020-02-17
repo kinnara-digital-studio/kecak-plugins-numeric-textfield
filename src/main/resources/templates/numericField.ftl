@@ -15,14 +15,14 @@
         <#else>
             <#assign attrDontTrigger = '' >
             <script type="text/javascript">
-                var options_calField_${element.properties.elementUniqueKey} = ${configJson!};
+                let options_calField_${element.properties.elementUniqueKey} = ${configJson!};
                 $(document).ready(function(){
-                    $('.calFiel_${element.properties.elementUniqueKey!}').numericField(options_calField_${element.properties.elementUniqueKey});
+                    $('.calField_${element.properties.elementUniqueKey!}').numericField(options_calField_${element.properties.elementUniqueKey});
 
-                    var val = $("#${elementParamName!}${element.properties.elementUniqueKey!}").val();
+                    let val = $("#${elementParamName!}${element.properties.elementUniqueKey!}").val();
 
                     $("#${elementParamName!}${element.properties.elementUniqueKey!}").change(function(){
-                        var amount = $(this).val();
+                        let amount = $(this).val();
 
                         <!-- ${element.properties.spellingTarget!} -->
                         <!--
@@ -44,15 +44,15 @@
             </script>
         </#if>
 
-        <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_value"/>
+        <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="calculationField primary_value calField_${element.properties.elementUniqueKey!}"/>
 
         <#if element.properties.hidden! != 'true'>
             <label class="label">${element.properties.label} <span class="form-cell-validator">${decoration}</span><#if error??> <span class="form-error-message">${error}</span></#if></label>
             <#if element.properties.readonlyLabel! == 'true' && element.properties.readonly! == 'true'>
-                <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_key" ${attrDontTrigger} />
+                <#-- <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_key" ${attrDontTrigger} /> -->
                 <span class="calculationField_value">${formattedValue!?html}</span>
             <#else>
-                <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask"                 value="${formattedValue!?html}" <#if element.properties.readonly! == 'true' || element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly</#if> style="text-align: right;" class="calFiel_${element.properties.elementUniqueKey!}" ${attrDontTrigger} />
+                <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" value="${formattedValue!?html}" <#if element.properties.readonly! == 'true' || element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly</#if> style="text-align: right;" class="mask" ${attrDontTrigger} />
             </#if>
             <img id="${elementParamName!}${element.properties.elementUniqueKey!}_loading" class="loader" src="${request.contextPath}/plugin/${className}/images/spin.gif" height="16" width="16" style="vertical-align: middle; display: none;">
         </#if>

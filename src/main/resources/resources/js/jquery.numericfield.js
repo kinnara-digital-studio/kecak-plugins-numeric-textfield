@@ -1,7 +1,7 @@
 (function($){
-    $.fn.extend({
+   $.fn.extend({
         numericField : function(o){
-            var target = this;
+            let target = this;
             if($(target)){
                 var form = $(target).parents('form');
 
@@ -34,7 +34,7 @@
                                             numericCalc(target, o);
                                     }, TIMEOUT);
                                 });
-                            } else if(field.is(".primary_value")) {
+                            } else if(field.is(".calculationField")) {
                                 field.on('change', function(){
                                     let $section = $(this).parents('.form-section, .subform-section');
                                     setTimeout(function() {
@@ -69,17 +69,19 @@
 //                            });
                         });
                     } else {
-                        let elementPrimary = $(target).closest(".form-cell, .subform-cell").find(".primary_value");
-                        $(target).focusout(function() {
-                            elementPrimary.val($(target).val());
+                        let $section = $(target).closest(".form-cell, .subform-cell");
+                        let elementMask = $($section).find("input.mask");
+                        let elementPrimary = $($section).find(".primary_value");
+                        $(elementMask).focusout(function() {
+                            elementPrimary.val($(elementMask).val());
                             numericCalc(target, o);
 
 //                            elementPrimary.focusout();
                         });
 
-                        $(target).focusin(function() {
+                        $(elementMask).focusin(function() {
                             let value = elementPrimary.val();
-                            $(target).val(value);
+                            $(elementMask).val(value);
                         });
                     }
 
@@ -107,17 +109,17 @@
     });
     
     function numericCalc(target, o){
-        if($(target).is(":visible") && !$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
-            var loadBinder = o.loadBinder;
+        if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
+            let loadBinder = o.loadBinder;
             loadBinder.requestParams = {};
             loadBinder.fieldId = o.fieldId;
 
             $.each(o.variables, function(index){
-                var variable = o.variables[index];
-                var fieldId = variable.fieldId;
-                var element;
+                let variable = o.variables[index];
+                let fieldId = variable.fieldId;
+                let element;
 
-                var value = 0;
+                let value = 0;
 
                 let $selector;
                 if(fieldId.indexOf(".") != -1) {
@@ -225,17 +227,19 @@
 
     function apply(target, result, o) {
 //        var formattedResult  = formatResult(result, o);
-        var elementBlock = $(target).closest("div");
-        $(target).val(result.mask_value);
+        let $elementBlock = $(target).closest("div");
+        let $elementMask = $elementBlock.find(".mask");
+        let $elementPrimary =  $elementBlock.find(".primary_value");
 
-        if ($(target).parent().find(".calculationField_value").length > 0) {
-            $(target).parent().find(".calculationField_value").text(result.mask_value);
-        }
+//        if ($(target).parent().find(".calculationField_value").length > 0) {
+//            $(target).parent().find(".calculationField_value").text(result.mask_value);
+//        }
 
-        elementBlock.find(".primary_value").val(result.value);
-        elementBlock.find(".primary_value").trigger("change");
+        $elementMask.val(result.mask_value);
+        $elementPrimary.val(result.value);
+        $elementPrimary.trigger("change");
 
-        var imageLoader = elementBlock.find("img.loader");
+        let imageLoader = $elementBlock.find("img.loader");
         if(imageLoader)
             $(imageLoader).hide();
         var submitButton = $(target).parents("form:first").find("input[type='submit']");
