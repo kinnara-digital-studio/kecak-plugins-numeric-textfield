@@ -10,7 +10,7 @@
                     if(o.variables && o.variables.length != 0){
                         $.each(o.variables, function(index){
                             let variable = o.variables[index];
-                            let fieldId = variable.fieldId;
+                            let fieldId = variable.variableName;
                             if(fieldId.indexOf(".") != -1){
                                 fieldId = fieldId.substring(0, fieldId.indexOf("."));
                             }

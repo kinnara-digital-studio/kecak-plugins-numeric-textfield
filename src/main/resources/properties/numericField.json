@@ -23,11 +23,8 @@
           type : 'grid',
           columns : [{
               key : 'variableName',
-              label : '@@form.numericfield.variableName@@'
-          },
-          {
-              key : 'fieldId',
-              label : '@@form.numericfield.fieldId@@'
+              label : '@@form.numericfield.fieldId@@',
+              required: 'true'
           },
           {
               key : 'operation',
