@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 
 public class NumericField extends Element implements FormBuilderPaletteElement, PluginWebSupport, AceFormElement, AdminLteFormElement {
     public String getName() {
-        return "Numeric Field";
+        return getClass().getName();
     }
 
     public String getVersion() {
@@ -48,7 +48,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     }
 
     public String getLabel() {
-        return getName();
+        return "Numeric Field";
     }
 
     public String getClassName() {
@@ -207,14 +207,21 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     public void webService(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ApplicationContext appContext = AppUtil.getApplicationContext();
         PluginManager pluginManager = (PluginManager) appContext.getBean("pluginManager");
-        AppService appService = (AppService) appContext.getBean("appService");
 
         try {
-            JSONObject body = constructRequestBody(request);
-            JSONObject data = new JSONObject();
-            String formDefId = body.getString("formDefId");
-            String fieldId = body.getString("fieldId");
-            String primaryKey = body.optString("primaryKey");
+            JSONObject body;
+            String formDefId;
+            String fieldId;
+            String primaryKey;
+
+            try {
+                body = constructRequestBody(request);
+                formDefId = body.getString("formDefId");
+                fieldId = body.getString("fieldId");
+                primaryKey = body.optString("primaryKey");
+            } catch (JSONException e) {
+                throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, e);
+            }
 
             AppDefinition appDef = AppUtil.getCurrentAppDefinition();
             if(appDef == null) {
@@ -253,21 +260,24 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 value = determineNumber(body.optString("formatValue"), locale);
             }
 
-            ;
             Map<String, Object> formatterPlugin = (Map<String, Object>) element.getProperty("formatterPlugin");
             DataListColumnFormatDefault formatter = Utilities.getPluginObject(formatterPlugin, pluginManager);
             String formattedValue = formatter == null ? value.toString()
                     : reformatValue(fieldId, value.toString(), form, formData, formatter);
 
+            JSONObject data = new JSONObject();
             data.put("value", value.doubleValue());
             data.put("mask_value", formattedValue);
 
             response.setStatus(HttpServletResponse.SC_OK);
             response.getWriter().write(data.toString());
 
-        } catch (Exception e) {
+        } catch (RestApiException e) {
             LogUtil.error(getClassName(), e, e.getMessage());
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.sendError(e.getErrorCode(), e.getMessage());
+        } catch (JSONException e) {
+            LogUtil.error(getClassName(), e, e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 

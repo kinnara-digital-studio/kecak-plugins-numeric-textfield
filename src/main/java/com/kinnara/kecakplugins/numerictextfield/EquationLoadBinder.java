@@ -9,6 +9,7 @@ import org.joget.apps.form.model.FormData;
 import org.joget.apps.form.model.FormRow;
 import org.joget.apps.form.model.FormRowSet;
 import org.joget.apps.form.service.FormUtil;
+import org.joget.commons.util.LogUtil;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -24,13 +25,14 @@ public class EquationLoadBinder extends WorkflowFormBinder {
             for (Map.Entry<String, String[]> entry : params.entrySet()) {
                 String value = entry.getValue()[0];
                 try {
-                    e.setVariable(entry.getKey(), (value == null || value.isEmpty()) ? (0) : (Double.valueOf(value)));
+                    e.setVariable(entry.getKey(), (value == null || value.isEmpty()) ? (0) : (Double.parseDouble(value)));
                 } catch (NumberFormatException ex) {
+                    LogUtil.error(getClassName(), ex, ex.getMessage());
                     e.setVariable(entry.getKey(), 0);
                 }
             }
 
-            BigDecimal result = new BigDecimal(e.evaluate());
+            BigDecimal result = BigDecimal.valueOf(e.evaluate());
             FormRow row = new FormRow();
             row.put(element.getPropertyString(FormUtil.PROPERTY_ID), result.toString());
             rowSet.add(row);
@@ -41,7 +43,7 @@ public class EquationLoadBinder extends WorkflowFormBinder {
 
     @Override
     public String getName() {
-        return "Equation Load Binder";
+        return getClass().getName();
     }
 
     @Override
@@ -56,7 +58,7 @@ public class EquationLoadBinder extends WorkflowFormBinder {
 
     @Override
     public String getLabel() {
-        return getName();
+        return "Equation Load Binder";
     }
 
     @Override

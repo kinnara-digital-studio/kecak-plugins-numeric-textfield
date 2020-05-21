@@ -116,7 +116,7 @@
 
             $.each(o.variables, function(index){
                 let variable = o.variables[index];
-                let fieldId = variable.fieldId;
+                let fieldId = variable.variableName;
                 let element;
 
                 let value = 0;
