@@ -17,7 +17,7 @@
             <script type="text/javascript">
                 let options_calField_${element.properties.elementUniqueKey} = ${configJson!};
                 $(document).ready(function(){
-                    $('.calField_${element.properties.elementUniqueKey!}').numericField(options_calField_${element.properties.elementUniqueKey});
+                    $('#${elementParamName!}${element.properties.elementUniqueKey!}').numericField(options_calField_${element.properties.elementUniqueKey});
 
                     let val = $("#${elementParamName!}${element.properties.elementUniqueKey!}").val();
 

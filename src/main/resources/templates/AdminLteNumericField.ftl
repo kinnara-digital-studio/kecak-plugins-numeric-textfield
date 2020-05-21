@@ -17,7 +17,7 @@
             <script type="text/javascript">
                 var options_calField_${element.properties.elementUniqueKey} = ${configJson!};
                 $(document).ready(function(){
-                    $('.calFiel_${element.properties.elementUniqueKey!}').numericField(options_calField_${element.properties.elementUniqueKey});
+                    $('#${elementParamName!}${element.properties.elementUniqueKey!}').numericField(options_calField_${element.properties.elementUniqueKey});
 
                     var val = $("#${elementParamName!}${element.properties.elementUniqueKey!}").val();
 
@@ -44,17 +44,19 @@
             </script>
         </#if>
 
-        <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_value"/>
+        <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="calculationField primary_value calField_${element.properties.elementUniqueKey!}"/>
 
         <#if element.properties.hidden! != 'true'>
-            <label class="control-label">${element.properties.label} <span class="form-cell-validator">${decoration}</span><#if error??> <span class="form-error-message">${error}</span></#if></label>
+            <label class="control-label">
+                ${element.properties.label} <span class="form-cell-validator">${decoration}</span><#if error??> <span class="form-error-message">${error}</span></#if>
+                <img id="${elementParamName!}${element.properties.elementUniqueKey!}_loading" class="loader" src="${request.contextPath}/plugin/${className}/images/spin.gif" height="16" width="16" style="vertical-align: middle; display: none;">
+            </label>
             <#if element.properties.readonlyLabel! == 'true' && element.properties.readonly! == 'true'>
                 <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_key" ${attrDontTrigger} />
                 <span class="calculationField_value">${formattedValue!?html}</span>
             <#else>
-                <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask"                 value="${formattedValue!?html}" <#if element.properties.readonly! == 'true' || element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly</#if> style="text-align: right;" class="calFiel_${element.properties.elementUniqueKey!} form-control" ${attrDontTrigger} />
+                <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" value="${formattedValue!?html}" <#if element.properties.readonly! == 'true' || element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly</#if> style="text-align: right;" class="mask style form-control" ${attrDontTrigger} />
             </#if>
-            <img id="${elementParamName!}${element.properties.elementUniqueKey!}_loading" class="loader" src="${request.contextPath}/plugin/${className}/images/spin.gif" height="16" width="16" style="vertical-align: middle; display: none;">
         </#if>
     </#if>
 </div>
