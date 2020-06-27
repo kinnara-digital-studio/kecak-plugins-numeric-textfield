@@ -15,5 +15,16 @@
         "required": "true"
       }
     ]
+  },
+  {
+    "title": "@@equationTool.form@@",
+    "properties": [
+      {
+        "name": "formDefId",
+        "label": "@@equationTool.formDefId@@",
+        "type": "selectbox",
+        "options_ajax": "[CONTEXT_PATH]/web/json/console/app[APP_PATH]/forms/options"
+      }
+    ]
   }
 ]
