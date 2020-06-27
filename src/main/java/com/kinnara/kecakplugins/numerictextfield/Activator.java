@@ -14,6 +14,7 @@ public class Activator implements BundleActivator {
         registrationList = new ArrayList<ServiceRegistration>();
 
         //Register plugin here
+        registrationList.add(context.registerService(EquationTool.class.getName(), new EquationTool(), null));
         registrationList.add(context.registerService(NumericField.class.getName(), new NumericField(), null));
         registrationList.add(context.registerService(EquationLoadBinder.class.getName(), new EquationLoadBinder(), null));
     }
