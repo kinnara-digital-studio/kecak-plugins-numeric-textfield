@@ -1,12 +1,24 @@
 [
   {
-    title : "@@equationLoadBinder.title@@",
-    properties : [
+    "title" : "@@equationLoadBinder.title@@",
+    "properties" : [
       {
-        name : "equation",
-        label : '@@equationLoadBinder.equation@@',
-        type : 'textfield',
-        required : 'True'
+        "name" : "equation",
+        "label" : "@@equationLoadBinder.equation@@",
+        "type" : "textfield",
+        "required" : "true"
+      },
+      {
+        "name": "debug",
+        "label": "@@equationLoadBinder.debug@@",
+        "type": "checkbox",
+        "value": "false",
+        "options": [
+          {
+            "value": "true",
+            "label": ""
+          }
+        ]
       }
     ]
   }

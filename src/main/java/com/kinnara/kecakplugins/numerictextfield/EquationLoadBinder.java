@@ -12,27 +12,49 @@ import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
-public class EquationLoadBinder extends WorkflowFormBinder {
+public class EquationLoadBinder extends WorkflowFormBinder implements Unclutter {
     @Override
     public FormRowSet load(Element element, String primaryKey, FormData formData) {
+        if(isDebug()) {
+            LogUtil.info(getClassName(), "load : element ID ["+ Optional.ofNullable(element).map(e -> e.getPropertyString("id")).orElse("")+"]");
+        }
         FormRowSet rowSet = new FormRowSet();
         Map<String, String[]> params = formData.getRequestParams();
         String equation = getPropertyString("equation");
+        if(isDebug()) {
+            LogUtil.info(getClassName(), "load : equation ["+equation+"]");
+        }
+
         try {
             Expression e = new ExpressionBuilder(equation).variables(params.keySet()).build();
             for (Map.Entry<String, String[]> entry : params.entrySet()) {
-                String value = entry.getValue()[0];
-                try {
-                    e.setVariable(entry.getKey(), (value == null || value.isEmpty()) ? (0) : (Double.parseDouble(value)));
-                } catch (NumberFormatException ex) {
-                    LogUtil.error(getClassName(), ex, ex.getMessage());
-                    e.setVariable(entry.getKey(), 0);
+                double value = Optional.of(entry)
+                        .map(Map.Entry::getValue)
+                        .map(Arrays::stream)
+                        .orElseGet(Stream::empty)
+                        .findFirst()
+                        .filter(s -> !s.isEmpty())
+                        .map(throwableFunction(Double::parseDouble))
+                        .orElse(0.0);
+
+                if(isDebug()) {
+                    LogUtil.info(getClassName(), "load : variable ["+entry.getKey()+"] value [" + value + "]");
                 }
+
+                e.setVariable(entry.getKey(), value);
             }
 
             BigDecimal result = BigDecimal.valueOf(e.evaluate());
+
+            if(isDebug()) {
+                LogUtil.info(getClassName(), "load : result [" + result + "]");
+            }
+
             FormRow row = new FormRow();
             row.put(element.getPropertyString(FormUtil.PROPERTY_ID), result.toString());
             rowSet.add(row);
@@ -71,4 +93,12 @@ public class EquationLoadBinder extends WorkflowFormBinder {
         return AppUtil.readPluginResource(getClassName(), "/properties/equationLoadBinder.json", null, false,"/messages/equationLoadBinder");
     }
 
+    /**
+     * Get property "debug"
+     *
+     * @return
+     */
+    private boolean isDebug() {
+        return "true".equalsIgnoreCase(getPropertyString("debug"));
+    }
 }
