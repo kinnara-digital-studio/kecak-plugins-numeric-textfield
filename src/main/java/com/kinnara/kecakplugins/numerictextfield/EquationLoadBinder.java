@@ -65,7 +65,7 @@ public class EquationLoadBinder extends WorkflowFormBinder implements Unclutter 
 
     @Override
     public String getName() {
-        return getClass().getName();
+        return getLabel() + getVersion();
     }
 
     @Override

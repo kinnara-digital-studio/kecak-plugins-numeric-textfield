@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 
 public class NumericField extends Element implements FormBuilderPaletteElement, PluginWebSupport, AceFormElement, AdminLteFormElement {
     public String getName() {
-        return getClass().getName();
+        return getLabel() + getVersion();
     }
 
     public String getVersion() {
