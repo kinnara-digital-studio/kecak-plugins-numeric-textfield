@@ -18,28 +18,6 @@
                 let options_calField_${element.properties.elementUniqueKey} = ${configJson!};
                 $(document).ready(function(){
                     $('#${elementParamName!}${element.properties.elementUniqueKey!}').numericField(options_calField_${element.properties.elementUniqueKey});
-
-                    let val = $("#${elementParamName!}${element.properties.elementUniqueKey!}").val();
-
-                    $("#${elementParamName!}${element.properties.elementUniqueKey!}").change(function(){
-                        let amount = $(this).val();
-
-                        <!-- ${element.properties.spellingTarget!} -->
-                        <!--
-                        <#if (element.properties.spellingTarget! != '') >
-                            amount = amount.replace(/\.+/g,'');
-                            amount = amount.replace(/\,+/,'.');
-                            amount = amount.replace(/\.00+/,'');
-
-                            var spelled = terbilang(amount).trim();
-                            var fieldSpellingTarget = FormUtil.getField("${element.properties.spellingTarget!}");
-                            if(fieldSpellingTarget && spelled){
-                                $(fieldSpellingTarget).val(spelled);
-                            }
-                            $("#${element.properties.spellingTarget!}").attr("readonly","true");
-                        </#if>
-                        -->
-                    });
                 });
             </script>
         </#if>

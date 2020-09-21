@@ -106,7 +106,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             if(form != null)
                 requestBody.put("formDefId", form.getPropertyString("id"));
 
-
             AppDefinition appDefinition = AppUtil.getCurrentAppDefinition();
 
             requestBody.put("url", WorkflowUtil.getHttpServletRequest().getContextPath() + "/web/json/app/" + appDefinition.getAppId() + "/" +appDefinition.getVersion() + "/plugin/" + getClassName() + "/service");
@@ -116,6 +115,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
             return requestBody;
         } catch (Exception e) {
+            LogUtil.error(getClassName(), e, e.getMessage());
         }
         return null;
     }
@@ -126,7 +126,6 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             AppDefinition appDef = AppUtil.getCurrentAppDefinition();
             JSONObject jsonConfig = new JSONObject();
             jsonConfig.accumulate("equation", getPropertyString("equation"));
-//            jsonConfig.accumulate("fieldId", getPropertyString("id"));
             jsonConfig.accumulate("fieldId", getFullFieldPath(rootForm, this));
             jsonConfig.put("appId", appDef.getAppId());
             jsonConfig.put("appVersion", appDef.getVersion().toString());
@@ -137,6 +136,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             return jsonConfig.toString();
         }
         catch (Exception e) {
+            LogUtil.error(getClassName(), e, e.getMessage());
             return "{}";
         }
     }
@@ -295,25 +295,23 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
             try {
                 Number number = numberFormat.parse(input);
-                return new BigDecimal(number.doubleValue());
-            } catch (ParseException e) {
-            }
+                return BigDecimal.valueOf(number.doubleValue());
+            } catch (ParseException ignored) { }
 
             try {
                 String assumptionAsInternationalFormat = input.replaceAll(",", "").replaceAll("\\.", ".");
                 Number number = numberFormat.parse(assumptionAsInternationalFormat);
-                return new BigDecimal(number.doubleValue());
-            } catch (ParseException e) {
-            }
+                return BigDecimal.valueOf(number.doubleValue());
+            } catch (ParseException ignored) { }
 
             try {
                 String assumptionAsDotAsThousands = input.replaceAll("\\.", "").replaceAll(",", ".");
                 Number number = numberFormat.parse(assumptionAsDotAsThousands);
-                return new BigDecimal(number.doubleValue());
-            } catch (ParseException e) {
-            }
+                return BigDecimal.valueOf(number.doubleValue());
+            } catch (ParseException ignored) { }
 
         } catch (NumberFormatException e) {
+            LogUtil.error(getClassName(), e, e.getMessage());
         }
 
         return new BigDecimal("0");

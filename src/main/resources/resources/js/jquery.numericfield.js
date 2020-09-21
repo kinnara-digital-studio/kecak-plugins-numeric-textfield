@@ -51,22 +51,6 @@
                                     }, TIMEOUT);
                                 });
                             }
-
-//                            var observer = new MutationObserver(function(mutations) {
-//                              mutations.forEach(function(mutation) {
-//                                if (mutation.attributeName === "class") {
-//                                  var attributeValue = $(mutation.target).prop(mutation.attributeName);
-//                                  if($(mutation.target).is(":visible"))
-//                                    numericCalc(target,o);
-//                                }
-//                              });
-//                            });
-//
-//                            $section.each(function(i) {
-//                                observer.observe($section[i], {
-//                                  attributes: true
-//                                });
-//                            });
                         });
                     } else {
                         let $section = $(target).closest(".form-cell, .subform-cell");
@@ -75,13 +59,11 @@
                         $(elementMask).focusout(function() {
                             elementPrimary.val($(elementMask).val());
                             numericCalc(target, o);
-
-//                            elementPrimary.focusout();
                         });
 
                         $(elementMask).focusin(function() {
                             let value = elementPrimary.val();
-                            $(elementMask).val(value);
+                            $(elementMask).val(value == '0' ? '' : value);
                         });
                     }
 
@@ -226,14 +208,9 @@
     };
 
     function apply(target, result, o) {
-//        var formattedResult  = formatResult(result, o);
         let $elementBlock = $(target).closest("div");
         let $elementMask = $elementBlock.find(".mask");
         let $elementPrimary =  $elementBlock.find(".primary_value");
-
-//        if ($(target).parent().find(".calculationField_value").length > 0) {
-//            $(target).parent().find(".calculationField_value").text(result.mask_value);
-//        }
 
         $elementMask.val(result.mask_value);
         $elementPrimary.val(result.value);
@@ -248,8 +225,23 @@
         }
 
         if(o.spellingTarget) {
-            var spellingElement = FormUtil.getField(o.spellingTarget);
-            spellingElement.val(terbilang(result.value).trim());
+            let spellingElement = FormUtil.getField(o.spellingTarget);
+            let currencyElement = FormUtil.getField(o.currencyRefField);
+            let currencyValue = FormUtil.getValue(o.currencyRefField);
+
+            let terbilangValue = terbilang(result.value).trim();
+
+            let terbilangCurrency =
+                !terbilangValue ? ''
+                    : currencyValue == 'en_US' ? 'dollar'
+                    : currencyValue == 'en_IE' ? 'euro'
+                    : currencyValue == 'in_ID' ? 'rupiah'
+                    : currencyValue == 'ja_JP' ? 'yen'
+                    : '';
+
+            let spellingValue = terbilangValue || terbilangCurrency ? (terbilangValue + ' ' + terbilangCurrency) : '';
+
+            spellingElement.val(spellingValue);
             spellingElement.attr("readonly","true");
         }
     }
