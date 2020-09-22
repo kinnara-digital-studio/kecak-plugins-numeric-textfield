@@ -16,6 +16,7 @@ public class Activator implements BundleActivator {
         //Register plugin here
         registrationList.add(context.registerService(NumericField.class.getName(), new NumericField(), null));
         registrationList.add(context.registerService(EquationLoadBinder.class.getName(), new EquationLoadBinder(), null));
+        registrationList.add(context.registerService(NumericValidator.class.getName(), new NumericValidator(), null));
     }
 
     public void stop(BundleContext context) {

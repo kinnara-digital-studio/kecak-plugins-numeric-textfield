@@ -1,0 +1,70 @@
+[
+  {
+    "title": "@@numericValidator.title@@",
+    "properties": [
+      {
+        "name": "conditions",
+        "label": "@@numericValidator.conditions@@",
+        "type": "grid",
+        "columns": [
+          {
+            "key": "joinType",
+            "label": "@@numericValidator.joinType@@",
+            "value": "and",
+            "options": [
+              {
+                "value": "and",
+                "label": "AND"
+              },
+              {
+                "value": "or",
+                "label": "OR"
+              }
+            ]
+          },
+          {
+            "key": "operator",
+            "label" : "@@numericValidator.operator@@",
+            "value": "eq",
+            "options": [
+              {
+                "value": "eq",
+                "label": "="
+              },
+              {
+                "value": "neq",
+                "label": "<>"
+              },
+              {
+                "value": "gt",
+                "label": ">"
+              },
+              {
+                "value": "gte",
+                "label": ">="
+              },
+              {
+                "value": "lt",
+                "label": "<"
+              },
+              {
+                "value": "lte",
+                "label": "<="
+              }
+            ]
+          },
+          {
+            "key": "value",
+            "label": "@@numericValidator.value@@",
+            "required": "true"
+          }
+        ]
+      },
+      {
+        "name": "message",
+        "label": "@@numericValidator.message@@",
+        "type": "textfield"
+      }
+    ]
+  }
+]
