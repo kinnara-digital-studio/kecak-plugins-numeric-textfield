@@ -39,7 +39,12 @@ public class EquationLoadBinder extends WorkflowFormBinder implements Unclutter 
                         .orElseGet(Stream::empty)
                         .findFirst()
                         .filter(s -> !s.isEmpty())
-                        .map(throwableFunction(Double::parseDouble))
+                        .map(throwableFunction(Double::parseDouble, (RuntimeException ex) -> {
+                            if(isDebug()) {
+                                LogUtil.error(getClassName(), ex, ex.getMessage());
+                            }
+                            return 0.0;
+                        }))
                         .orElse(0.0);
 
                 if(isDebug()) {
