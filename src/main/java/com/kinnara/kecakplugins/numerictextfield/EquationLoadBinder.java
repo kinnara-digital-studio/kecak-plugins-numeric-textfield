@@ -1,5 +1,6 @@
 package com.kinnara.kecakplugins.numerictextfield;
 
+import com.kinnarastudio.commons.Try;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.joget.apps.app.service.AppUtil;
@@ -17,7 +18,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class EquationLoadBinder extends WorkflowFormBinder implements Unclutter {
+public class EquationLoadBinder extends WorkflowFormBinder {
     @Override
     public FormRowSet load(Element element, String primaryKey, FormData formData) {
         if(isDebug()) {
@@ -39,8 +40,8 @@ public class EquationLoadBinder extends WorkflowFormBinder implements Unclutter 
                         .orElseGet(Stream::empty)
                         .findFirst()
                         .filter(s -> !s.isEmpty())
-                        .map(throwableFunction(Double::parseDouble, (RuntimeException ex) -> {
-                            if(isDebug()) {
+                        .map(Try.onFunction(Double::parseDouble, (RuntimeException ex) -> {
+                            if (isDebug()) {
                                 LogUtil.error(getClassName(), ex, ex.getMessage());
                             }
                             return 0.0;
