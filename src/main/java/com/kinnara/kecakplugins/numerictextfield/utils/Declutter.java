@@ -167,6 +167,7 @@ public interface Declutter {
      */
     @Nonnull
     default Stream<Element> elementStream(@Nonnull Element element, FormData formData) {
+        // no need to check authorization if form data is null
         if (!element.isAuthorize(formData)) {
             return Stream.empty();
         }

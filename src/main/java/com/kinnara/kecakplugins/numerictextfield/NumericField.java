@@ -1,8 +1,12 @@
 package com.kinnara.kecakplugins.numerictextfield;
 
+import com.kinnara.kecakplugins.numerictextfield.utils.Declutter;
+import com.kinnarastudio.commons.jsonstream.JSONStream;
 import org.joget.apps.app.dao.FormDefinitionDao;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.model.FormDefinition;
+import org.joget.apps.app.model.PackageActivityForm;
+import org.joget.apps.app.service.AppService;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.datalist.model.DataList;
 import org.joget.apps.datalist.model.DataListCollection;
@@ -15,9 +19,14 @@ import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.plugin.base.PluginManager;
 import org.joget.plugin.base.PluginWebSupport;
+import org.joget.workflow.model.WorkflowAssignment;
+import org.joget.workflow.model.WorkflowProcessLink;
+import org.joget.workflow.model.service.WorkflowManager;
 import org.joget.workflow.util.WorkflowUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.kecak.apps.exception.ApiException;
+import org.kecak.apps.form.model.DataJsonControllerHandler;
 import org.springframework.context.ApplicationContext;
 
 import javax.annotation.Nonnull;
@@ -33,7 +42,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class NumericField extends Element implements FormBuilderPaletteElement, PluginWebSupport, AceFormElement, AdminLteFormElement {
+/**
+ * @author aristo
+ */
+public class NumericField extends Element implements Declutter, FormBuilderPaletteElement, PluginWebSupport, AceFormElement, AdminLteFormElement {
     public String getName() {
         return getLabel() + getVersion();
     }
@@ -55,7 +67,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     }
 
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(this.getClass().getName(), "/properties/numericField.json", new String[] {EquationLoadBinder.class.getName()}, true, "messages/numericField");
+        return AppUtil.readPluginResource(this.getClass().getName(), "/properties/numericField.json", new String[]{EquationLoadBinder.class.getName()}, true, "messages/numericField");
     }
 
     public String getFormBuilderCategory() {
@@ -87,9 +99,9 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             DataListColumnFormatDefault formatter = Utilities.getPluginObject((Map<String, Object>) getProperty("formatterPlugin"), pluginManager);
             String currencyRef = getPropertyString("currencyRefField");
             Map.Entry<String, String> currency = null;
-            if(currencyRef!=null && !currencyRef.isEmpty()) {
+            if (currencyRef != null && !currencyRef.isEmpty()) {
                 String currencyValue = formData.getRequestParameter(currencyRef);
-                if(currencyValue!=null) {
+                if (currencyValue != null) {
                     currency = new AbstractMap.SimpleEntry<>(currencyRef, currencyValue);
                 }
             }
@@ -102,12 +114,12 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     private JSONObject generateJsonCalculationLoadBinderConf(Form form, FormData formData) {
         try {
             JSONObject requestBody = new JSONObject();
-            if(form != null)
+            if (form != null)
                 requestBody.put("formDefId", form.getPropertyString("id"));
 
             AppDefinition appDefinition = AppUtil.getCurrentAppDefinition();
 
-            requestBody.put("url", WorkflowUtil.getHttpServletRequest().getContextPath() + "/web/json/app/" + appDefinition.getAppId() + "/" +appDefinition.getVersion() + "/plugin/" + getClassName() + "/service");
+            requestBody.put("url", WorkflowUtil.getHttpServletRequest().getContextPath() + "/web/json/app/" + appDefinition.getAppId() + "/" + appDefinition.getVersion() + "/plugin/" + getClassName() + "/service");
             requestBody.put("baseUrl", WorkflowUtil.getHttpServletRequest().getContextPath());
             requestBody.put("primaryKey", formData.getPrimaryKeyValue());
             requestBody.put("field", "");
@@ -125,7 +137,10 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             AppDefinition appDef = AppUtil.getCurrentAppDefinition();
             JSONObject jsonConfig = new JSONObject();
             jsonConfig.accumulate("equation", getPropertyString("equation"));
-            jsonConfig.accumulate("fieldId", getFullFieldPath(rootForm, this));
+//            jsonConfig.accumulate("fieldId", getFullFieldPath(rootForm, this));
+            jsonConfig.accumulate("fieldId", getPropertyString("id"));
+            jsonConfig.put("primaryKey", formData.getPrimaryKeyValue());
+            jsonConfig.put("assignmentId", formData.getActivityId());
             jsonConfig.put("appId", appDef.getAppId());
             jsonConfig.put("appVersion", appDef.getVersion().toString());
             jsonConfig.accumulate("variables", getProperty("variables"));
@@ -133,8 +148,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(rootForm, formData));
             jsonConfig.put("spellingTarget", getPropertyString("spellingTarget"));
             return jsonConfig.toString();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             LogUtil.error(getClassName(), e, e.getMessage());
             return "{}";
         }
@@ -145,32 +159,36 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     }
 
     private String getFullFieldPathRec(@Nonnull Form form, Element element, @Nonnull String trailingPath) {
-        if(element == null || form == element) {
+        if (element == null || form == element) {
             return trailingPath;
         }
 
         trailingPath = Stream.concat(
-            Stream.of(element)
-                    .map(e -> e.getPropertyString(FormUtil.PROPERTY_ID))
-                    .filter(Objects::nonNull)
-                    .filter(s -> !s.isEmpty()),
+                Stream.of(element)
+                        .map(e -> e.getPropertyString(FormUtil.PROPERTY_ID))
+                        .filter(Objects::nonNull)
+                        .filter(s -> !s.isEmpty()),
 
-            Stream.of(trailingPath).filter(s -> !s.isEmpty())
+                Stream.of(trailingPath).filter(s -> !s.isEmpty())
         ).collect(Collectors.joining("."));
         return getFullFieldPathRec(form, element.getParent(), trailingPath);
     }
 
-    private Element getElement(@Nonnull Form form, String fullPath) {
-        return getElementRec(form, fullPath, "");
+    private Element getElement(@Nonnull Form form, FormData formData, String fullPath) throws RestApiException {
+        return elementStream(form, formData)
+                .filter(e -> fullPath.equals(e.getPropertyString("id")))
+                .findAny()
+                .orElseThrow(() -> new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Field [" + fullPath + "] in form [" + form.getPropertyString("id") + "] cannot be defined"));
+//        return getElementRec(form, fullPath, "");
     }
 
     @Nullable
     private Element getElementRec(Element element, @Nonnull final String fullPath, @Nonnull final String path) {
-        if(element == null) {
+        if (element == null) {
             return null;
         }
 
-        if(fullPath.equalsIgnoreCase(path)) {
+        if (fullPath.equalsIgnoreCase(path)) {
             return element;
         }
 
@@ -180,8 +198,8 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 .orElseGet(Stream::empty)
                 .map(child -> {
                     final String currentPath = Stream.concat(
-                        Stream.of(path).filter(s -> !s.isEmpty()),
-                        Stream.of(child).map(e -> e.getPropertyString(FormUtil.PROPERTY_ID)).filter(Objects::nonNull).filter(s -> !s.isEmpty())
+                            Stream.of(path).filter(s -> !s.isEmpty()),
+                            Stream.of(child).map(e -> e.getPropertyString(FormUtil.PROPERTY_ID)).filter(Objects::nonNull).filter(s -> !s.isEmpty())
                     ).collect(Collectors.joining("."));
                     return getElementRec(child, fullPath, currentPath);
                 })
@@ -204,58 +222,72 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
     @Override
     public void webService(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        LogUtil.info(getClass().getName(), "Executing Rest API [" + request.getRequestURI() + "] in method [" + request.getMethod() + "] contentType ["+ request.getContentType() + "] as [" + WorkflowUtil.getCurrentUsername() + "]");
+
         ApplicationContext appContext = AppUtil.getApplicationContext();
         PluginManager pluginManager = (PluginManager) appContext.getBean("pluginManager");
+        AppDefinition appDef = AppUtil.getCurrentAppDefinition();
 
         try {
+            if (appDef == null) {
+                throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Application definition cannot be defined");
+            }
+
             JSONObject body;
             String formDefId;
             String fieldId;
             String primaryKey;
+            String assignmentId;
 
             try {
                 body = constructRequestBody(request);
                 formDefId = body.getString("formDefId");
                 fieldId = body.getString("fieldId");
                 primaryKey = body.optString("primaryKey");
+                assignmentId = body.optString("assignmentId");
             } catch (JSONException e) {
                 throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, e);
             }
 
-            AppDefinition appDef = AppUtil.getCurrentAppDefinition();
-            if(appDef == null) {
-                throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Application definition cannot be defined");
-            }
-
-            // Form
             Form form = generateForm(formDefId, appDef);
             if (form == null) {
                 throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Form [" + formDefId + "] cannot be defined");
             }
 
             // Numeric Field Element
-//            Element element = FormUtil.findElement(fieldId, form, new FormData());
-            Element element = getElement(form, fieldId);
-            if(element == null) {
-                throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Field [" + fieldId + "] in form [" + formDefId + "] cannot be defined");
+//            Element element = getElement(form, initFormData, fieldId);
+
+            WorkflowAssignment workflowAssignment;
+            if(!assignmentId.isEmpty()) {
+                workflowAssignment = getAssignment(assignmentId);
+                if(workflowAssignment == null) {
+                    LogUtil.warn(getClassName(), "Unknown assignment ["+assignmentId+"]");
+                }
+            } else {
+                workflowAssignment = null;
             }
 
-            String currencyField = element.getPropertyString("currencyRefField");
-
-            Map<String, Object> calculationLoadBinder = (Map<String, Object>) element.getProperty("calculationLoadBinder");
             JSONObject requestParameters = body.optJSONObject("requestParams");
-            Locale locale = getLocale(requestParameters.optString(currencyField));
-            FormData formData = generateFormData(element, primaryKey, requestParameters, locale);
+            FormData formData = generateFormData(workflowAssignment, primaryKey, requestParameters);
+
+            Element element = elementStream(form, formData)
+                    .filter(e -> fieldId.equals(e.getPropertyString("id")) && e instanceof NumericField)
+                    .findFirst()
+                    .orElseThrow(() -> new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Unknown element [" + fieldId + "] in form [" + formDefId + "]"));
+
+            String currencyField = element.getPropertyString("currencyRefField");
+            Map<String, Object> calculationLoadBinder = (Map<String, Object>) element.getProperty("calculationLoadBinder");
 
             BigDecimal value;
 
             FormLoadBinder loadBinderPlugins = Utilities.getPluginObject(calculationLoadBinder, pluginManager);
-            if(loadBinderPlugins != null) {
+            if (loadBinderPlugins != null) {
                 // value is calculated by calculation load binder
                 element.setLoadBinder(loadBinderPlugins);
                 value = executeCalculation(element, formData);
             } else {
                 // value from user input
+                Locale locale = getLocale(requestParameters.optString(currencyField));
                 value = determineNumber(body.optString("formatValue"), locale);
             }
 
@@ -272,16 +304,21 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             response.getWriter().write(data.toString());
 
         } catch (RestApiException e) {
-            LogUtil.error(getClassName(), e, e.getMessage());
-            response.sendError(e.getErrorCode(), e.getMessage());
+            String appId = appDef == null ? "" : appDef.getAppId();
+            long appVersion = appDef == null ? 0 : appDef.getVersion();
+            LogUtil.error(getClassName(), e, "Application [" + appId + "] version [" + appVersion + "] message [" + e.getMessage() + "]");
+            response.sendError(e.getErrorCode(), "Response [" + e.getErrorCode() + "] : " + e.getMessage());
         } catch (JSONException e) {
-            LogUtil.error(getClassName(), e, e.getMessage());
+            String appId = appDef.getAppId();
+            long appVersion = appDef.getVersion();
+            LogUtil.error(getClassName(), e, "Application [" + appId + "] version [" + appVersion + "] message [" + e.getMessage() + "]");
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 
     /**
      * Determine the numeric value of input string
+     *
      * @param input input string
      * @return numeric representation
      */
@@ -295,19 +332,22 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             try {
                 Number number = numberFormat.parse(input);
                 return BigDecimal.valueOf(number.doubleValue());
-            } catch (ParseException ignored) { }
+            } catch (ParseException ignored) {
+            }
 
             try {
                 String assumptionAsInternationalFormat = input.replaceAll(",", "").replaceAll("\\.", ".");
                 Number number = numberFormat.parse(assumptionAsInternationalFormat);
                 return BigDecimal.valueOf(number.doubleValue());
-            } catch (ParseException ignored) { }
+            } catch (ParseException ignored) {
+            }
 
             try {
                 String assumptionAsDotAsThousands = input.replaceAll("\\.", "").replaceAll(",", ".");
                 Number number = numberFormat.parse(assumptionAsDotAsThousands);
                 return BigDecimal.valueOf(number.doubleValue());
-            } catch (ParseException ignored) { }
+            } catch (ParseException ignored) {
+            }
 
         } catch (NumberFormatException e) {
             LogUtil.error(getClassName(), e, e.getMessage());
@@ -318,21 +358,25 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
 
     /**
      * Generate FormData based on request
+     *
      * @param primaryKey
      * @param requestParameters
-     * @param locale
      * @return
      */
-    private FormData generateFormData(Element element, String primaryKey, JSONObject requestParameters, Locale locale) {
-        String currencyField = element.getPropertyString("currencyRefField");
+    private FormData generateFormData(WorkflowAssignment workflowAssignment, String primaryKey, JSONObject requestParameters) {
         FormData formData = new FormData();
         formData.setPrimaryKeyValue(primaryKey);
-        if(requestParameters != null) {
+        if(workflowAssignment != null) {
+            formData.setProcessId(workflowAssignment.getProcessId());
+            formData.setActivityId(workflowAssignment.getActivityId());
+        }
+
+        if (requestParameters != null) {
             Iterator<String> i = requestParameters.keys();
             while (i.hasNext()) {
                 String key = i.next();
                 String requestValue = requestParameters.optString(key);
-                formData.addRequestParameterValues(key, new String[]{ key.equals(currencyField) ? requestValue : requestValue });
+                formData.addRequestParameterValues(key, new String[]{ requestValue });
             }
         }
 
@@ -359,7 +403,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         // replace some key with data passed from formData
         formData.getRequestParams().forEach((key, value1) -> row.put(key, String.join(";", value1)));
 
-        if(formatterPlugin == null)
+        if (formatterPlugin == null)
             return value;
 
         DataListColumn col = new DataListColumn();
@@ -373,7 +417,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
         dataList.setRows(rows);
         String formattedValue = formatterPlugin.format(dataList, col, row, value);
 
-        if(formattedValue == null) {
+        if (formattedValue == null) {
             return value;
         } else {
             return formattedValue.replaceAll("<[^>]+>", "");
@@ -391,7 +435,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
             FormDefinition formDef = formDefinitionDao.loadById(formDefId, appDef);
             if (formDef != null) {
                 String json = formDef.getJson();
-                form = (Form)formService.createElementFromJson(json);
+                form = (Form) formService.createElementFromJson(json);
 
                 // put in cache if possible
 //                if(formCache != null)
@@ -404,14 +448,20 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     }
 
 
-    private JSONObject constructRequestBody(HttpServletRequest request) throws IOException, JSONException {
-        try(BufferedReader bf = request.getReader()) {
-            return new JSONObject(bf.lines().collect(Collectors.joining()));
+    private JSONObject constructRequestBody(HttpServletRequest request) throws JSONException, RestApiException {
+        String jsonString = "";
+        try (BufferedReader bf = request.getReader()) {
+            jsonString = bf.lines().collect(Collectors.joining());
+            return new JSONObject(jsonString);
+        } catch (IOException | JSONException e) {
+            LogUtil.warn(getClassName(), "JSON String : " + jsonString);
+            throw new RestApiException(HttpServletResponse.SC_BAD_REQUEST, e);
         }
     }
 
     /**
      * Execute calculation load binder
+     *
      * @param element
      * @param formData
      * @return
@@ -437,7 +487,7 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
                 .orElse(new BigDecimal("0"));
     }
 
-    private String renderTemplate(String template, FormData formData, @SuppressWarnings("rawtypes") Map dataModel){
+    private String renderTemplate(String template, FormData formData, @SuppressWarnings("rawtypes") Map dataModel) {
         String value = FormUtil.getElementPropertyValue(this, formData);
         dataModel.put("value", value);
         dataModel.put("formattedValue", formatValue(value, formData));
@@ -457,6 +507,86 @@ public class NumericField extends Element implements FormBuilderPaletteElement, 
     public String renderAdminLteTemplate(FormData formData, Map map) {
         String template = "AdminLteNumericField.ftl";
         return renderTemplate(template, formData, map);
+    }
+
+    /**
+     * Get assignment object
+     *
+     * @param activityId any activity ID, event the completed / aborted
+     * @return
+     * @throws ApiException
+     */
+    protected WorkflowAssignment getAssignment(@Nonnull String activityId)  {
+        WorkflowManager workflowManager = (WorkflowManager) AppUtil.getApplicationContext().getBean("workflowManager");
+        return Optional.of(activityId)
+                .map(throwableFunction(workflowManager::getAssignment))
+                .orElse(null);
+    }
+
+    /**
+     * Get form from assignment
+     *
+     * @param appDefinition I
+     * @param assignment    I
+     * @param formData      I/O
+     * @return
+     * @throws ApiException
+     */
+    @Nonnull
+    protected Form getAssignmentForm(@Nonnull AppDefinition appDefinition, @Nonnull WorkflowAssignment assignment, @Nonnull final FormData formData) throws RestApiException {
+        AppService appService = (AppService) AppUtil.getApplicationContext().getBean("appService");
+        final Form form = Optional.ofNullable(appService.viewAssignmentForm(appDefinition, assignment, formData, ""))
+                .map(PackageActivityForm::getForm)
+                .orElseThrow(() -> new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Assignment [" + assignment.getActivityId() + "] has not been mapped to form"));
+
+        // check form permission
+        if (!isAuthorize(form, formData)) {
+            throw new RestApiException(HttpServletResponse.SC_UNAUTHORIZED, "User [" + WorkflowUtil.getCurrentUsername() + "] doesn't have permission to open this form");
+        }
+
+        formData.addRequestParameterValues(DataJsonControllerHandler.PARAMETER_DATA_JSON_CONTROLLER, new String[] { DataJsonControllerHandler.PARAMETER_DATA_JSON_CONTROLLER });
+
+        return form;
+    }
+
+    /**
+     * Check form authorization
+     * Restrict if no permission is set and user is anonymous
+     *
+     * @param form
+     * @param formData
+     * @return
+     */
+    protected boolean isAuthorize(@Nonnull Form form, FormData formData) {
+        return (form.getProperty("permission") != null || !WorkflowUtil.isCurrentUserAnonymous())
+                && form.isAuthorize(formData);
+    }
+
+    /**
+     * Get {@link FormData} from {@link WorkflowAssignment}
+     *
+     * @param assignment
+     * @return
+     */
+    @Nonnull
+    protected FormData getAssignmentFormData(@Nonnull WorkflowAssignment assignment) {
+        ApplicationContext applicationContext = AppUtil.getApplicationContext();
+        FormService formService = (FormService) applicationContext.getBean("formService");
+        WorkflowManager workflowManager = (WorkflowManager) applicationContext.getBean("workflowManager");
+
+        Map<String, String> parameterMap = new HashMap<>();
+        parameterMap.put("activityId", assignment.getActivityId());
+        FormData formData = formService.retrieveFormDataFromRequestMap(new FormData(), parameterMap);
+
+        String primaryKey = Optional.of(assignment)
+                .map(WorkflowAssignment::getProcessId)
+                .map(workflowManager::getWorkflowProcessLink)
+                .map(WorkflowProcessLink::getOriginProcessId)
+                .orElseGet(assignment::getProcessId);
+
+        formData.setPrimaryKeyValue(primaryKey);
+
+        return formData;
     }
 }
 
