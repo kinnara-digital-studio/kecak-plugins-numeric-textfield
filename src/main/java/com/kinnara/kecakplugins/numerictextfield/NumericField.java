@@ -1,6 +1,7 @@
 package com.kinnara.kecakplugins.numerictextfield;
 
 import com.kinnara.kecakplugins.numerictextfield.utils.Declutter;
+import com.kinnarastudio.commons.jsonstream.JSONStream;
 import org.joget.apps.app.dao.FormDefinitionDao;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.model.FormDefinition;
@@ -21,7 +22,6 @@ import org.joget.workflow.model.service.WorkflowManager;
 import org.joget.workflow.util.WorkflowUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.kecak.apps.exception.ApiException;
 import org.springframework.context.ApplicationContext;
 
 import javax.annotation.Nonnull;
@@ -40,52 +40,63 @@ import java.util.stream.Stream;
  * @author aristo
  */
 public class NumericField extends Element implements Declutter, FormBuilderPaletteElement, PluginWebSupport, AceFormElement, AdminLteFormElement {
+    @Override
     public String getName() {
         return getLabel() + getVersion();
     }
 
+    @Override
     public String getVersion() {
         return getClass().getPackage().getImplementationVersion();
     }
 
+    @Override
     public String getDescription() {
         return getClass().getPackage().getImplementationTitle();
     }
 
+    @Override
     public String getLabel() {
         return "Numeric Field";
     }
 
+    @Override
     public String getClassName() {
         return this.getClass().getName();
     }
 
+    @Override
     public String getPropertyOptions() {
         return AppUtil.readPluginResource(this.getClass().getName(), "/properties/numericField.json", new String[]{EquationLoadBinder.class.getName()}, true, "messages/numericField");
     }
 
+    @Override
     public String getFormBuilderCategory() {
         return "Kecak";
     }
 
+    @Override
     public int getFormBuilderPosition() {
         return 100;
     }
 
+    @Override
     public String getFormBuilderIcon() {
         return null;
     }
 
+    @Override
     public String getFormBuilderTemplate() {
         return "<label class='label'>Numeric Field</label><input type='text' readonly/>";
     }
 
+    @Override
     public String renderTemplate(FormData formData, Map dataModel) {
         String template = "numericField.ftl";
         return renderTemplate(template, formData, dataModel);
     }
 
-    private String formatValue(String value, FormData formData) {
+    protected String formatValue(String value, FormData formData) {
         try {
             AppDefinition appDef = AppUtil.getCurrentAppDefinition();
             PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
@@ -105,7 +116,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
         }
     }
 
-    private JSONObject generateJsonCalculationLoadBinderConf(Form form, FormData formData) {
+    protected JSONObject generateJsonCalculationLoadBinderConf(Form form, Element element, FormData formData) {
         try {
             JSONObject requestBody = new JSONObject();
             if (form != null)
@@ -113,6 +124,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
 
             AppDefinition appDefinition = AppUtil.getCurrentAppDefinition();
 
+            requestBody.put("sectionId", getSection(element).getPropertyString("id"));
             requestBody.put("url", WorkflowUtil.getHttpServletRequest().getContextPath() + "/web/json/app/" + appDefinition.getAppId() + "/" + appDefinition.getVersion() + "/plugin/" + getClassName() + "/service");
             requestBody.put("baseUrl", WorkflowUtil.getHttpServletRequest().getContextPath());
             requestBody.put("primaryKey", formData.getPrimaryKeyValue());
@@ -125,22 +137,22 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
         return null;
     }
 
-    public String getConfigJson(FormData formData) {
+    protected String getConfigJson(FormData formData) {
         Form rootForm = FormUtil.findRootForm(this);
         try {
             AppDefinition appDef = AppUtil.getCurrentAppDefinition();
             JSONObject jsonConfig = new JSONObject();
             jsonConfig.accumulate("equation", getPropertyString("equation"));
-//            jsonConfig.accumulate("fieldId", getFullFieldPath(rootForm, this));
-            jsonConfig.accumulate("fieldId", getPropertyString("id"));
+            jsonConfig.put("fieldId", getPropertyString("id"));
             jsonConfig.put("primaryKey", formData.getPrimaryKeyValue());
             jsonConfig.put("assignmentId", formData.getActivityId());
             jsonConfig.put("appId", appDef.getAppId());
             jsonConfig.put("appVersion", appDef.getVersion().toString());
             jsonConfig.accumulate("variables", getProperty("variables"));
             jsonConfig.put("currencyRefField", getPropertyString("currencyRefField"));
-            jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(rootForm, formData));
+            jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(rootForm, this, formData));
             jsonConfig.put("spellingTarget", getPropertyString("spellingTarget"));
+
             return jsonConfig.toString();
         } catch (Exception e) {
             LogUtil.error(getClassName(), e, e.getMessage());
@@ -162,7 +174,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
 
     @Override
     public void webService(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        LogUtil.info(getClass().getName(), "Executing Rest API [" + request.getRequestURI() + "] in method [" + request.getMethod() + "] contentType ["+ request.getContentType() + "] as [" + WorkflowUtil.getCurrentUsername() + "]");
+        LogUtil.info(getClass().getName(), "Executing Rest API [" + request.getRequestURI() + "] in method [" + request.getMethod() + "] contentType [" + request.getContentType() + "] as [" + WorkflowUtil.getCurrentUsername() + "]");
 
         ApplicationContext appContext = AppUtil.getApplicationContext();
         PluginManager pluginManager = (PluginManager) appContext.getBean("pluginManager");
@@ -175,6 +187,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
 
             JSONObject body;
             String formDefId;
+            String sectionId;
             String fieldId;
             String primaryKey;
             String assignmentId;
@@ -182,6 +195,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             try {
                 body = constructRequestBody(request);
                 formDefId = body.getString("formDefId");
+                sectionId = body.getString("sectionId");
                 fieldId = body.getString("fieldId");
                 primaryKey = body.optString("primaryKey");
                 assignmentId = body.optString("assignmentId");
@@ -195,13 +209,11 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             }
 
             // Numeric Field Element
-//            Element element = getElement(form, initFormData, fieldId);
-
             WorkflowAssignment workflowAssignment;
-            if(!assignmentId.isEmpty()) {
+            if (!assignmentId.isEmpty()) {
                 workflowAssignment = getAssignment(assignmentId);
-                if(workflowAssignment == null) {
-                    LogUtil.warn(getClassName(), "Unknown assignment ["+assignmentId+"]");
+                if (workflowAssignment == null) {
+                    LogUtil.warn(getClassName(), "Unknown assignment [" + assignmentId + "]");
                 }
             } else {
                 workflowAssignment = null;
@@ -210,13 +222,22 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             JSONObject requestParameters = body.optJSONObject("requestParams");
             FormData formData = generateFormData(workflowAssignment, primaryKey, requestParameters);
 
-            Element element = elementStream(form, formData)
+            elementStream(form, formData, true)
                     .filter(e -> fieldId.equals(e.getPropertyString("id")) && e instanceof NumericField)
+                    .forEach(e -> LogUtil.info(getClassName(), "elementStream : id ["+e.getPropertyString("id")+"]"));
+
+            LogUtil.info(getClassName(), "webService : sectionId ["+sectionId+"]");
+            Element element = elementStream(form, formData, true)
+                    .filter(e -> fieldId.equals(e.getPropertyString("id")) && e instanceof NumericField && getSection(e).getPropertyString("id").equals(sectionId))
                     .findFirst()
                     .orElseThrow(() -> new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Unknown element [" + fieldId + "] in form [" + formDefId + "]"));
 
             String currencyField = element.getPropertyString("currencyRefField");
             Map<String, Object> calculationLoadBinder = (Map<String, Object>) element.getProperty("calculationLoadBinder");
+
+            LogUtil.info(getClassName(), "webService : id [" + element.getPropertyString("id") + "]");
+            LogUtil.info(getClassName(), "webService : currencyField [" + currencyField + "]");
+            LogUtil.info(getClassName(), "webService : calculationLoadBinder [" + calculationLoadBinder.entrySet().stream().map(e -> e.getKey() + "->" + e.getValue()).collect(Collectors.joining(" || ")) + "]");
 
             BigDecimal value;
 
@@ -225,10 +246,16 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
                 // value is calculated by calculation load binder
                 element.setLoadBinder(loadBinderPlugins);
                 value = executeCalculation(element, formData);
+
+                LogUtil.info(getClassName(), "webService : formData [" + formData.getRequestParams().entrySet().stream().map(e -> e.getKey() + "->" + String.join(",", e.getValue())).collect(Collectors.joining(" || ")) + "]");
             } else {
                 // value from user input
                 Locale locale = getLocale(requestParameters.optString(currencyField));
                 value = determineNumber(body.optString("formatValue"), locale);
+
+                LogUtil.info(getClassName(), "webService : body [" + JSONStream.of(body, JSONObject::optString)
+                        .map(e -> e.getKey() + "->" + e.getValue())
+                        .collect(Collectors.joining(" || ")) + "]");
             }
 
             Map<String, Object> formatterPlugin = (Map<String, Object>) element.getProperty("formatterPlugin");
@@ -306,7 +333,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
     private FormData generateFormData(WorkflowAssignment workflowAssignment, String primaryKey, JSONObject requestParameters) {
         FormData formData = new FormData();
         formData.setPrimaryKeyValue(primaryKey);
-        if(workflowAssignment != null) {
+        if (workflowAssignment != null) {
             formData.setProcessId(workflowAssignment.getProcessId());
             formData.setActivityId(workflowAssignment.getActivityId());
         }
@@ -316,7 +343,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             while (i.hasNext()) {
                 String key = i.next();
                 String requestValue = requestParameters.optString(key);
-                formData.addRequestParameterValues(key, new String[]{ requestValue });
+                formData.addRequestParameterValues(key, new String[]{requestValue});
             }
         }
 
@@ -369,7 +396,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
 
         // proceed without cache
         FormService formService = (FormService) AppUtil.getApplicationContext().getBean("formService");
-        Form form = null;
+        Form form;
         if (appDef != null && formDefId != null && !formDefId.isEmpty()) {
             FormDefinitionDao formDefinitionDao = (FormDefinitionDao) AppUtil.getApplicationContext().getBean("formDefinitionDao");
             FormDefinition formDef = formDefinitionDao.loadById(formDefId, appDef);
@@ -455,7 +482,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
      * @param activityId any activity ID, event the completed / aborted
      * @return
      */
-    protected WorkflowAssignment getAssignment(@Nonnull String activityId)  {
+    protected WorkflowAssignment getAssignment(@Nonnull String activityId) {
         WorkflowManager workflowManager = (WorkflowManager) AppUtil.getApplicationContext().getBean("workflowManager");
         return Optional.of(activityId)
                 .map(throwableFunction(workflowManager::getAssignment))

@@ -2,6 +2,7 @@ package com.kinnara.kecakplugins.numerictextfield.utils;
 
 import org.joget.apps.form.model.Element;
 import org.joget.apps.form.model.FormData;
+import org.joget.apps.form.model.Section;
 import org.joget.commons.util.LogUtil;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -166,17 +167,29 @@ public interface Declutter {
      * @return
      */
     @Nonnull
-    default Stream<Element> elementStream(@Nonnull Element element, FormData formData) {
+    default Stream<Element> elementStream(@Nonnull Element element, FormData formData, boolean ignorePermission) {
         // no need to check authorization if form data is null
-        if (!element.isAuthorize(formData)) {
+        if (!ignorePermission && !element.isAuthorize(formData)) {
             return Stream.empty();
         }
 
         Stream<Element> stream = Stream.of(element);
         for (Element child : element.getChildren()) {
-            stream = Stream.concat(stream, elementStream(child, formData));
+            stream = Stream.concat(stream, elementStream(child, formData, ignorePermission));
         }
         return stream;
+    }
+
+    default Element getSection(Element element) {
+        if(element == null) {
+            return null;
+        }
+
+        if(element instanceof Section) {
+            return element;
+        }
+
+        return getSection(element.getParent());
     }
 
     // JSON

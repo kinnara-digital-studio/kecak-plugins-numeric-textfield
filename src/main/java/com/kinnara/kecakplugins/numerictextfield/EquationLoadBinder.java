@@ -34,25 +34,28 @@ public class EquationLoadBinder extends WorkflowFormBinder {
         try {
             Expression e = new ExpressionBuilder(equation).variables(params.keySet()).build();
             for (Map.Entry<String, String[]> entry : params.entrySet()) {
-                double value = Optional.of(entry)
-                        .map(Map.Entry::getValue)
-                        .map(Arrays::stream)
-                        .orElseGet(Stream::empty)
-                        .findFirst()
-                        .filter(s -> !s.isEmpty())
-                        .map(Try.onFunction(Double::parseDouble, (RuntimeException ex) -> {
-                            if (isDebug()) {
-                                LogUtil.error(getClassName(), ex, ex.getMessage());
-                            }
-                            return 0.0;
-                        }))
-                        .orElse(0.0);
+                if(equation.contains(entry.getKey())) {
+                    double value = Optional.of(entry)
+                            .map(Map.Entry::getValue)
+                            .map(Arrays::stream)
+                            .orElseGet(Stream::empty)
+                            .findFirst()
+                            .filter(s -> !s.isEmpty())
+                            .map(Try.onFunction(Double::parseDouble, (RuntimeException ex) -> {
+                                LogUtil.info(getClassName(), "load : element [" + element.getPropertyString("id") + "] field [" + entry.getKey() + "]");
+                                if (isDebug()) {
+                                    LogUtil.error(getClassName(), ex, ex.getMessage());
+                                }
+                                return 0.0;
+                            }))
+                            .orElse(0.0);
 
-                if(isDebug()) {
-                    LogUtil.info(getClassName(), "load : variable ["+entry.getKey()+"] value [" + value + "]");
+                    if (isDebug()) {
+                        LogUtil.info(getClassName(), "load : variable [" + entry.getKey() + "] value [" + value + "]");
+                    }
+
+                    e.setVariable(entry.getKey(), value);
                 }
-
-                e.setVariable(entry.getKey(), value);
             }
 
             BigDecimal result = BigDecimal.valueOf(e.evaluate());
