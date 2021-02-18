@@ -1,12 +1,9 @@
 package com.kinnara.kecakplugins.numerictextfield;
 
 import com.kinnara.kecakplugins.numerictextfield.utils.Declutter;
-import com.kinnarastudio.commons.jsonstream.JSONStream;
 import org.joget.apps.app.dao.FormDefinitionDao;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.model.FormDefinition;
-import org.joget.apps.app.model.PackageActivityForm;
-import org.joget.apps.app.service.AppService;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.datalist.model.DataList;
 import org.joget.apps.datalist.model.DataListCollection;
@@ -20,17 +17,14 @@ import org.joget.commons.util.LogUtil;
 import org.joget.plugin.base.PluginManager;
 import org.joget.plugin.base.PluginWebSupport;
 import org.joget.workflow.model.WorkflowAssignment;
-import org.joget.workflow.model.WorkflowProcessLink;
 import org.joget.workflow.model.service.WorkflowManager;
 import org.joget.workflow.util.WorkflowUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.kecak.apps.exception.ApiException;
-import org.kecak.apps.form.model.DataJsonControllerHandler;
 import org.springframework.context.ApplicationContext;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
@@ -152,60 +146,6 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             LogUtil.error(getClassName(), e, e.getMessage());
             return "{}";
         }
-    }
-
-    private String getFullFieldPath(@Nonnull Form form, @Nonnull Element element) {
-        return getFullFieldPathRec(form, element, "");
-    }
-
-    private String getFullFieldPathRec(@Nonnull Form form, Element element, @Nonnull String trailingPath) {
-        if (element == null || form == element) {
-            return trailingPath;
-        }
-
-        trailingPath = Stream.concat(
-                Stream.of(element)
-                        .map(e -> e.getPropertyString(FormUtil.PROPERTY_ID))
-                        .filter(Objects::nonNull)
-                        .filter(s -> !s.isEmpty()),
-
-                Stream.of(trailingPath).filter(s -> !s.isEmpty())
-        ).collect(Collectors.joining("."));
-        return getFullFieldPathRec(form, element.getParent(), trailingPath);
-    }
-
-    private Element getElement(@Nonnull Form form, FormData formData, String fullPath) throws RestApiException {
-        return elementStream(form, formData)
-                .filter(e -> fullPath.equals(e.getPropertyString("id")))
-                .findAny()
-                .orElseThrow(() -> new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Field [" + fullPath + "] in form [" + form.getPropertyString("id") + "] cannot be defined"));
-//        return getElementRec(form, fullPath, "");
-    }
-
-    @Nullable
-    private Element getElementRec(Element element, @Nonnull final String fullPath, @Nonnull final String path) {
-        if (element == null) {
-            return null;
-        }
-
-        if (fullPath.equalsIgnoreCase(path)) {
-            return element;
-        }
-
-        return Optional.of(element)
-                .map(Element::getChildren)
-                .map(Collection::stream)
-                .orElseGet(Stream::empty)
-                .map(child -> {
-                    final String currentPath = Stream.concat(
-                            Stream.of(path).filter(s -> !s.isEmpty()),
-                            Stream.of(child).map(e -> e.getPropertyString(FormUtil.PROPERTY_ID)).filter(Objects::nonNull).filter(s -> !s.isEmpty())
-                    ).collect(Collectors.joining("."));
-                    return getElementRec(child, fullPath, currentPath);
-                })
-                .filter(Objects::nonNull)
-                .findAny()
-                .orElse(null);
     }
 
     @Override
@@ -521,72 +461,6 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
         return Optional.of(activityId)
                 .map(throwableFunction(workflowManager::getAssignment))
                 .orElse(null);
-    }
-
-    /**
-     * Get form from assignment
-     *
-     * @param appDefinition I
-     * @param assignment    I
-     * @param formData      I/O
-     * @return
-     * @throws ApiException
-     */
-    @Nonnull
-    protected Form getAssignmentForm(@Nonnull AppDefinition appDefinition, @Nonnull WorkflowAssignment assignment, @Nonnull final FormData formData) throws RestApiException {
-        AppService appService = (AppService) AppUtil.getApplicationContext().getBean("appService");
-        final Form form = Optional.ofNullable(appService.viewAssignmentForm(appDefinition, assignment, formData, ""))
-                .map(PackageActivityForm::getForm)
-                .orElseThrow(() -> new RestApiException(HttpServletResponse.SC_BAD_REQUEST, "Assignment [" + assignment.getActivityId() + "] has not been mapped to form"));
-
-        // check form permission
-        if (!isAuthorize(form, formData)) {
-            throw new RestApiException(HttpServletResponse.SC_UNAUTHORIZED, "User [" + WorkflowUtil.getCurrentUsername() + "] doesn't have permission to open this form");
-        }
-
-        formData.addRequestParameterValues(DataJsonControllerHandler.PARAMETER_DATA_JSON_CONTROLLER, new String[] { DataJsonControllerHandler.PARAMETER_DATA_JSON_CONTROLLER });
-
-        return form;
-    }
-
-    /**
-     * Check form authorization
-     * Restrict if no permission is set and user is anonymous
-     *
-     * @param form
-     * @param formData
-     * @return
-     */
-    protected boolean isAuthorize(@Nonnull Form form, FormData formData) {
-        return (form.getProperty("permission") != null || !WorkflowUtil.isCurrentUserAnonymous())
-                && form.isAuthorize(formData);
-    }
-
-    /**
-     * Get {@link FormData} from {@link WorkflowAssignment}
-     *
-     * @param assignment
-     * @return
-     */
-    @Nonnull
-    protected FormData getAssignmentFormData(@Nonnull WorkflowAssignment assignment) {
-        ApplicationContext applicationContext = AppUtil.getApplicationContext();
-        FormService formService = (FormService) applicationContext.getBean("formService");
-        WorkflowManager workflowManager = (WorkflowManager) applicationContext.getBean("workflowManager");
-
-        Map<String, String> parameterMap = new HashMap<>();
-        parameterMap.put("activityId", assignment.getActivityId());
-        FormData formData = formService.retrieveFormDataFromRequestMap(new FormData(), parameterMap);
-
-        String primaryKey = Optional.of(assignment)
-                .map(WorkflowAssignment::getProcessId)
-                .map(workflowManager::getWorkflowProcessLink)
-                .map(WorkflowProcessLink::getOriginProcessId)
-                .orElseGet(assignment::getProcessId);
-
-        formData.setPrimaryKeyValue(primaryKey);
-
-        return formData;
     }
 }
 
