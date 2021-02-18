@@ -454,7 +454,6 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
      *
      * @param activityId any activity ID, event the completed / aborted
      * @return
-     * @throws ApiException
      */
     protected WorkflowAssignment getAssignment(@Nonnull String activityId)  {
         WorkflowManager workflowManager = (WorkflowManager) AppUtil.getApplicationContext().getBean("workflowManager");
