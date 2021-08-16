@@ -7,6 +7,8 @@
 
                 // not readonly
                 if((!o.readonly || o.readonly != 'true')){
+                    // numeric field is the result of some equation from other fields
+                    // in this case, the numeric field is supposed to be readonly
                     if(o.variables && o.variables.length != 0){
                         $.each(o.variables, function(index){
                             let variable = o.variables[index];
@@ -52,18 +54,28 @@
                                 });
                             }
                         });
-                    } else {
+                    }
+
+                    // numeric field is manually editable
+                    else {
                         let $section = $(target).closest(".form-cell, .subform-cell");
-                        let elementMask = $($section).find("input.mask");
-                        let elementPrimary = $($section).find(".primary_value");
-                        $(elementMask).focusout(function() {
-                            elementPrimary.val($(elementMask).val());
+                        let $elementMask = $($section).find("input.mask");
+                        let $elementPrimary = $($section).find(".primary_value");
+
+                        // initialize actual value and block non numeric keys
+                        $elementMask.keypress(function(evt) {
+                            $elementPrimary.val(Number($elementMask.val()));
+                            return evt.metaKey || /[0-9\-,.\r]/.test(String.fromCharCode(evt.which));
+                        });
+
+                        $elementMask.focusout(function() {
+                            $elementPrimary.val($elementMask.val());
                             numericCalc(target, o);
                         });
 
-                        $(elementMask).focusin(function() {
-                            let value = elementPrimary.val();
-                            $(elementMask).val(value == '0' ? '' : value);
+                        $elementMask.focusin(function() {
+                            let value = $elementPrimary.val();
+                            $elementMask.val(value == '0' ? '' : value);
                         });
                     }
 
@@ -89,7 +101,11 @@
             return target;
         }
     });
-    
+
+    function onKeyUp(target, o) {
+
+    }
+
     function numericCalc(target, o){
         if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
             let loadBinder = o.loadBinder;
