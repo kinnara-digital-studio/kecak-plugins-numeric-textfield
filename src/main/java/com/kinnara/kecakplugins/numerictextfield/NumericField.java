@@ -226,7 +226,6 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
                     .filter(e -> fieldId.equals(e.getPropertyString("id")) && e instanceof NumericField)
                     .forEach(e -> LogUtil.info(getClassName(), "elementStream : id ["+e.getPropertyString("id")+"]"));
 
-            LogUtil.info(getClassName(), "webService : sectionId ["+sectionId+"]");
             Element element = elementStream(form, formData, true)
                     .filter(e -> fieldId.equals(e.getPropertyString("id")) && e instanceof NumericField && getSection(e).getPropertyString("id").equals(sectionId))
                     .findFirst()
@@ -234,10 +233,6 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
 
             String currencyField = element.getPropertyString("currencyRefField");
             Map<String, Object> calculationLoadBinder = (Map<String, Object>) element.getProperty("calculationLoadBinder");
-
-            LogUtil.info(getClassName(), "webService : id [" + element.getPropertyString("id") + "]");
-            LogUtil.info(getClassName(), "webService : currencyField [" + currencyField + "]");
-            LogUtil.info(getClassName(), "webService : calculationLoadBinder [" + calculationLoadBinder.entrySet().stream().map(e -> e.getKey() + "->" + e.getValue()).collect(Collectors.joining(" || ")) + "]");
 
             BigDecimal value;
 
@@ -247,15 +242,10 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
                 element.setLoadBinder(loadBinderPlugins);
                 value = executeCalculation(element, formData);
 
-                LogUtil.info(getClassName(), "webService : formData [" + formData.getRequestParams().entrySet().stream().map(e -> e.getKey() + "->" + String.join(",", e.getValue())).collect(Collectors.joining(" || ")) + "]");
             } else {
                 // value from user input
                 Locale locale = getLocale(requestParameters.optString(currencyField));
                 value = determineNumber(body.optString("formatValue"), locale);
-
-                LogUtil.info(getClassName(), "webService : body [" + JSONStream.of(body, JSONObject::optString)
-                        .map(e -> e.getKey() + "->" + e.getValue())
-                        .collect(Collectors.joining(" || ")) + "]");
             }
 
             Map<String, Object> formatterPlugin = (Map<String, Object>) element.getProperty("formatterPlugin");
