@@ -222,10 +222,6 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             JSONObject requestParameters = body.optJSONObject("requestParams");
             FormData formData = generateFormData(workflowAssignment, primaryKey, requestParameters);
 
-            elementStream(form, formData, true)
-                    .filter(e -> fieldId.equals(e.getPropertyString("id")) && e instanceof NumericField)
-                    .forEach(e -> LogUtil.info(getClassName(), "elementStream : id ["+e.getPropertyString("id")+"]"));
-
             Element element = elementStream(form, formData, true)
                     .filter(e -> fieldId.equals(e.getPropertyString("id")) && e instanceof NumericField && getSection(e).getPropertyString("id").equals(sectionId))
                     .findFirst()
