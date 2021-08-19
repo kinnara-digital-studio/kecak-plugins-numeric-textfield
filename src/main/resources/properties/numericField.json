@@ -1,158 +1,169 @@
 [
   {
-    title : '@@form.numericfield.editNumericField@@',
-    properties : [
+    "title" : "@@form.numericfield.editNumericField@@",
+    "properties" : [
       {
-          name : 'id',
-          label : '@@form.numericfield.id@@',
-          type : 'textfield',
-          required : 'True',
-          regex_validation : '^[a-zA-Z0-9_]+$',
-          validation_message : '@@form.numericfield.invalidId@@'
+          "name" : "id",
+          "label" : "@@form.numericfield.id@@",
+          "type" : "textfield",
+          "required" : "True",
+          "regex_validation" : "^[a-zA-Z0-9_]+$",
+          "validation_message" : "@@form.numericfield.invalidId@@"
       },
       {
-          name : 'label',
-          label : '@@form.numericfield.label@@',
-          type : 'textfield',
-          value : 'Numeric Field'
+          "name" : "label",
+          "label" : "@@form.numericfield.label@@",
+          "type" : "textfield",
+          "value" : "Numeric Field"
       },
       {
-          name : 'variables',
-          label : '@@form.numericfield.variables@@',
-          description : '@@form.numericfield.variables.desc@@',
-          type : 'grid',
-          columns : [{
-              key : 'variableName',
-              label : '@@form.numericfield.fieldId@@',
-              required: 'true'
+          "name" : "variables",
+          "label" : "@@form.numericfield.variables@@",
+          "description" : "@@form.numericfield.variables.desc@@",
+          "type" : "grid",
+          "columns" : [{
+              "key" : "variableName",
+              "label" : "@@form.numericfield.fieldId@@",
+              "required": "true"
           },
           {
-              key : 'operation',
-              label : '@@form.numericfield.multivalueOperation@@',
-              options : [{
-                  value : 'sum',
-                  label : '@@form.numericfield.multivalueOperation.sum@@'
+              "key" : "operation",
+              "label" : "@@form.numericfield.multivalueOperation@@",
+              "options" : [{
+                  "value" : "sum",
+                  "label" : "@@form.numericfield.multivalueOperation.sum@@"
               },
               {
-                  value : 'avg',
-                  label : '@@form.numericfield.multivalueOperation.avg@@'
+                  "value" : "avg",
+                  "label" : "@@form.numericfield.multivalueOperation.avg@@"
               },
               {
-                  value : 'min',
-                  label : '@@form.numericfield.multivalueOperation.min@@'
+                  "value" : "min",
+                  "label" : "@@form.numericfield.multivalueOperation.min@@"
               },
               {
-                  value : 'max',
-                  label : '@@form.numericfield.multivalueOperation.max@@'
+                  "value" : "max",
+                  "label" : "@@form.numericfield.multivalueOperation.max@@"
               },
               {
-                  value : 'count',
-                  label : '@@form.numericfield.multivalueOperation.count@@'
+                  "value" : "count",
+                  "label" : "@@form.numericfield.multivalueOperation.count@@"
               },
               {
-                value : 'text',
-                label : '@@form.numericfield.multivalueOperation.text@@'
+                "value" : "text",
+                "label" : "@@form.numericfield.multivalueOperation.text@@"
               }]
           }]
       },
       {
-        name : 'calculationLoadBinder',
-        label : '@@form.numericfield.calculationLoadBinder@@',
-        description : '@@form.numericfield.calculationLoadBinder.desc@@',
-        type : 'elementselect',
-        options_ajax : '[CONTEXT_PATH]/web/property/json/getElements?classname=org.joget.apps.form.model.FormLoadElementBinder',
-        value:'%s',
-        url : '[CONTEXT_PATH]/web/property/json[APP_PATH]/getPropertyOptions'
+        "name" : "calculationLoadBinder",
+        "label" : "@@form.numericfield.calculationLoadBinder@@",
+        "description" : "@@form.numericfield.calculationLoadBinder.desc@@",
+        "type" : "elementselect",
+        "options_ajax" : "[CONTEXT_PATH]/web/property/json/getElements?classname=org.joget.apps.form.model.FormLoadElementBinder",
+        "value":"%s",
+        "url" : "[CONTEXT_PATH]/web/property/json[APP_PATH]/getPropertyOptions"
       }
     ]
   },
   {
-      title : '@@form.numericfield.advancedOptions@@',
-      properties : [{
-          label : '@@form.numericfield.data@@',
-          type : 'header'
+      "title" : "@@form.numericfield.advancedOptions@@",
+      "properties" : [{
+          "label" : "@@form.numericfield.data@@",
+          "type" : "header"
       },
       {
-          name : 'validator',
-          label : '@@form.numericfield.validator@@',
-          type : 'elementselect',
-          options_ajax : '[CONTEXT_PATH]/web/property/json/getElements?classname=org.joget.apps.form.model.FormValidator',
-          url : '[CONTEXT_PATH]/web/property/json[APP_PATH]/getPropertyOptions'
+          "name" : "validator",
+          "label" : "@@form.numericfield.validator@@",
+          "type" : "elementselect",
+          "options_ajax" : "[CONTEXT_PATH]/web/property/json/getElements?classname=org.joget.apps.form.model.FormValidator",
+          "url" : "[CONTEXT_PATH]/web/property/json[APP_PATH]/getPropertyOptions"
       },
       {
-          label : '@@form.numericfield.format@@',
-          type : 'header'
+          "label" : "@@form.numericfield.format@@",
+          "type" : "header"
       },
       {
-          name : 'formatterPlugin',
-          label : '@@form.numericfield.formatterPlugin@@',
-          description : '@@form.numericfield.formatter.desc@@',
-          type : 'elementselect',
-          options_ajax : '[CONTEXT_PATH]/web/property/json/getElements?classname=org.joget.apps.datalist.model.DataListColumnFormatDefault',
-          url : '[CONTEXT_PATH]/web/property/json[APP_PATH]/getPropertyOptions'
+          "name" : "formatterPlugin",
+          "label" : "@@form.numericfield.formatterPlugin@@",
+          "description" : "@@form.numericfield.formatter.desc@@",
+          "type" : "elementselect",
+          "options_ajax" : "[CONTEXT_PATH]/web/property/json/getElements?classname=org.joget.apps.datalist.model.DataListColumnFormatDefault",
+          "url" : "[CONTEXT_PATH]/web/property/json[APP_PATH]/getPropertyOptions"
       },
       {
-        name : 'currencyRefField',
-        label : '@@form.numericfield.currencyRefField@@',
-        type : 'textfield'
+        "name" : "currencyRefField",
+        "label" : "@@form.numericfield.currencyRefField@@",
+        "type" : "textfield"
       },
       {
-          label : '@@form.numericfield.ui@@',
-          type : 'header'
+          "label" : "@@form.numericfield.ui@@",
+          "type" : "header"
       },
       {
-          name : 'hidden',
-          label : '@@form.numericfield.hidden@@',
-          type : 'checkbox',
-          options : [
+          "name" : "hidden",
+          "label" : "@@form.numericfield.hidden@@",
+          "type" : "checkbox",
+          "options" : [
             {
-              value : 'true',
-              label : ''
+              "value" : "true",
+              "label" : ""
             }
           ]
       },
-      {
-          name : 'readonlyLabel',
-          label : '@@form.numericfield.readonlyLabel@@',
-          type : 'checkbox',
-          options : [
+        {
+          "name": "readonly",
+          "label": "@@form.numericfield.readonly@@",
+          "type": "checkbox",
+          "options": [
             {
-              value : 'true',
-              label : ''
+              "value": "true",
+              "label": ""
+            }
+          ]
+        },
+      {
+          "name" : "readonlyLabel",
+          "label" : "@@form.numericfield.readonlyLabel@@",
+          "type" : "checkbox",
+          "options" : [
+            {
+              "value" : "true",
+              "label" : ""
             }
           ]
       },{
-          label : 'Spelling',
-          type : 'header'
+          "label" : "Spelling",
+          "type" : "header"
         },
         {
-          name : 'language',
-          label : '@@form.numericfield.language@@',
-          required : 'true',
-          type : 'radio',
-          value : 'id',
-          description : '@@form.numericfield.language.description@@',
-          options : [
+          "name" : "language",
+          "label" : "@@form.numericfield.language@@",
+          "required" : "true",
+          "type" : "radio",
+          "value" : "id",
+          "description" : "@@form.numericfield.language.description@@",
+          "options" : [
             {
-              value : 'id',
-              label : '@@form.numericfield.language.id@@'
+              "value" : "id",
+              "label" : "@@form.numericfield.language.id@@"
             }
           ]
         },
         {
-          name : 'spellingTarget',
-          label: '@@form.numericfield.language.target@@',
-          description: '@@form.numericfield.language.target.desc@@',
-          type : 'textfield'
+          "name" : "spellingTarget",
+          "label": "@@form.numericfield.language.target@@",
+          "description": "@@form.numericfield.language.target.desc@@",
+          "type" : "textfield"
         },
       {
-        label : '@@form.numericfield.workflow@@',
-        type : 'header'
+        "label" : "@@form.numericfield.workflow@@",
+        "type" : "header"
       },
       {
-        name : 'workflowVariable',
-        label : '@@form.numericfield.workflowVariable@@',
-        type : 'textfield'
+        "name" : "workflowVariable",
+        "label" : "@@form.numericfield.workflowVariable@@",
+        "type" : "textfield"
       }
     ]
   }

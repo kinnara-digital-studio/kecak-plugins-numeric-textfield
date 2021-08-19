@@ -67,7 +67,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
 
     @Override
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(this.getClass().getName(), "/properties/numericField.json", new String[]{EquationLoadBinder.class.getName()}, true, "messages/numericField");
+        return AppUtil.readPluginResource(this.getClass().getName(), "/properties/numericField.json", new String[]{EquationLoadBinder.class.getName()}, true, "messages/numericField").replaceAll("\"", "'");
     }
 
     @Override
