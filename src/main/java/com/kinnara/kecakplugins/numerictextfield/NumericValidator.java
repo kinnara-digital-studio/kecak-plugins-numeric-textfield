@@ -7,6 +7,7 @@ import org.joget.apps.form.model.FormData;
 import org.joget.apps.form.model.FormValidator;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.ResourceBundleUtil;
+import org.joget.plugin.base.PluginManager;
 
 import javax.annotation.Nonnull;
 import java.math.BigDecimal;
@@ -38,7 +39,10 @@ public class NumericValidator extends FormValidator implements Declutter {
 
     @Override
     public String getVersion() {
-        return getClass().getPackage().getImplementationVersion();
+        PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
+        ResourceBundle resourceBundle = pluginManager.getPluginMessageBundle(getClassName(), "/messages/BuildNumber");
+        String buildNumber = resourceBundle.getString("buildNumber");
+        return buildNumber;
     }
 
     @Override
