@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 /**
  * @author aristo
  */
-public class NumericField extends Element implements Declutter, FormBuilderPaletteElement, PluginWebSupport, AceFormElement, AdminLteFormElement {
+public class NumericField extends Element implements Declutter, FormBuilderPaletteElement, PluginWebSupport {
     @Override
     public String getName() {
         return getLabel() + getVersion();
@@ -453,17 +453,6 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
         return html;
     }
 
-    @Override
-    public String renderAceTemplate(FormData formData, Map map) {
-        String template = "AceNumericField.ftl";
-        return renderTemplate(template, formData, map);
-    }
-
-    @Override
-    public String renderAdminLteTemplate(FormData formData, Map map) {
-        String template = "AdminLteNumericField.ftl";
-        return renderTemplate(template, formData, map);
-    }
 
     /**
      * Get assignment object
