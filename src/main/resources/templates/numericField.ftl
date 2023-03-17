@@ -8,6 +8,7 @@
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/jquery.calculation.min.js"></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/jquery.numericfield.js"></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/terbilang-spelling.js"/></script>
+        <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/decimal-terbilang-spelling.js"/></script>
         <!-- <script type="text/javascript" src="${request.contextPath}/plugin/${className}/bower_components/globalize/dist/globalize.js"></script> -->
 
         <#if element.properties.readonly! == 'true'>

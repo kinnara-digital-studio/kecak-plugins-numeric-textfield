@@ -244,8 +244,9 @@
             let spellingElement = FormUtil.getField(o.spellingTarget);
             let currencyElement = FormUtil.getField(o.currencyRefField);
             let currencyValue = FormUtil.getValue(o.currencyRefField);
-
+            let isCurrency = currencyValue != '' ? true : false;
             let terbilangValue = terbilang(result.value).trim();
+            let decimalValue = decimalTerbilang(result.value, isCurrency).trim();
 
             let terbilangCurrency =
                 !terbilangValue ? ''
@@ -254,8 +255,8 @@
                     : currencyValue == 'in_ID' ? 'rupiah'
                     : currencyValue == 'ja_JP' ? 'yen'
                     : '';
+            let spellingValue = terbilangValue || terbilangCurrency ? (terbilangValue + ' ' + terbilangCurrency + ' ' + decimalValue) : '';
 
-            let spellingValue = terbilangValue || terbilangCurrency ? (terbilangValue + ' ' + terbilangCurrency) : '';
 
             spellingElement.val(spellingValue);
             spellingElement.attr("readonly","true");
