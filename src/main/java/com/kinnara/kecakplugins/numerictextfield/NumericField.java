@@ -101,6 +101,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
 
     protected String formatValue(String value, FormData formData) {
         try {
+            LogUtil.info(getClassName(), "test value : " + value);
             AppDefinition appDef = AppUtil.getCurrentAppDefinition();
             PluginManager pluginManager = (PluginManager) AppUtil.getApplicationContext().getBean("pluginManager");
 //            DataListColumnFormatDefault formatter = getFormatterPlugin(appDef.getAppId(), appDef.getVersion().toString(), this);

@@ -1,6 +1,6 @@
 function decimalTerbilang(num, isCurrency){
     if(num.toString().search(/\./) >= 0)
-        var revDecimal = num.toString().replace(/[0-9]+\./, '').split('').reverse();
+        var revDecimal = num.toString().replace(/[0-9]+\./, '').split('', 2).reverse();
 
       var result = '';
 
