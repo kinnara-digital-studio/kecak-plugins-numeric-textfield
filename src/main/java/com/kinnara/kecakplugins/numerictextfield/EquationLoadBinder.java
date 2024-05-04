@@ -23,20 +23,19 @@ import java.util.stream.Stream;
 public class EquationLoadBinder extends WorkflowFormBinder {
     @Override
     public FormRowSet load(Element element, String primaryKey, FormData formData) {
-        if(isDebug()) {
-            LogUtil.info(getClassName(), "load : element ID ["+ Optional.ofNullable(element).map(e -> e.getPropertyString("id")).orElse("")+"]");
+        if (isDebug()) {
+            LogUtil.info(getClassName(), "load : element ID [" + Optional.ofNullable(element).map(e -> e.getPropertyString("id")).orElse("") + "]");
         }
-        FormRowSet rowSet = new FormRowSet();
         Map<String, String[]> params = formData.getRequestParams();
         String equation = getPropertyString("equation");
-        if(isDebug()) {
-            LogUtil.info(getClassName(), "load : equation ["+equation+"]");
+        if (isDebug()) {
+            LogUtil.info(getClassName(), "load : equation [" + equation + "]");
         }
 
         try {
             Expression e = new ExpressionBuilder(equation).variables(params.keySet()).build();
             for (Map.Entry<String, String[]> entry : params.entrySet()) {
-                if(equation.contains(entry.getKey())) {
+                if (equation.contains(entry.getKey())) {
                     double value = Optional.of(entry)
                             .map(Map.Entry::getValue)
                             .map(Arrays::stream)
@@ -62,16 +61,18 @@ public class EquationLoadBinder extends WorkflowFormBinder {
 
             BigDecimal result = BigDecimal.valueOf(e.evaluate());
 
-            if(isDebug()) {
+            if (isDebug()) {
                 LogUtil.info(getClassName(), "load : result [" + result + "]");
             }
 
-            FormRow row = new FormRow();
-            row.put(element.getPropertyString(FormUtil.PROPERTY_ID), result.toString());
-            rowSet.add(row);
+            return new FormRowSet() {{
+                add(new FormRow() {{
+                    put(element.getPropertyString(FormUtil.PROPERTY_ID), result.toString());
+                }});
+            }};
         } catch (Exception e) {
         }
-        return rowSet;
+        return null;
     }
 
     @Override
@@ -104,7 +105,7 @@ public class EquationLoadBinder extends WorkflowFormBinder {
 
     @Override
     public String getPropertyOptions() {
-        return AppUtil.readPluginResource(getClassName(), "/properties/equationLoadBinder.json", null, false,"/messages/equationLoadBinder");
+        return AppUtil.readPluginResource(getClassName(), "/properties/equationLoadBinder.json", null, false, "/messages/equationLoadBinder");
     }
 
     /**
