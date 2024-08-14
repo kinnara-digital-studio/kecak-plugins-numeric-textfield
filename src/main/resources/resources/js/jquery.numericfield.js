@@ -21,7 +21,7 @@
                             if (fieldId.indexOf(".") != -1) {
                                 field = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
                             } else {
-                                field = FormUtil.getField(fieldId).filter(":not(.grid-cell)");
+                                field = target.getField(fieldId).filter(":not(.grid-cell)");
                             }
 
                             field.addClass("control-field");
@@ -33,7 +33,7 @@
                                     let $section = $(this).parents('.form-section, .subform-section');
                                     setTimeout(function() {
                                         if($section.is(":visible"))
-                                            numericCalc(target, o);
+                                            target.numericCalc(target, o);
                                     }, TIMEOUT);
                                 });
                             } else if(field.is(".calculationField")) {
@@ -41,7 +41,7 @@
                                     let $section = $(this).parents('.form-section, .subform-section');
                                     setTimeout(function() {
                                         if($section.is(":visible"))
-                                            numericCalc(target,o);
+                                            target.numericCalc(target,o);
                                     }, TIMEOUT);
                                 });
                             } else {
@@ -49,7 +49,7 @@
                                     let $section = $(this).parents('.form-section, .subform-section');
                                     setTimeout(function() {
                                         if($section.is(":visible"))
-                                            numericCalc(target,o);
+                                            target.numericCalc(target,o);
                                     }, TIMEOUT);
                                 });
                             }
@@ -70,7 +70,7 @@
 
                         $elementMask.focusout(function() {
                             $elementPrimary.val($elementMask.val());
-                            numericCalc(target, o);
+                            target.numericCalc(target, o);
                         });
 
                         $elementMask.focusin(function() {
@@ -83,145 +83,172 @@
                         let currencyRefField = FormUtil.getField(o.currencyRefField);
                         currencyRefField.change(function() {
                             if($(currencyRefField).parents('.form-section, .subform-section').is(":visible"))
-                                numericCalc(target, o);
+                                target.numericCalc(target, o);
                         });
                     }
 
                     // run on load 
                     $(document).ready(function() {
-                        numericCalc(target, o);
+                        target.numericCalc(target, o);
                     });
 
                     // handle mobile page show
                     $(document).bind("pageshow", function() {
-                        numericCalc(target, o);
+                        target.numericCalc(target, o);
                     });
                 }
             }
             return target;
-        }
+        },
+
+        // copy from FormUtil.getField in formUtil.js
+        getField : function(fieldId){
+            var field = $("[name="+fieldId+"]").filter(':not(.grid-cell,.grid-summary)');
+            if ($(field).length == 0) {
+                field = $("[name$=_"+fieldId+"]").filter(':not(.grid-cell,.grid-summary)');
+            }
+
+            //filter those in hidden section
+            field = $(field).filter(':parents(.section-visibility-hidden)');
+
+            //to prevent return field with similar name, get the field with shorter name (Field in the subform)
+            if ($(field).length > 1) {
+                var fieldname;
+                $(field).each(function(){
+                    if (fieldname === undefined) {
+                        fieldname = $(this).attr("name");
+                    }
+                    if ($(this).attr("name").length < fieldname.length) {
+                        fieldname = $(this).attr("name");
+                    }
+                    field = $("[name="+fieldname+"]");
+                });
+            }
+
+            return field;
+        },
+
+        numericCalc : function(target, o) {
+          if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
+              let loadBinder = o.loadBinder;
+              loadBinder.requestParams = {};
+              loadBinder.fieldId = o.fieldId;
+
+              $.each(o.variables, function(index){
+                  let variable = o.variables[index];
+                  let fieldId = variable.variableName;
+                  let element;
+
+                  let value = 0;
+
+                  let $selector;
+                  if(fieldId.indexOf(".") != -1) {
+                      $selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
+                  } else {
+                      $selector = target.getField(fieldId);
+
+                      //fix for IE (Grid values should not added even its have same id)
+                      $selector = $selector.filter(":not(.grid-cell)");
+                  }
+
+                  if($selector.length > 0 && !$selector.closest(".form-section, .subform-section").hasClass("section-visibility-hidden")) {
+
+                      //if radio or checkbox, count only checked
+                      var type = $selector.attr('type');
+                      if (type != undefined && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
+                         $selector = $selector.filter(":checked");
+                      }
+                      var operation = variable.operation;
+                      if (operation == "avg") {
+                          value = $selector.avg();
+                      } else if (operation== "min") {
+                          value = $selector.min();
+                      } else if (operation == "max") {
+                          value = $selector.max();
+                      } else if( operation == "count") {
+                          value = $selector.length;
+                      } else if (operation == "sum") {
+                          value = $selector.sum();
+                      } else {
+                          $selector.each((i, e) => value = e.value);
+                      }
+
+                      if ($.isNumeric(value) && !isFinite(value)) {
+                          value = 0;
+                      }
+
+                      loadBinder.requestParams[variable.variableName] = value;
+                  } else {
+                      loadBinder.requestParams[variable.variableName] = 0;
+                  }
+              });
+
+              var formatValue = $(target).closest(".form-cell, .subform-cell").find(".primary_value").val();
+              if(formatValue) {
+                  loadBinder.formatValue = formatValue;
+              }
+
+              // buat ambil currency
+              if(o.currencyRefField) {
+                  var fieldId = o.currencyRefField;
+                  var element = FormUtil.getField(fieldId);
+                  loadBinder.requestParams[fieldId] = FormUtil.getValue(fieldId);
+              }
+
+              var imageLoader = $(target).closest(".form-cell, .subform-cell").find("img.loader");
+              if(imageLoader)
+                  $(imageLoader).show();
+
+              var submitButton = $(target).closest("form:first").find("input[type='submit']");
+              if(submitButton) {
+                  $(submitButton).prop("disabled", true);
+              }
+
+              $.ajax({
+                  url: loadBinder.url,
+                  type : 'POST',
+                  headers : { 'Content-Type' : 'application/json' },
+                  data : JSON.stringify(loadBinder)
+              })
+              .done(function(data) {
+                  var result = {};
+                  if(data) {
+                      result.value = data.value ? data.value : 0; // get first data
+                      result.mask_value = data.mask_value ? data.mask_value : 0;
+                  }
+                  apply(target, result, o);
+              })
+              .fail(function() {
+                  var result = {
+                      value: 0,
+                      mask_value: 0
+                  };
+                  apply(target, result, o);
+              });
+          }
+          /*} else {
+              var equation = o.equation;
+              if(o.equation == ""){
+                  equation = "0";
+              }
+              $.each(o.variables, function(){
+                  var variable = this;
+                  var value = getValue(variable.fieldId, variable.operation, o.format);
+                  if(o.equation == ""){
+                      equation += " + " + value;
+                  }else if(variable.variableName != ""){
+                      equation = replaceVariable(equation, variable.variableName, value);
+                  }
+              });
+              var result = eval(equation);
+              apply(target, result, o);
+          }*/
+      }
     });
 
     function onKeyUp(target, o) {
 
     }
-
-    function numericCalc(target, o){
-        if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
-            let loadBinder = o.loadBinder;
-            loadBinder.requestParams = {};
-            loadBinder.fieldId = o.fieldId;
-
-            $.each(o.variables, function(index){
-                let variable = o.variables[index];
-                let fieldId = variable.variableName;
-                let element;
-
-                let value = 0;
-
-                let $selector;
-                if(fieldId.indexOf(".") != -1) {
-                    $selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
-                } else {
-                    $selector = FormUtil.getField(fieldId);
-
-                    //fix for IE (Grid values should not added even its have same id)
-                    $selector = $selector.filter(":not(.grid-cell)");
-                }
-
-                if($selector.length > 0 && !$selector.closest(".form-section, .subform-section").hasClass("section-visibility-hidden")) {
-
-                    //if radio or checkbox, count only checked
-                    var type = $selector.attr('type');
-                    if (type != undefined && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
-                       $selector = $selector.filter(":checked");
-                    }
-                    var operation = variable.operation;
-                    if (operation == "avg") {
-                        value = $selector.avg();
-                    } else if (operation== "min") {
-                        value = $selector.min();
-                    } else if (operation == "max") {
-                        value = $selector.max();
-                    } else if( operation == "count") {
-                        value = $selector.length;
-                    } else if (operation == "sum") {
-                        value = $selector.sum();
-                    } else {
-                        $selector.each((i, e) => value = e.value);
-                    }
-
-                    if ($.isNumeric(value) && !isFinite(value)) {
-                        value = 0;
-                    }
-
-                    loadBinder.requestParams[variable.variableName] = value;
-                } else {
-                    loadBinder.requestParams[variable.variableName] = 0;
-                }
-            });
-
-            var formatValue = $(target).closest(".form-cell, .subform-cell").find(".primary_value").val();
-            if(formatValue) {
-                loadBinder.formatValue = formatValue;
-            }
-
-            // buat ambil currency
-            if(o.currencyRefField) {
-                var fieldId = o.currencyRefField;
-                var element = FormUtil.getField(fieldId);
-                loadBinder.requestParams[fieldId] = FormUtil.getValue(fieldId);
-            }
-
-            var imageLoader = $(target).closest(".form-cell, .subform-cell").find("img.loader");
-            if(imageLoader)
-                $(imageLoader).show();
-
-            var submitButton = $(target).closest("form:first").find("input[type='submit']");
-            if(submitButton) {
-                $(submitButton).prop("disabled", true);
-            }
-
-            $.ajax({
-                url: loadBinder.url,
-                type : 'POST',
-                headers : { 'Content-Type' : 'application/json' },
-                data : JSON.stringify(loadBinder)
-            })
-            .done(function(data) {
-                var result = {};
-                if(data) {
-                    result.value = data.value ? data.value : 0; // get first data
-                    result.mask_value = data.mask_value ? data.mask_value : 0;
-                }
-                apply(target, result, o);
-            })
-            .fail(function() {
-                var result = {
-                    value: 0,
-                    mask_value: 0
-                };
-                apply(target, result, o);
-            });
-        }
-        /*} else {
-            var equation = o.equation;
-            if(o.equation == ""){
-                equation = "0";
-            }
-            $.each(o.variables, function(){
-                var variable = this;
-                var value = getValue(variable.fieldId, variable.operation, o.format);
-                if(o.equation == ""){
-                    equation += " + " + value;
-                }else if(variable.variableName != ""){
-                    equation = replaceVariable(equation, variable.variableName, value);
-                }
-            });
-            var result = eval(equation);
-            apply(target, result, o);
-        }*/
-    };
 
     function apply(target, result, o) {
         let $elementBlock = $(target).closest("div");
