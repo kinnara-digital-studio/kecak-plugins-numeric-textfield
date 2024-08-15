@@ -62,12 +62,12 @@ public class EquationLoadBinder extends WorkflowFormBinder {
             BigDecimal result = BigDecimal.valueOf(e.evaluate());
 
             if (isDebug()) {
-                LogUtil.info(getClassName(), "load : result [" + result + "]");
+                LogUtil.info(getClassName(), "load : result [" + result.toPlainString() + "]");
             }
 
             return new FormRowSet() {{
                 add(new FormRow() {{
-                    put(element.getPropertyString(FormUtil.PROPERTY_ID), result.toString());
+                    put(element.getPropertyString(FormUtil.PROPERTY_ID), result.toPlainString());
                 }});
             }};
         } catch (Exception e) {
