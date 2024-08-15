@@ -254,7 +254,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
                     : reformatValue(fieldId, value.toString(), form, formData, formatter);
 
             JSONObject data = new JSONObject();
-            data.put("value", value.doubleValue());
+            data.put("value", value.toPlainString());
             data.put("mask_value", formattedValue);
 
             response.setStatus(HttpServletResponse.SC_OK);
