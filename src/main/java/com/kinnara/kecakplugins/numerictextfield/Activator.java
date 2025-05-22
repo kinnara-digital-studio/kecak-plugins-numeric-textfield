@@ -17,6 +17,7 @@ public class Activator implements BundleActivator {
         registrationList.add(context.registerService(NumericField.class.getName(), new NumericField(), null));
         registrationList.add(context.registerService(EquationLoadBinder.class.getName(), new EquationLoadBinder(), null));
         registrationList.add(context.registerService(NumericValidator.class.getName(), new NumericValidator(), null));
+        registrationList.add(context.registerService(ReadonlyCalculationLoadBinder.class.getName(), new ReadonlyCalculationLoadBinder(), null));
     }
 
     public void stop(BundleContext context) {
