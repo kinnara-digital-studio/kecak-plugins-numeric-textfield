@@ -287,7 +287,14 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             }
 
             try {
-                Number number = numberFormat.parse(input);
+                Number number;
+                if (locale.getLanguage().equals("in")) {
+                    number = numberFormat.parse(input.replace(".", ","));
+                    LogUtil.info(getClassName(), "Parse input result: " + number);
+                } else {
+                    number = numberFormat.parse(input);
+                }
+                
                 return BigDecimal.valueOf(number.doubleValue());
             } catch (ParseException ignored) {
             }

@@ -59,7 +59,7 @@ function terbilang(num) {
       case '0':
         return '';
       case '1':
-        if((index == 1 || index == 2 || arr[index + 1]  == '1' || (index % 3) == 1 || (index % 3) == 2))
+        if((index == 1 || index == 2 || index == 3 || arr[index + 1]  == '1' || (index % 3) == 1 || (index % 3) == 2))
           return 'se';
         return 'satu ';
       case '2':
