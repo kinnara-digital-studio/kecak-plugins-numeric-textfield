@@ -1,6 +1,6 @@
-package com.kinnara.kecakplugins.numerictextfield;
+package com.kinnarastudio.kecakplugins.numerictextfield;
 
-import com.kinnara.kecakplugins.numerictextfield.utils.Declutter;
+import com.kinnarastudio.kecakplugins.numerictextfield.utils.Declutter;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.Element;
 import org.joget.apps.form.model.FormData;
@@ -24,9 +24,15 @@ import java.util.stream.Stream;
 public class NumericValidator extends FormValidator implements Declutter {
     @Override
     public boolean validate(Element element, FormData formData, String[] values) {
+        String id = FormUtil.getElementParameterName(element);
+
+        if(isRequired() && (values == null || values.length == 0)) {
+            formData.addFormError(id, ResourceBundleUtil.getMessage("form.defaultvalidator.err.missingValue"));
+            return false;
+        }
+
         boolean valid = compile(getConditions(), getValue(values));
         if(!valid) {
-            String id = FormUtil.getElementParameterName(element);
             formData.addFormError(id, getMessage());
         }
         return valid;
@@ -151,6 +157,10 @@ public class NumericValidator extends FormValidator implements Declutter {
 
     @Override
     public String getElementDecoration() {
-        return isNotEmpty(getConditions()) ? "*" : "";
+        return isRequired() ? "*" : "";
+    }
+
+    protected boolean isRequired() {
+        return "true".equalsIgnoreCase(getPropertyString("mandatory"));
     }
 }

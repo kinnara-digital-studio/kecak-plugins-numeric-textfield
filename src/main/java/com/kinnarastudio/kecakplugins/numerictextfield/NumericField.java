@@ -1,7 +1,6 @@
-package com.kinnara.kecakplugins.numerictextfield;
+package com.kinnarastudio.kecakplugins.numerictextfield;
 
-import com.kinnara.kecakplugins.numerictextfield.utils.Declutter;
-import com.kinnarastudio.commons.jsonstream.JSONStream;
+import com.kinnarastudio.kecakplugins.numerictextfield.utils.Declutter;
 import org.joget.apps.app.dao.FormDefinitionDao;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.model.FormDefinition;
@@ -287,7 +286,14 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             }
 
             try {
-                Number number = numberFormat.parse(input);
+                Number number;
+                if (locale.getLanguage().equals("in")) {
+                    number = numberFormat.parse(input.replace(".", ","));
+                    LogUtil.info(getClassName(), "Parse input result: " + number);
+                } else {
+                    number = numberFormat.parse(input);
+                }
+
                 return BigDecimal.valueOf(number.doubleValue());
             } catch (ParseException ignored) {
             }

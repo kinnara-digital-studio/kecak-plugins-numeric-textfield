@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins.numerictextfield;
+package com.kinnarastudio.kecakplugins.numerictextfield;
 
 import org.joget.plugin.base.PluginManager;
 import org.joget.plugin.property.model.PropertyEditable;
