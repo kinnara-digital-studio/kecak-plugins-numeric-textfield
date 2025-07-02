@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins.numerictextfield;
+package com.kinnarastudio.kecakplugins.numerictextfield;
 
 import java.util.ArrayList;
 import java.util.Collection;

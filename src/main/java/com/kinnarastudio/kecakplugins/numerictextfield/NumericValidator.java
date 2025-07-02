@@ -1,6 +1,6 @@
-package com.kinnara.kecakplugins.numerictextfield;
+package com.kinnarastudio.kecakplugins.numerictextfield;
 
-import com.kinnara.kecakplugins.numerictextfield.utils.Declutter;
+import com.kinnarastudio.kecakplugins.numerictextfield.utils.Declutter;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.Element;
 import org.joget.apps.form.model.FormData;

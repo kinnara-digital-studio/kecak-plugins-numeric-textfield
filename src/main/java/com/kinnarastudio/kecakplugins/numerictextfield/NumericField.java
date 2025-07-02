@@ -1,7 +1,6 @@
-package com.kinnara.kecakplugins.numerictextfield;
+package com.kinnarastudio.kecakplugins.numerictextfield;
 
-import com.kinnara.kecakplugins.numerictextfield.utils.Declutter;
-import com.kinnarastudio.commons.jsonstream.JSONStream;
+import com.kinnarastudio.kecakplugins.numerictextfield.utils.Declutter;
 import org.joget.apps.app.dao.FormDefinitionDao;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.model.FormDefinition;
@@ -39,7 +38,7 @@ import java.util.stream.Stream;
 /**
  * @author aristo
  */
-public class NumericField extends Element implements Declutter, FormBuilderPaletteElement, PluginWebSupport, AceFormElement, AdminLteFormElement {
+public class NumericField extends Element implements Declutter, FormBuilderPaletteElement, PluginWebSupport {
     @Override
     public String getName() {
         return getLabel() + getVersion();
@@ -452,18 +451,6 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
         dataModel.put("className", getClassName());
         String html = FormUtil.generateElementHtml(this, formData, template, dataModel);
         return html;
-    }
-
-    @Override
-    public String renderAceTemplate(FormData formData, Map map) {
-        String template = "AceNumericField.ftl";
-        return renderTemplate(template, formData, map);
-    }
-
-    @Override
-    public String renderAdminLteTemplate(FormData formData, Map map) {
-        String template = "AdminLteNumericField.ftl";
-        return renderTemplate(template, formData, map);
     }
 
     /**

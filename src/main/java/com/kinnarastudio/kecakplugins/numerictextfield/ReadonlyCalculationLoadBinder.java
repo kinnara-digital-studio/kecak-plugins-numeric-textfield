@@ -1,4 +1,4 @@
-package com.kinnara.kecakplugins.numerictextfield;
+package com.kinnarastudio.kecakplugins.numerictextfield;
 
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.model.*;
