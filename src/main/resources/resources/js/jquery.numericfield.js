@@ -273,7 +273,10 @@
             let currencyValue = FormUtil.getValue(o.currencyRefField);
             let isCurrency = currencyValue != '' ? true : false;
             let terbilangValue = terbilang(result.value).trim();
-            let decimalValue = decimalTerbilang(result.value, isCurrency).trim();
+
+            let value = parseFloat(result.value.toString().replace(',', '.'));
+
+            let decimalValue = decimalTerbilang(value, isCurrency).trim();
 
             let terbilangCurrency =
                 !terbilangValue ? ''
