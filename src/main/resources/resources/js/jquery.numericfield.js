@@ -184,9 +184,7 @@
               });
 
               var formatValue = $(target).closest(".form-cell, .subform-cell").find(".primary_value").val();
-              if(formatValue) {
-                  loadBinder.formatValue = formatValue;
-              }
+              loadBinder.formatValue = formatValue ? formatValue : '';
 
               // buat ambil currency
               if(o.currencyRefField) {
