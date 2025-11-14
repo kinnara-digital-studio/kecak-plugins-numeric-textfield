@@ -6,6 +6,6 @@ target/
 .classpath
 .DS_Store
 .vscode
-node_modules
+node_modules/
 package-lock.json
 bower_components/

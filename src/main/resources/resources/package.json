@@ -1,0 +1,9 @@
+{
+  "name": "kecak-plugins-numeric-textfield",
+  "version": "3.0.0",
+  "author": "kinnarastudio.com",
+  "license": "ISC",
+  "dependencies": {
+    "globalize": "1.4.2"
+  }
+}
