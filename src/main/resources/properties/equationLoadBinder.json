@@ -1,12 +1,54 @@
 [
   {
-    "title" : "@@equationLoadBinder.title@@",
-    "properties" : [
+    "title": "@@equationLoadBinder.title@@",
+    "properties": [
       {
-        "name" : "equation",
-        "label" : "@@equationLoadBinder.equation@@",
-        "type" : "textfield",
-        "required" : "true"
+        "name": "equation",
+        "label": "@@equationLoadBinder.equation@@",
+        "type": "textfield",
+        "required": "true"
+      },
+      {
+        "name": "roundNumber",
+        "label": "Round Number?",
+        "type": "checkbox",
+        "value": "",
+        "options": [
+          {
+            "value": "true",
+            "label": ""
+          }
+        ]
+      },
+      {
+        "name": "roundingMode",
+        "label": "Rounding Mode",
+        "type": "selectbox",
+        "control_field": "roundNumber",
+        "control_value": "true",
+        "options": [
+          {
+            "value": "round_down",
+            "label": "Round Down (Floor)"
+          },
+          {
+            "value": "round_up",
+            "label": "Round Up (Ceiling)"
+          }
+        ],
+        "value": "ROUND_DOWN",
+        "required": "true"
+      },
+      {
+        "name": "decimalPlaces",
+        "label": "Decimal Places",
+        "type": "textfield",
+        "value": "0",
+        "control_field": "roundNumber",
+        "control_value": "true",
+        "regex_validation": "^[0-9]+$",
+        "validation_message": "Please enter a valid positive number.",
+        "description": "0 for integers, 2 for currency, etc."
       },
       {
         "name": "debug",
