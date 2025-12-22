@@ -20,6 +20,7 @@ public class Activator implements BundleActivator {
         registrationList.add(context.registerService(NumericValidator.class.getName(), new NumericValidator(), null));
         registrationList.add(context.registerService(ReadonlyCalculationLoadBinder.class.getName(), new ReadonlyCalculationLoadBinder(), null));
         registrationList.add(context.registerService(NumericRoundingFormatter.class.getName(), new NumericRoundingFormatter(), null));
+        registrationList.add(context.registerService(ConditionalValueLoadBinder.class.getName(), new ConditionalValueLoadBinder(), null));
     }
 
     public void stop(BundleContext context) {

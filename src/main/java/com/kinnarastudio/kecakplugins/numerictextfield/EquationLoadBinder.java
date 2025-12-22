@@ -82,8 +82,10 @@ public class EquationLoadBinder extends WorkflowFormBinder {
                 // 2. Apply Rounding with Scale
                 if ("round_up".equalsIgnoreCase(mode)) {
                     result = number.setScale(scale, RoundingMode.CEILING);
-                } else {
+                } else if ("round_down".equalsIgnoreCase(mode)) {
                     result = number.setScale(scale, RoundingMode.FLOOR);
+                } else {
+                    result = number.setScale(scale, RoundingMode.HALF_UP);
                 }
             }
 

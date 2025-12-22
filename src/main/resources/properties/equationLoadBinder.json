@@ -34,6 +34,10 @@
           {
             "value": "round_up",
             "label": "Round Up (Ceiling)"
+          },
+          {
+            "value": "round_half_up",
+            "label": "Mathematical Standard (ISO 80000-1)"
           }
         ],
         "value": "ROUND_DOWN",

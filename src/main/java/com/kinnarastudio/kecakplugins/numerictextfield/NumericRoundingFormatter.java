@@ -12,7 +12,7 @@ import org.joget.commons.util.LogUtil;
 import org.joget.plugin.base.PluginManager;
 
 public class NumericRoundingFormatter extends DataListColumnFormatDefault {
-    private final static String LABEL = "Numeric Rounding Formatter";
+    private static final String LABEL = "Numeric Rounding Formatter";
 
     @Override
     public String format(DataList datalist, DataListColumn column, Object row, Object value) {
