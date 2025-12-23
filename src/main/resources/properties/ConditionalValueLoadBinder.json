@@ -1,0 +1,25 @@
+[
+    {
+        "title": "Conditional Value Load BInder",
+        "properties": [
+            {
+                "name": "variables",
+                "label": "Variables",
+                "description": "Input the conditional statement to put the formula",
+                "type": "grid",
+                "columns": [
+                    {
+                        "key": "variableName",
+                        "label": "Conditional Statement",
+                        "required": "true"
+                    },
+                    {
+                        "key": "operation",
+                        "label": "Formula Operation",
+                        "required": "true"
+                    }
+                ]
+            }
+        ]
+    }
+]
