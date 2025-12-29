@@ -10,6 +10,17 @@
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/terbilang-spelling.js"/></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/decimal-terbilang-spelling.js"/></script>
         <!-- <script type="text/javascript" src="${request.contextPath}/plugin/${className}/node_modules/globalize/dist/globalize.js"></script> -->
+        <style>
+            input.mask[readonly] {
+                background-color: #f4f4f4;
+                color: #666;
+                border-color: #ddd;
+            }
+
+            .calculationField_value {
+                color: #666;
+            }
+        </style>
 
         <#if element.properties.readonly! == 'true'>
             <#assign attrDontTrigger = 'readonly data-donttrigger="true"' >
