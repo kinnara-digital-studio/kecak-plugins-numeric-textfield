@@ -129,31 +129,6 @@
         },
 
         numericCalc : function(target, o) {
-            // === helper: parse number with locale support ===
-            function parseLocaleNumber (val) {
-                if (val === null || val === undefined) return 0;
-                if (typeof val === "number") return val;
-
-                val = val.toString().trim();
-                if (!val) return 0;
-
-                // 5.000,00 OR 5,000.00
-                if (val.indexOf('.') > -1 && val.indexOf(',') > -1) {
-                    if (val.lastIndexOf(',') > val.lastIndexOf('.')) {
-                        // 5.000,00 -> 5000.00
-                        val = val.replace(/\./g, '').replace(',', '.');
-                    } else {
-                        // 5,000.00 -> 5000.00
-                        val = val.replace(/,/g, '');
-                    }
-                } else if (val.indexOf(',') > -1) {
-                    // 5000,00 -> 5000.00
-                    val = val.replace(',', '.');
-                }
-
-                var num = parseFloat(val);
-                return isNaN(num) ? 0 : num;
-            }
             if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
                 let loadBinder = o.loadBinder;
                 loadBinder.requestParams = {};
@@ -303,7 +278,8 @@
             let isCurrency = currencyValue != '' ? true : false;
             let terbilangValue = terbilang(result.value).trim();
 
-            let value = parseFloat(result.value.toString().replace(',', '.'));
+            //let value = parseFloat(result.value.toString().replace(',', '.'));
+            let value = parseLocaleNumber(result.value);
 
             let decimalValue = decimalTerbilang(value, isCurrency).trim();
 
@@ -320,5 +296,31 @@
             spellingElement.val(spellingValue);
             spellingElement.attr("readonly","true");
         }
+    }
+
+    // === helper: parse number with locale support ===
+    function parseLocaleNumber(val) {
+        if (val === null || val === undefined) return 0;
+        if (typeof val === "number") return val;
+
+        val = val.toString().trim();
+        if (!val) return 0;
+
+        // 5.000,00 OR 5,000.00
+        if (val.indexOf('.') > -1 && val.indexOf(',') > -1) {
+            if (val.lastIndexOf(',') > val.lastIndexOf('.')) {
+                // 5.000,00 → 5000.00
+                val = val.replace(/\./g, '').replace(',', '.');
+            } else {
+                // 5,000.00 → 5000.00
+                val = val.replace(/,/g, '');
+            }
+        } else if (val.indexOf(',') > -1) {
+            // 5000,00 → 5000.00
+            val = val.replace(',', '.');
+        }
+
+        var num = Number(val);
+        return isNaN(num) ? 0 : num;
     }
 })(jQuery);
