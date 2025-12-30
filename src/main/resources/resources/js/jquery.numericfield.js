@@ -129,58 +129,64 @@
         },
 
         numericCalc : function(target, o) {
-          if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
-              let loadBinder = o.loadBinder;
-              loadBinder.requestParams = {};
-              loadBinder.fieldId = o.fieldId;
+            if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
+                let loadBinder = o.loadBinder;
+                loadBinder.requestParams = {};
+                loadBinder.fieldId = o.fieldId;
 
-              $.each(o.variables, function(index){
-                  let variable = o.variables[index];
-                  let fieldId = variable.variableName;
-                  let element;
+                $.each(o.variables, function(index){
+                    let variable = o.variables[index];
+                    let fieldId = variable.variableName;
+                    let element;
 
-                  let value = 0;
+                    let value = 0;
 
-                  let $selector;
-                  if(fieldId.indexOf(".") != -1) {
-                      $selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
-                  } else {
-                      $selector = target.getField(fieldId);
+                    let $selector;
+                    if(fieldId.indexOf(".") != -1) {
+                        $selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
+                    } else {
+                        $selector = target.getField(fieldId);
 
-                      //fix for IE (Grid values should not added even its have same id)
-                      $selector = $selector.filter(":not(.grid-cell)");
-                  }
+                        //fix for IE (Grid values should not added even its have same id)
+                        $selector = $selector.filter(":not(.grid-cell)");
+                    }
 
-                  if($selector.length > 0 && !$selector.closest(".form-section, .subform-section").hasClass("section-visibility-hidden")) {
+                    if($selector.length > 0 && !$selector.closest(".form-section, .subform-section").hasClass("section-visibility-hidden")) {
 
-                      //if radio or checkbox, count only checked
-                      var type = $selector.attr('type');
-                      if (type != undefined && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
-                         $selector = $selector.filter(":checked");
-                      }
-                      var operation = variable.operation;
-                      if (operation == "avg") {
-                          value = $selector.avg();
-                      } else if (operation== "min") {
-                          value = $selector.min();
-                      } else if (operation == "max") {
-                          value = $selector.max();
-                      } else if( operation == "count") {
-                          value = $selector.length;
-                      } else if (operation == "sum") {
-                          value = $selector.sum();
-                      } else {
-                          $selector.each((i, e) => value = e.value);
-                      }
+                        //if radio or checkbox, count only checked
+                        var type = $selector.attr('type');
+                        if (type != undefined && (type.toLowerCase() == "radio" || type.toLowerCase() == "checkbox")) {
+                            $selector = $selector.filter(":checked");
+                        }
 
-                      if ($.isNumeric(value) && !isFinite(value)) {
-                          value = 0;
-                      }
+                        let values = [];
+                        $selector.each(function () {
+                            values.push(parseLocaleNumber(this.value));
+                        });
 
-                      loadBinder.requestParams[variable.variableName] = value;
-                  } else {
-                      loadBinder.requestParams[variable.variableName] = 0;
-                  }
+                        var operation = variable.operation;
+                        if (operation == "avg") {
+                            value = values.length ? values.reduce((a,b)=>a+b,0) / values.length : 0;
+                        } else if (operation== "min") {
+                            value = values.length ? Math.min.apply(null, values) : 0;
+                        } else if (operation == "max") {
+                            value = values.length ? Math.max.apply(null, values) : 0;
+                        } else if( operation == "count") {
+                            value = values.length;
+                        } else if (operation == "sum") {
+                            value = values.reduce((a,b)=>a+b,0);
+                        } else {
+                            value = values.length ? values[0] : 0;
+                        }
+
+                        if ($.isNumeric(value) && !isFinite(value)) {
+                            value = 0;
+                        }
+
+                        loadBinder.requestParams[variable.variableName] = value;
+                    } else {
+                        loadBinder.requestParams[variable.variableName] = 0;
+                    }
               });
 
               var formatValue = $(target).closest(".form-cell, .subform-cell").find(".primary_value").val();
@@ -272,7 +278,8 @@
             let isCurrency = currencyValue != '' ? true : false;
             let terbilangValue = terbilang(result.value).trim();
 
-            let value = parseFloat(result.value.toString().replace(',', '.'));
+            //let value = parseFloat(result.value.toString().replace(',', '.'));
+            let value = parseLocaleNumber(result.value);
 
             let decimalValue = decimalTerbilang(value, isCurrency).trim();
 
@@ -289,5 +296,31 @@
             spellingElement.val(spellingValue);
             spellingElement.attr("readonly","true");
         }
+    }
+
+    // === helper: parse number with locale support ===
+    function parseLocaleNumber(val) {
+        if (val === null || val === undefined) return 0;
+        if (typeof val === "number") return val;
+
+        val = val.toString().trim();
+        if (!val) return 0;
+
+        // 5.000,00 OR 5,000.00
+        if (val.indexOf('.') > -1 && val.indexOf(',') > -1) {
+            if (val.lastIndexOf(',') > val.lastIndexOf('.')) {
+                // 5.000,00 → 5000.00
+                val = val.replace(/\./g, '').replace(',', '.');
+            } else {
+                // 5,000.00 → 5000.00
+                val = val.replace(/,/g, '');
+            }
+        } else if (val.indexOf(',') > -1) {
+            // 5000,00 → 5000.00
+            val = val.replace(',', '.');
+        }
+
+        var num = Number(val);
+        return isNaN(num) ? 0 : num;
     }
 })(jQuery);
