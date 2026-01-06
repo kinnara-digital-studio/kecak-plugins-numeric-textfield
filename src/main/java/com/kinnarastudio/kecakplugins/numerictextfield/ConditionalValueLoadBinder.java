@@ -1,6 +1,7 @@
 package com.kinnarastudio.kecakplugins.numerictextfield;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -80,6 +81,30 @@ public class ConditionalValueLoadBinder extends WorkflowFormBinder {
 
             BigDecimal result = BigDecimal.valueOf(e.evaluate());
 
+            if ("true".equalsIgnoreCase(getPropertyString("roundNumber"))) {
+                String valString = result.toString().trim();
+                LogUtil.info(getClassName(), "Value: [" + valString + "]");
+
+                String mode = getPropertyString("roundingMode");
+                String scaleString = getPropertyString("decimalPlaces");
+
+                int scale = 0;
+                if (scaleString != null && !scaleString.isEmpty()) {
+                    scale = Integer.parseInt(scaleString);
+                }
+                
+                BigDecimal number = new BigDecimal(valString);
+
+                // 2. Apply Rounding with Scale
+                if ("round_up".equalsIgnoreCase(mode)) {
+                    result = number.setScale(scale, RoundingMode.CEILING);
+                } else if ("round_down".equalsIgnoreCase(mode)) {
+                    result = number.setScale(scale, RoundingMode.FLOOR);
+                } else {
+                    result = number.setScale(scale, RoundingMode.HALF_UP);
+                }
+            }
+
             if (isDebug()) {
                 LogUtil.info(getClassName(), "load : result [" + result.toPlainString() + "]");
             }
@@ -101,7 +126,7 @@ public class ConditionalValueLoadBinder extends WorkflowFormBinder {
     }
 
     private boolean evaluateCondition(String condition, Map<String, String[]> params) {
-        Pattern p = Pattern.compile("([a-zA-Z_][a-zA-Z0-9_]*)\\s*(<=|>=|<|>|==)\\s*(\\d+(\\.\\d+)?)");
+        Pattern p = Pattern.compile("([a-zA-Z_][a-zA-Z0-9_]*)\\s*(<=|>=|!=|==|<|>)\\s*(\\d+(\\.\\d+)?)");
         Matcher m = p.matcher(condition);
 
         if (!m.matches()) {
@@ -129,6 +154,8 @@ public class ConditionalValueLoadBinder extends WorkflowFormBinder {
                 return fieldValue >= compareValue;
             case "==":
                 return fieldValue == compareValue;
+            case "!=":
+                return fieldValue != compareValue;
             default:
                 return false;
         }
