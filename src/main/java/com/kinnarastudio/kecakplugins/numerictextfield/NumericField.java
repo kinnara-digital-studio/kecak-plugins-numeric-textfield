@@ -1,6 +1,27 @@
 package com.kinnarastudio.kecakplugins.numerictextfield;
 
-import com.kinnarastudio.kecakplugins.numerictextfield.utils.Declutter;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.AbstractMap;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.Nonnull;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.joget.apps.app.dao.FormDefinitionDao;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.model.FormDefinition;
@@ -10,7 +31,13 @@ import org.joget.apps.datalist.model.DataListCollection;
 import org.joget.apps.datalist.model.DataListColumn;
 import org.joget.apps.datalist.model.DataListColumnFormatDefault;
 import org.joget.apps.form.dao.FormDataDao;
-import org.joget.apps.form.model.*;
+import org.joget.apps.form.model.Element;
+import org.joget.apps.form.model.Form;
+import org.joget.apps.form.model.FormBuilderPaletteElement;
+import org.joget.apps.form.model.FormData;
+import org.joget.apps.form.model.FormLoadBinder;
+import org.joget.apps.form.model.FormRow;
+import org.joget.apps.form.model.FormRowSet;
 import org.joget.apps.form.service.FormService;
 import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
@@ -23,17 +50,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.context.ApplicationContext;
 
-import javax.annotation.Nonnull;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.kinnarastudio.kecakplugins.numerictextfield.utils.Declutter;
 
 /**
  * @author aristo
@@ -151,6 +168,12 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             jsonConfig.put("assignmentId", formData.getActivityId());
             jsonConfig.put("appId", appDef.getAppId());
             jsonConfig.put("appVersion", appDef.getVersion().toString());
+
+            jsonConfig.put(
+                "useJsEquation", "true".equalsIgnoreCase(getPropertyString("useJsEquation"))
+            );
+            jsonConfig.put("jsEquation", getPropertyString("jsEquation"));
+
             jsonConfig.accumulate("variables", getProperty("variables"));
             jsonConfig.put("currencyRefField", getPropertyString("currencyRefField"));
             jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(rootForm, this, formData));

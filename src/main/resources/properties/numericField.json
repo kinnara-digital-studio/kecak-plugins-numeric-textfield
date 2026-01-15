@@ -63,7 +63,29 @@
         "options_ajax" : "[CONTEXT_PATH]/web/property/json/getElements?classname=org.joget.apps.form.model.FormLoadElementBinder",
         "value":"%s",
         "url" : "[CONTEXT_PATH]/web/property/json[APP_PATH]/getPropertyOptions"
+      },
+      {
+        "name" : "useJsEquation",
+        "label" : "Use Javascript Equation?",
+        "description" : "Using javascript equation instead of using Ajax",
+        "type" : "checkbox",
+        "value":"",
+        "options": [
+                      {
+                        "value": "true",
+                        "label": ""
+                      }
+                    ]
+      },
+      {
+        "name" : "jsEquation",
+        "label" : "Equation?",
+        "type" : "textfield",
+        "required" : "true",
+        "control_field" : "useJsEquation",
+        "control_value" :  "true"
       }
+
     ]
   },
   {

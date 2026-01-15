@@ -129,7 +129,61 @@
         },
 
         numericCalc : function(target, o) {
-            if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
+            if (o.useJsEquation === true) {
+                let equation = o.jsEquation || "0";
+
+                $.each(o.variables, function(index){
+                    let variable = o.variables[index];
+                    let fieldId = variable.variableName;
+                    let value = 0;
+
+                    let $selector;
+                    if(fieldId.indexOf(".") != -1) {
+                        $selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
+                    } else {
+                        $selector = target.getField(fieldId).filter(":not(.grid-cell)");
+                    }
+
+                    let values = [];
+                    $selector.each(function () {
+                        values.push(parseLocaleNumber(this.value));
+                    });
+
+                    let operation = variable.operation;
+                    if (operation === "avg") {
+                        value = values.length ? values.reduce((a,b)=>a+b,0) / values.length : 0;
+                    } else if (operation === "min") {
+                        value = values.length ? Math.min.apply(null, values) : 0;
+                    } else if (operation === "max") {
+                        value = values.length ? Math.max.apply(null, values) : 0;
+                    } else if (operation === "count") {
+                        value = values.length;
+                    } else if (operation === "sum") {
+                        value = values.reduce((a,b)=>a+b,0);
+                    } else {
+                        value = values.length ? values[0] : 0;
+                    }
+
+                    let regex = new RegExp('\\b' + variable.variableName + '\\b', 'g');
+                    equation = equation.replace(regex, value);
+                });
+
+                let resultValue = 0;
+                try {
+                    resultValue = Function('"use strict";return (' + equation + ')')();
+                } catch(e) {
+                    console.error("NumericField JS Equation Error:", e);
+                    resultValue = 0;
+                }
+
+                apply(target, {
+                    value: resultValue,
+                    mask_value: resultValue
+                }, o);
+
+                return;
+            } else {
+                if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
                 let loadBinder = o.loadBinder;
                 loadBinder.requestParams = {};
                 loadBinder.fieldId = o.fieldId;
@@ -230,6 +284,7 @@
                   apply(target, result, o);
               });
           }
+            }
           /*} else {
               var equation = o.equation;
               if(o.equation == ""){
