@@ -1,8 +1,13 @@
 package com.kinnarastudio.kecakplugins.numerictextfield;
 
-import com.kinnarastudio.commons.Try;
-import net.objecthunter.exp4j.Expression;
-import net.objecthunter.exp4j.ExpressionBuilder;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.stream.Stream;
+
 import org.joget.apps.app.service.AppUtil;
 import org.joget.apps.form.lib.WorkflowFormBinder;
 import org.joget.apps.form.model.Element;
@@ -13,14 +18,13 @@ import org.joget.apps.form.service.FormUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.plugin.base.PluginManager;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.stream.Stream;
+import com.kinnarastudio.commons.Try;
+
+import net.objecthunter.exp4j.Expression;
+import net.objecthunter.exp4j.ExpressionBuilder;
 
 public class EquationLoadBinder extends WorkflowFormBinder {
+
     @Override
     public FormRowSet load(Element element, String primaryKey, FormData formData) {
         if (isDebug()) {
@@ -61,15 +65,45 @@ public class EquationLoadBinder extends WorkflowFormBinder {
 
             BigDecimal result = BigDecimal.valueOf(e.evaluate());
 
+            if ("true".equalsIgnoreCase(getPropertyString("roundNumber"))) {
+                String valString = result.toString().trim();
+                LogUtil.info(getClassName(), "Value: [" + valString + "]");
+
+                String mode = getPropertyString("roundingMode");
+                String scaleString = getPropertyString("decimalPlaces");
+
+                int scale = 0;
+                if (scaleString != null && !scaleString.isEmpty()) {
+                    scale = Integer.parseInt(scaleString);
+                }
+                
+                BigDecimal number = new BigDecimal(valString);
+
+                // 2. Apply Rounding with Scale
+                if ("round_up".equalsIgnoreCase(mode)) {
+                    result = number.setScale(scale, RoundingMode.CEILING);
+                } else if ("round_down".equalsIgnoreCase(mode)) {
+                    result = number.setScale(scale, RoundingMode.FLOOR);
+                } else {
+                    result = number.setScale(scale, RoundingMode.HALF_UP);
+                }
+            }
+
             if (isDebug()) {
                 LogUtil.info(getClassName(), "load : result [" + result.toPlainString() + "]");
             }
 
-            return new FormRowSet() {{
-                add(new FormRow() {{
-                    put(element.getPropertyString(FormUtil.PROPERTY_ID), result.toPlainString());
-                }});
-            }};
+            final String finalResult = result.toPlainString();
+
+            return new FormRowSet() {
+                {
+                    add(new FormRow() {
+                        {
+                            put(element.getPropertyString(FormUtil.PROPERTY_ID), finalResult);
+                        }
+                    });
+                }
+            };
         } catch (Exception e) {
         }
         return null;

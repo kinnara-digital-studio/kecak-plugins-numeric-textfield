@@ -1,0 +1,33 @@
+[
+    {
+        "title": "Numeric Rounding Formatter",
+        "properties": [
+            {
+                "name": "roundingMode",
+                "label": "Rounding Mode",
+                "type": "selectbox",
+                "options": [
+                    {
+                        "value": "round_down",
+                        "label": "Round Down (Floor)"
+                    },
+                    {
+                        "value": "round_up",
+                        "label": "Round Up (Ceiling)"
+                    }
+                ],
+                "value": "ROUND_DOWN",
+                "required": "true"
+            },
+            {
+                "name": "decimalPlaces",
+                "label": "Decimal Places",
+                "type": "textfield",
+                "value": "0",
+                "regex_validation": "^[0-9]+$",
+                "validation_message": "Please enter a valid positive number.",
+                "description": "0 for integers, 2 for currency, etc."
+            }
+        ]
+    }
+]

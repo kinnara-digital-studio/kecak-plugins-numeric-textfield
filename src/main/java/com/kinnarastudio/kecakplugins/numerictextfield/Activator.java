@@ -2,6 +2,7 @@ package com.kinnarastudio.kecakplugins.numerictextfield;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -18,6 +19,8 @@ public class Activator implements BundleActivator {
         registrationList.add(context.registerService(EquationLoadBinder.class.getName(), new EquationLoadBinder(), null));
         registrationList.add(context.registerService(NumericValidator.class.getName(), new NumericValidator(), null));
         registrationList.add(context.registerService(ReadonlyCalculationLoadBinder.class.getName(), new ReadonlyCalculationLoadBinder(), null));
+        registrationList.add(context.registerService(NumericRoundingFormatter.class.getName(), new NumericRoundingFormatter(), null));
+        registrationList.add(context.registerService(ConditionalValueLoadBinder.class.getName(), new ConditionalValueLoadBinder(), null));
     }
 
     public void stop(BundleContext context) {
