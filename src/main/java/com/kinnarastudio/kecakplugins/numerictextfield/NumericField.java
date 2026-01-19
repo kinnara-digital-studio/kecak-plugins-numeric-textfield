@@ -174,6 +174,13 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             );
             jsonConfig.put("jsEquation", getPropertyString("jsEquation"));
 
+            jsonConfig.put(
+                "roundNumber", "true".equalsIgnoreCase(getPropertyString("roundNumber"))
+            );
+            jsonConfig.put("roundingMode", getPropertyString("roundingMode"));
+            jsonConfig.put("decimalPlaces", getPropertyString("decimalPlaces"));
+
+
             jsonConfig.accumulate("variables", getProperty("variables"));
             jsonConfig.put("currencyRefField", getPropertyString("currencyRefField"));
             jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(rootForm, this, formData));

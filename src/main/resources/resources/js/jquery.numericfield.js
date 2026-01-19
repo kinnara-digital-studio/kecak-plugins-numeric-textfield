@@ -176,6 +176,13 @@
                     resultValue = 0;
                 }
 
+                if (typeof resultValue !== "number" || Number.isNaN(resultValue) || !Number.isFinite(resultValue)) {
+                    console.warn("NumericField invalid result:", resultValue, "from equation:", equation);
+                    resultValue = 0;
+                }
+
+                resultValue = roundValue(resultValue, o);
+
                 apply(target, {
                     value: resultValue,
                     mask_value: resultValue
@@ -304,6 +311,25 @@
           }*/
       }
     });
+
+    function roundValue(value, o) {
+        if (!o.roundNumber) return value;
+
+        let decimals = parseInt(o.decimalPlaces || 0, 10);
+        let factor = Math.pow(10, decimals);
+
+        switch (o.roundingMode) {
+            case "round_up":
+                return Math.ceil(value * factor) / factor;
+
+            case "round_down":
+                return Math.floor(value * factor) / factor;
+
+            case "round_half_up":
+            default:
+                return Math.round(value * factor) / factor;
+        }
+    }
 
     function onKeyUp(target, o) {
 
