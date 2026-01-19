@@ -23,16 +23,17 @@
         </style>
 
         <#if element.properties.readonly! == 'true'>
-            <#assign attrDontTrigger = 'readonly data-donttrigger="true"' >
+            <#assign attrDontTrigger = 'readonly="readonly" data-donttrigger="true"' >
         <#else>
             <#assign attrDontTrigger = '' >
-            <script type="text/javascript">
-                let options_calField_${element.properties.elementUniqueKey} = ${configJson!};
-                $(document).ready(function(){
-                    $('#${elementParamName!}${element.properties.elementUniqueKey!}').numericField(options_calField_${element.properties.elementUniqueKey});
-                });
-            </script>
         </#if>
+        <script type="text/javascript">
+            let options_calField_${element.properties.elementUniqueKey} = ${configJson!};
+            $(document).ready(function(){
+                $('#${elementParamName!}${element.properties.elementUniqueKey!}').numericField(options_calField_${element.properties.elementUniqueKey});
+            });
+        </script>
+
 
         <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="calculationField primary_value calField_${element.properties.elementUniqueKey!}"/>
 
@@ -42,7 +43,7 @@
                 <#-- <input id="${elementParamName!}${element.properties.elementUniqueKey!}" name="${elementParamName!}" type="hidden" value="${value!?html}" class="primary_key" ${attrDontTrigger} /> -->
                 <span class="calculationField_value">${formattedValue!?html}</span>
             <#else>
-                <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" value="${formattedValue!?html}" <#if element.properties.readonly! == 'true' || element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly</#if> style="text-align: right;" class="mask" autocomplete="off" ${attrDontTrigger} />
+                <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" value="${formattedValue!?html}" style="text-align: right;" class="mask" autocomplete="off" ${attrDontTrigger} />
             </#if>
             <img id="${elementParamName!}${element.properties.elementUniqueKey!}_loading" class="loader" src="${request.contextPath}/plugin/${className}/images/spin.gif" height="16" width="16" style="vertical-align: middle; display: none;">
         </#if>
