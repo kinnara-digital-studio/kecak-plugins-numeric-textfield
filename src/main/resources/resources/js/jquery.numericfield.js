@@ -3,7 +3,6 @@
         numericField : function(o){
             let target = this;
             if($(target)){
-                debugger;
                 var form = $(target).parents('form');
 
                 // not readonly
@@ -130,7 +129,6 @@
         },
 
         numericCalc : function(target, o) {
-            debugger;
             if (o.useJsEquation === true) {
                 let equation = o.jsEquation || "0";
 
