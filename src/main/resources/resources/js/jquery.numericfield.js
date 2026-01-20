@@ -183,11 +183,18 @@
 
                 resultValue = roundValue(resultValue, o);
 
-                apply(target, {
-                    value: resultValue,
-                    mask_value: resultValue
-                }, o);
+                if (parseInt(o.decimalPlaces || 0, 10) === 0) {
+                    resultValue = Math.trunc(resultValue);
+                }
 
+                if (o.hasFormatter) {
+                    formatViaServer(target, resultValue, o);
+                } else {
+                    apply(target, {
+                        value: resultValue,
+                        mask_value: resultValue
+                    }, o);
+                }
                 return;
             } else {
                 if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
@@ -329,6 +336,40 @@
             default:
                 return Math.round(value * factor) / factor;
         }
+    }
+
+    function formatViaServer(target, value, o) {
+        let payload = {
+            formDefId: o.loadBinder.formDefId,
+            sectionId: o.loadBinder.sectionId,
+            fieldId: o.fieldId,
+            primaryKey: o.primaryKey,
+            formatValue: value.toString(),
+            requestParams: {}
+        };
+
+        $.ajax({
+            url: o.loadBinder.url,
+            type: "POST",
+            headers: { "Content-Type": "application/json" },
+            data: JSON.stringify(payload)
+        })
+        .done(function (data) {
+            apply(target, {
+                value: value,
+                mask_value: data.mask_value || value
+            }, o);
+        })
+        .fail(function () {
+            apply(target, {
+                value: value,
+                mask_value: value
+            }, o);
+        });
+    }
+
+    function eventValueToBoolean(val) {
+        return val === true || val === "true";
     }
 
     function onKeyUp(target, o) {
