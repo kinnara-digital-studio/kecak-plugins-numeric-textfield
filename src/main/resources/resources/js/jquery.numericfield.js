@@ -26,10 +26,6 @@
 
                             field.addClass("control-field");
 
-                            if (variable.onChangeEvent === false) {
-                                return true;
-                            }
-
                             const TIMEOUT = 100;
 
                             if(field.is(":checkbox, :radio, select")) {
@@ -370,10 +366,6 @@
                 mask_value: value
             }, o);
         });
-    }
-
-    function eventValueToBoolean(val) {
-        return val === true || val === "true";
     }
 
     function onKeyUp(target, o) {

@@ -27,12 +27,6 @@
               "required": "true"
           },
           {
-              "key": "onChangeEvent",
-              "label": "Trigger onChange Event",
-              "type" : "truefalse",
-              "false_value" : ""
-          },
-          {
               "key" : "operation",
               "label" : "@@form.numericfield.multivalueOperation@@",
               "options" : [{

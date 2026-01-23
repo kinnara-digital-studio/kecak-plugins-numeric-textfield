@@ -184,26 +184,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
                 getProperty("formatterPlugin") != null
             );
 
-            Object variables = getProperty("variables");
-
-            if (variables instanceof Object[]) {
-                for (Object var : (Object[]) variables) {
-                    if (var instanceof Map) {
-                        @SuppressWarnings("unchecked")
-                        Map<String, Object> map = (Map<String, Object>) var;
-                        
-                        Object onChangeEvent = map.get("onChangeEvent");
-
-                        boolean isTrigger = onChangeEvent == null || "true".equalsIgnoreCase(String.valueOf(onChangeEvent));
-
-                        // Update map dengan nilai boolean asli, bukan string
-                        map.put("onChangeEvent", isTrigger);
-                    }
-                }
-            }
-            
-            // Menggunakan .put (bukan accumulate) agar variables langsung menjadi array di JSON
-            jsonConfig.put("variables", variables);
+            jsonConfig.accumulate("variables", getProperty("variables"));
 
             jsonConfig.put("currencyRefField", getPropertyString("currencyRefField"));
             jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(rootForm, this, formData));
