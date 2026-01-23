@@ -180,9 +180,18 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             jsonConfig.put("roundingMode", getPropertyString("roundingMode"));
             jsonConfig.put("decimalPlaces", getPropertyString("decimalPlaces"));
 
-            jsonConfig.put("hasFormatter",
-                getProperty("formatterPlugin") != null
-            );
+            Object formatter = getProperty("formatterPlugin");
+            boolean hasFormatter = false;
+
+            if (formatter instanceof Map) {
+                String className = ((Map<?, ?>) formatter).get("className") != null
+                    ? ((Map<?, ?>) formatter).get("className").toString()
+                    : "";
+
+                hasFormatter = !className.isBlank();
+            }
+
+            jsonConfig.put("hasFormatter", hasFormatter);
 
             jsonConfig.accumulate("variables", getProperty("variables"));
 
