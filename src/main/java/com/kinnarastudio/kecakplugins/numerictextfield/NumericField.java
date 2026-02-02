@@ -209,11 +209,18 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
     @Override
     public FormRowSet formatData(FormData formData) {
         FormRowSet rowSet = super.formatData(formData);
-        // convert to default value
-        String id = this.getPropertyString(FormUtil.PROPERTY_ID);
-        // TODO "Add Validation for Calculation Field"
-//        Map<String, Object> variables = (Map<String, Object>) getProperty("variables");
+        if (rowSet == null || rowSet.isEmpty()) {
+            rowSet = new FormRowSet();
+            rowSet.add(new FormRow());
+        }
 
+        String id = getPropertyString(FormUtil.PROPERTY_ID);
+
+        String value = formData.getRequestParameter(id);
+
+        if (value != null) {
+            rowSet.get(0).put(id, value);
+        }
 
         return rowSet;
     }

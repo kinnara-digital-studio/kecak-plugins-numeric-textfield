@@ -130,6 +130,10 @@
 
         numericCalc : function(target, o) {
             if (o.useJsEquation === true) {
+                var imageLoader = $(target).closest(".form-cell, .subform-cell").find("img.loader");
+                if(imageLoader)
+                    $(imageLoader).show();
+
                 let equation = o.jsEquation || "0";
 
                 $.each(o.variables, function(index){
