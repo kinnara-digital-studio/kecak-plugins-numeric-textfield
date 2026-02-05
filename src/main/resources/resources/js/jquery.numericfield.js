@@ -192,7 +192,11 @@
                 }
 
                 if (o.hasFormatter) {
-                    formatViaServer(target, resultValue, o);
+                    let mask = formatByFormatter(resultValue, o);
+                    apply(target, {
+                        value: resultValue,
+                        mask_value: mask
+                    }, o);
                 } else {
                     apply(target, {
                         value: resultValue,
@@ -342,34 +346,61 @@
         }
     }
 
-    function formatViaServer(target, value, o) {
-        let payload = {
-            formDefId: o.loadBinder.formDefId,
-            sectionId: o.loadBinder.sectionId,
-            fieldId: o.fieldId,
-            primaryKey: o.primaryKey,
-            formatValue: value.toString(),
-            requestParams: {}
+    function formatByFormatter(value, o) {
+        let cls = o.formatterClass;
+        let cfg = o.formatterConfig || {};
+
+        // ===== Percentage Formatter =====
+        if (cls.indexOf("PercentageFormatter") !== -1) {
+            if (value === null || value === undefined) {
+                return "";
+            }
+
+            let strValue = value.toString().trim();
+            if (strValue === "") {
+                return "";
+            }
+
+            let number = Number(strValue);
+            if (isNaN(number)) {
+                return strValue;
+            }
+
+            let decimals = parseInt(o.decimalPlaces || 0, 10);
+
+            let result = number * 100;
+            return result.toFixed(decimals) + "%";
+        }
+
+        // ===== Currency Formatter =====
+        if (cls.indexOf("CurrencyFormatter") !== -1) {
+            return formatCurrency(value, cfg);
+        }
+
+        // fallback
+        return value;
+    }
+
+    function formatCurrency(value, cfg) {
+        let locale = cfg.locale || 'en-US';
+        let showDecimals = cfg.showDecimals === 'true';
+        let showCurrency = cfg.showCurrencySymbol === 'true';
+
+        let options = {
+            minimumFractionDigits: showDecimals ? 2 : 0,
+            maximumFractionDigits: showDecimals ? 2 : 0
         };
 
-        $.ajax({
-            url: o.loadBinder.url,
-            type: "POST",
-            headers: { "Content-Type": "application/json" },
-            data: JSON.stringify(payload)
-        })
-        .done(function (data) {
-            apply(target, {
-                value: value,
-                mask_value: data.mask_value || value
-            }, o);
-        })
-        .fail(function () {
-            apply(target, {
-                value: value,
-                mask_value: value
-            }, o);
-        });
+        if (showCurrency) {
+            options.style = 'currency';
+            options.currency =
+                locale === 'in_ID' ? 'IDR' :
+                locale === 'ja_JP' ? 'JPY' :
+                'USD';
+        }
+
+        return new Intl.NumberFormat(locale.replace('_', '-'), options)
+            .format(value);
     }
 
     function onKeyUp(target, o) {

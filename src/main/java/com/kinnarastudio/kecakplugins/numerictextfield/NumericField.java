@@ -181,14 +181,17 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             jsonConfig.put("decimalPlaces", getPropertyString("decimalPlaces"));
 
             Object formatter = getProperty("formatterPlugin");
-            boolean hasFormatter = false;
 
-            if (formatter instanceof Map) {
-                String className = ((Map<?, ?>) formatter).get("className") != null
-                    ? ((Map<?, ?>) formatter).get("className").toString()
-                    : "";
+            boolean hasFormatter =
+                formatter instanceof Map
+                && !((Map<?, ?>) formatter).isEmpty();
 
-                hasFormatter = !className.isBlank();
+            jsonConfig.put("hasFormatter", hasFormatter);
+
+            if (hasFormatter) {
+                Map<String, Object> formatterMap = (Map<String, Object>) formatter;
+                jsonConfig.put("formatterClass", formatterMap.get("className"));
+                jsonConfig.put("formatterConfig", formatterMap.get("properties"));
             }
 
             jsonConfig.put("hasFormatter", hasFormatter);
