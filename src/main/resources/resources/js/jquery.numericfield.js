@@ -187,7 +187,7 @@
 
                 resultValue = roundValue(resultValue, o);
 
-                if (parseInt(o.decimalPlaces || 0, 10) === 0) {
+                if (o.decimalPlaces !== undefined && o.decimalPlaces !== null && o.decimalPlaces !== "" && parseInt(o.decimalPlaces, 10) === 0) {
                     resultValue = Math.trunc(resultValue);
                 }
 
