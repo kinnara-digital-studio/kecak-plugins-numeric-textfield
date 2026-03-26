@@ -68,12 +68,20 @@
         "name" : "useJsEquation",
         "label" : "Use Simple Javascript Equation?",
         "description" : "Using javascript equation instead of using Ajax",
-        "type" : "checkbox",
+        "type" : "radio",
         "value":"",
         "options": [
                       {
+                        "value": "",
+                        "label": "No"
+                      },
+                      {
                         "value": "true",
-                        "label": ""
+                        "label": "Simple"
+                      },
+                      {
+                        "value": "multiline",
+                        "label": "Multi-Line Javascript"
                       }
                     ]
       },
@@ -132,6 +140,15 @@
           "regex_validation": "^[0-9]+$",
           "validation_message": "Please enter a valid positive number.",
           "description": "0 for integers, 2 for currency, etc."
+      },
+      {
+          "name": "multilineJs",
+          "label": "Multi-Line Javascript",
+          "type": "codeeditor",
+          "mode": "javascript",
+          "control_field": "useJsEquation",
+          "control_value": "multiline",
+          "required" : "true"
       }
     ]
   },

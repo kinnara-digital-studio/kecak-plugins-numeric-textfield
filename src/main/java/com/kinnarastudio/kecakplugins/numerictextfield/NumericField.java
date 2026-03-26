@@ -170,7 +170,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             jsonConfig.put("appVersion", appDef.getVersion().toString());
 
             jsonConfig.put(
-                "useJsEquation", "true".equalsIgnoreCase(getPropertyString("useJsEquation"))
+                "useJsEquation", getPropertyString("useJsEquation")
             );
             jsonConfig.put("jsEquation", getPropertyString("jsEquation"));
 
@@ -179,6 +179,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             );
             jsonConfig.put("roundingMode", getPropertyString("roundingMode"));
             jsonConfig.put("decimalPlaces", getPropertyString("decimalPlaces"));
+            jsonConfig.put("multilineJs", getPropertyString("multilineJs"));
 
             Object formatter = getProperty("formatterPlugin");
 

@@ -129,7 +129,7 @@
         },
 
         numericCalc : function(target, o) {
-            if (o.useJsEquation === true) {
+            if (o.useJsEquation === "true") {
                 var imageLoader = $(target).closest(".form-cell, .subform-cell").find("img.loader");
                 if(imageLoader)
                     $(imageLoader).show();
@@ -203,6 +203,95 @@
                         mask_value: resultValue
                     }, o);
                 }
+                return;
+            } else if (o.useJsEquation === "multiline") {
+                var imageLoader = $(target).closest(".form-cell, .subform-cell").find("img.loader");
+                if(imageLoader) $(imageLoader).show();
+
+                let argNames = [];
+                let argValues = [];
+
+                // 1. Looping untuk mengambil nama variabel dan hasil valuenya
+                $.each(o.variables, function(index){
+                    let variable = o.variables[index];
+                    let fieldId = variable.variableName;
+                    let value = 0;
+
+                    let $selector;
+                    if(fieldId.indexOf(".") != -1) {
+                        $selector = FormUtil.getGridCells(fieldId).filter(":not(.grid-summary)");
+                    } else {
+                        $selector = target.getField(fieldId).filter(":not(.grid-cell)");
+                    }
+
+                    let values = [];
+                    $selector.each(function () {
+                        values.push(parseLocaleNumber(this.value));
+                    });
+
+                    let operation = variable.operation;
+                    if (operation === "avg") {
+                        value = values.length ? values.reduce((a,b)=>a+b,0) / values.length : 0;
+                    } else if (operation === "min") {
+                        value = values.length ? Math.min.apply(null, values) : 0;
+                    } else if (operation === "max") {
+                        value = values.length ? Math.max.apply(null, values) : 0;
+                    } else if (operation === "count") {
+                        value = values.length;
+                    } else if (operation === "sum") {
+                        value = values.reduce((a,b)=>a+b,0);
+                    } else {
+                        value = values.length ? values[0] : 0;
+                    }
+
+                    // Sanitize fieldId: JS parameter tidak boleh mengandung karakter seperti '.' (dot)
+                    // Misal dari grid: "grid_id.column_id" akan menjadi "grid_id_column_id"
+                    let safeParamName = fieldId.replace(/[^a-zA-Z0-9_]/g, '_');
+
+                    argNames.push(safeParamName);
+                    argValues.push(value);
+                });
+
+                let scriptBody = o.multilineJs || "return 0;";
+                let resultValue = 0;
+
+                try {
+                    // 2. Eksekusi Script
+                    // Membuat function dinamis: function(film_size, lay_flat) { ... scriptBody ... }
+                    let func = new Function(...argNames, scriptBody);
+                    
+                    // Menjalankan function dengan value yang sudah di-parse
+                    resultValue = func(...argValues);
+                } catch(e) {
+                    console.error("NumericField Multiline JS Error:", e);
+                    resultValue = 0;
+                }
+
+                if (typeof resultValue !== "number" || Number.isNaN(resultValue) || !Number.isFinite(resultValue)) {
+                    console.warn("NumericField invalid result:", resultValue, "from multiline equation.");
+                    resultValue = 0;
+                }
+
+                // 3. Rounding & Apply hasil ke target (Logika sama dengan Simple Equation)
+                resultValue = roundValue(resultValue, o);
+
+                if (o.decimalPlaces !== undefined && o.decimalPlaces !== null && o.decimalPlaces !== "" && parseInt(o.decimalPlaces, 10) === 0) {
+                    resultValue = Math.trunc(resultValue);
+                }
+
+                if (o.hasFormatter) {
+                    let mask = formatByFormatter(resultValue, o);
+                    apply(target, {
+                        value: resultValue,
+                        mask_value: mask
+                    }, o);
+                } else {
+                    apply(target, {
+                        value: resultValue,
+                        mask_value: resultValue
+                    }, o);
+                }
+                
                 return;
             } else {
                 if(!$(target).closest("div").find('input[data-donttrigger*="true"]').length) {
