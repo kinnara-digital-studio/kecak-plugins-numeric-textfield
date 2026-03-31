@@ -510,6 +510,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
         dataModel.put("formattedValue", formatValue(value, formData));
         dataModel.put("configJson", getConfigJson(formData));
         dataModel.put("className", getClassName());
+        dataModel.put("calculatorCheckBox", getPropertyString("calculatorCheckBox"));
         String html = FormUtil.generateElementHtml(this, formData, template, dataModel);
         return html;
     }
