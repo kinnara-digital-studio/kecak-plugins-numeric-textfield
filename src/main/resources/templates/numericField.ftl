@@ -41,9 +41,13 @@
                 z-index: 5;
                 transition: background-color 0.15s, color 0.15s;
             }
-            .nf-calc-btn-${element.properties.elementUniqueKey!}:hover {
-                background-color: #f3f4f6;
-                color: #111827;
+            .nf-calc-btn-${element.properties.elementUniqueKey!}:hover,
+            .nf-calc-btn-${element.properties.elementUniqueKey!}:focus,
+            .nf-calc-btn-${element.properties.elementUniqueKey!}:active {
+                background-color: #FFFFFF !important;
+                color: #6b7280 !important;
+                outline: none !important;
+                box-shadow: none !important;
             }
             #nf-calc-modal-${element.properties.elementUniqueKey!} {
                 display: none;
@@ -109,15 +113,25 @@
                 box-shadow: none;
                 transform: translateY(1px);
             }
-            .nf-calc-grid-${element.properties.elementUniqueKey!} button:hover {
-                background-color: #f9fafb;
-                border-color: #9ca3af;
-                color: #111827;
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button:hover,
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button:focus {
+                background-color: #ffffff !important;
+                border-color: #d1d5db !important;
+                color: #374151 !important;
+                outline: none !important;
             }
             .nf-calc-btn-op {
                 background: #f3f4f6 !important;
                 color: #1f2937 !important;
                 font-weight: 600;
+            }
+            .nf-calc-btn-op:hover,
+            .nf-calc-btn-op:focus,
+            .nf-calc-btn-op:active {
+                background: #f3f4f6 !important;
+                color: #1f2937 !important;
+                border-color: #d1d5db !important;
+                outline: none !important;
             }
             .nf-calc-btn-eq {
                 grid-column: span 4;
@@ -127,22 +141,39 @@
                 font-weight: 700;
                 font-size: 15px !important;
             }
-            .nf-calc-btn-eq:hover {
-                background: #1d4ed8 !important;
+            .nf-calc-btn-eq:hover,
+            .nf-calc-btn-eq:focus,
+            .nf-calc-btn-eq:active {
+                background: #2563eb !important;
+                color: #ffffff !important;
+                border-color: #1d4ed8 !important;
+                outline: none !important;
             }
             .nf-calc-btn-cancel {
                 grid-column: span 4;
                 background: #ffffff !important;
                 color: #6b7280 !important;
             }
+            .nf-calc-btn-cancel:hover,
+            .nf-calc-btn-cancel:focus,
+            .nf-calc-btn-cancel:active {
+                background: #ffffff !important;
+                color: #6b7280 !important;
+                border-color: #d1d5db !important;
+                outline: none !important;
+            }
             .nf-calc-btn-clr, .nf-calc-btn-bsp {
                 color: #dc2626 !important;
                 background: #fef2f2 !important;
                 border-color: #fecaca !important;
             }
-            .nf-calc-btn-clr:hover, .nf-calc-btn-bsp:hover {
-                background: #fee2e2 !important;
-                border-color: #fca5a5 !important;
+            .nf-calc-btn-clr:hover, .nf-calc-btn-bsp:hover,
+            .nf-calc-btn-clr:focus, .nf-calc-btn-bsp:focus,
+            .nf-calc-btn-clr:active, .nf-calc-btn-bsp:active {
+                background: #fef2f2 !important;
+                border-color: #fecaca !important;
+                color: #dc2626 !important;
+                outline: none !important;
             }
         </style>
 
