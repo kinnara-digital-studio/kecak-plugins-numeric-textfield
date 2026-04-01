@@ -60,99 +60,99 @@
         ]
       },
       {
-        "name" : "calculationLoadBinder",
-        "label" : "@@form.numericfield.calculationLoadBinder@@",
-        "description" : "@@form.numericfield.calculationLoadBinder.desc@@",
-        "type" : "elementselect",
-        "options_ajax" : "[CONTEXT_PATH]/web/property/json/getElements?classname=org.joget.apps.form.model.FormLoadElementBinder",
-        "value":"%s",
-        "url" : "[CONTEXT_PATH]/web/property/json[APP_PATH]/getPropertyOptions"
+        "name": "calculationLoadBinder",
+        "label": "@@form.numericfield.calculationLoadBinder@@",
+        "description": "@@form.numericfield.calculationLoadBinder.desc@@",
+        "type": "elementselect",
+        "options_ajax": "[CONTEXT_PATH]/web/property/json/getElements?classname=org.joget.apps.form.model.FormLoadElementBinder",
+        "value": "%s",
+        "url": "[CONTEXT_PATH]/web/property/json[APP_PATH]/getPropertyOptions"
       },
       {
-        "name" : "useJsEquation",
-        "label" : "Use Simple Javascript Equation?",
-        "description" : "Using javascript equation instead of using Ajax",
-        "type" : "radio",
-        "value":"",
+        "name": "useJsEquation",
+        "label": "Use Simple Javascript Equation?",
+        "description": "Using javascript equation instead of using Ajax",
+        "type": "radio",
+        "value": "",
         "options": [
-                      {
-                        "value": "",
-                        "label": "No"
-                      },
-                      {
-                        "value": "true",
-                        "label": "Simple"
-                      },
-                      {
-                        "value": "multiline",
-                        "label": "Multi-Line Javascript"
-                      }
-                    ]
+          {
+            "value": "",
+            "label": "No"
+          },
+          {
+            "value": "true",
+            "label": "Simple"
+          },
+          {
+            "value": "multiline",
+            "label": "Multi-Line Javascript"
+          }
+        ]
       },
       {
-        "name" : "jsEquation",
-        "label" : "Equation",
-        "type" : "textfield",
-        "required" : "true",
-        "control_field" : "useJsEquation",
-        "control_value" :  "true"
+        "name": "jsEquation",
+        "label": "Equation",
+        "type": "textfield",
+        "required": "true",
+        "control_field": "useJsEquation",
+        "control_value": "true"
       },
       {
-          "name": "roundNumber",
-          "label": "Round Number?",
-          "type": "checkbox",
-          "control_field" : "useJsEquation",
-          "control_value" :  "true",
-          "value": "",
-          "options": [
-              {
-                  "value": "true",
-                  "label": ""
-              }
-          ]
+        "name": "roundNumber",
+        "label": "Round Number?",
+        "type": "checkbox",
+        "control_field": "useJsEquation",
+        "control_value": "true",
+        "value": "",
+        "options": [
+          {
+            "value": "true",
+            "label": ""
+          }
+        ]
       },
       {
-          "name": "roundingMode",
-          "label": "Rounding Mode",
-          "type": "selectbox",
-          "control_field": "roundNumber",
-          "control_value": "true",
-          "options": [
-              {
-                  "value": "round_down",
-                  "label": "Round Down (Floor)"
-              },
-              {
-                  "value": "round_up",
-                  "label": "Round Up (Ceiling)"
-              },
-              {
-                  "value": "round_half_up",
-                  "label": "Mathematical Standard (ISO 80000-1)"
-              }
-          ],
-          "value": "ROUND_DOWN",
-          "required": "true"
+        "name": "roundingMode",
+        "label": "Rounding Mode",
+        "type": "selectbox",
+        "control_field": "roundNumber",
+        "control_value": "true",
+        "options": [
+          {
+            "value": "round_down",
+            "label": "Round Down (Floor)"
+          },
+          {
+            "value": "round_up",
+            "label": "Round Up (Ceiling)"
+          },
+          {
+            "value": "round_half_up",
+            "label": "Mathematical Standard (ISO 80000-1)"
+          }
+        ],
+        "value": "ROUND_DOWN",
+        "required": "true"
       },
       {
-          "name": "decimalPlaces",
-          "label": "Decimal Places",
-          "type": "textfield",
-          "value": "0",
-          "control_field": "roundNumber",
-          "control_value": "true",
-          "regex_validation": "^[0-9]+$",
-          "validation_message": "Please enter a valid positive number.",
-          "description": "0 for integers, 2 for currency, etc."
+        "name": "decimalPlaces",
+        "label": "Decimal Places",
+        "type": "textfield",
+        "value": "0",
+        "control_field": "roundNumber",
+        "control_value": "true",
+        "regex_validation": "^[0-9]+$",
+        "validation_message": "Please enter a valid positive number.",
+        "description": "0 for integers, 2 for currency, etc."
       },
       {
-          "name": "multilineJs",
-          "label": "Multi-Line Javascript",
-          "type": "codeeditor",
-          "mode": "javascript",
-          "control_field": "useJsEquation",
-          "control_value": "multiline",
-          "required" : "true"
+        "name": "multilineJs",
+        "label": "Multi-Line Javascript",
+        "type": "codeeditor",
+        "mode": "javascript",
+        "control_field": "useJsEquation",
+        "control_value": "multiline",
+        "required": "true"
       },
       {
         "name": "calculatorCheckBox",

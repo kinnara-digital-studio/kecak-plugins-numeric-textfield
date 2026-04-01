@@ -4,6 +4,7 @@
   "author": "kinnarastudio.com",
   "license": "ISC",
   "dependencies": {
-    "globalize": "1.4.2"
+    "globalize": "1.4.2",
+    "mathjs": "^15.1.1"
   }
 }

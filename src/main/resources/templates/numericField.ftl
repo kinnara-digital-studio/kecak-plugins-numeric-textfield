@@ -7,8 +7,10 @@
     <#else>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/jquery.calculation.min.js"></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/jquery.numericfield.js"></script>
+        <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/math.js"></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/terbilang-spelling.js"/></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/decimal-terbilang-spelling.js"/></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
         <style>
             input.mask[readonly] {
                 background-color: #f4f4f4;
@@ -20,20 +22,20 @@
             }
             .nf-calc-btn-${element.properties.elementUniqueKey!} {
                 position: absolute;
-                right: 4px;
-                top: 50%;
+                right: 5px;
+                top: 14.5px;
                 transform: translateY(-50%);
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                width: 26px;
-                height: 26px;
+                width: 25px;
+                height: 23px;
                 padding: 0;
                 border: 1px solid transparent;
                 border-radius: 4px;
-                background: transparent;
+                background: #FFFFFF;
                 cursor: pointer;
-                font-size: 14px;
+                font-size: 20px;
                 line-height: 1;
                 color: #6b7280;
                 z-index: 5;
@@ -167,9 +169,10 @@
                     <input id="${elementParamName!}${element.properties.elementUniqueKey!}_mask" name="${elementParamName!}_mask" value="${formattedValue!?html}" <#if element.properties.readonly! == 'true' || element.properties.calculationLoadBinder.className?? && element.properties.calculationLoadBinder.className != "">readonly="readonly"</#if> style="text-align: right; width: 100%; box-sizing: border-box; <#if calculatorCheckBox! == 'true'>padding-right: 36px;</#if>" class="mask" autocomplete="off" ${attrDontTrigger} />
                     <#if calculatorCheckBox! == 'true'>
                         <button type="button"
-                                class="nf-calc-btn-${element.properties.elementUniqueKey!}"
-                                id="${elementParamName!}${element.properties.elementUniqueKey!}_calcBtn"
-                                title="Open Calculator">&#x1F5A9;</button>
+                             class="nf-calc-btn-${element.properties.elementUniqueKey!}"
+                             id="${elementParamName!}${element.properties.elementUniqueKey!}_calcBtn"
+                             title="Open Calculator">
+                             <i class="fa-solid fa-calculator"></i></button>
 
                         <#if element.properties.readonly! != 'true'>
                         <div id="nf-calc-modal-${element.properties.elementUniqueKey!}" role="dialog" aria-modal="true" aria-label="Calculator">
@@ -237,7 +240,7 @@
                                     /* Handle % as /100, e.g. 1 * 10% → 1 * (10/100) */
                                     e = e.replace(/(\d+\.?\d*)\s*%/g, '($1/100)');
                                     if (!/^[0-9+\-*/.%\s()]+$/.test(e)) return NaN;
-                                    var r = Function('"use strict"; return (' + e + ')')();
+                                    var r = math.evaluate(e);
                                     return isFinite(r) ? r : NaN;
                                 } catch(ex) { return NaN; }
                             }
