@@ -158,6 +158,7 @@
         "name": "calculatorCheckBox",
         "label": "Calculator",
         "type": "checkbox",
+        "value": "",
         "options": [
           {
             "value": "true",

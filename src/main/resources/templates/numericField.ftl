@@ -9,6 +9,7 @@
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/jquery.numericfield.js"></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/terbilang-spelling.js"/></script>
         <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/decimal-terbilang-spelling.js"/></script>
+        <script type="text/javascript" src="${request.contextPath}/plugin/${className}/js/math.min.js"></script>
         <style>
             input.mask[readonly] {
                 background-color: #f4f4f4;
@@ -229,15 +230,9 @@
 
                             function safeEval(expr) {
                                 try {
-                                    var e = expr
-                                        .replace(/\u00F7/g, '/')   /* ÷ */
-                                        .replace(/\u00D7/g, '*')   /* × */
-                                        .replace(/\u2212/g, '-')   /* − */
-                                        .replace(/[+\-*/]\s*$/, '');
-                                    /* Handle % as /100, e.g. 1 * 10% → 1 * (10/100) */
-                                    e = e.replace(/(\d+\.?\d*)\s*%/g, '($1/100)');
-                                    if (!/^[0-9+\-*/.%\s()]+$/.test(e)) return NaN;
-                                    var r = Function('"use strict"; return (' + e + ')')();
+                                    var e = expr.replace(/÷/g,'/').replace(/×/g,'*').replace(/−/g,'-');
+                                    e = e.replace(/[+\-*/]\s*$/, ''); // strip trailing operators
+                                    var r = math.evaluate(e);
                                     return isFinite(r) ? r : NaN;
                                 } catch(ex) { return NaN; }
                             }
