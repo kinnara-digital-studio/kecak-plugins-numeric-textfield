@@ -120,18 +120,19 @@
                 color: #374151 !important;
                 outline: none !important;
             }
-            .nf-calc-btn-op {
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-op {
                 background: #f3f4f6 !important;
                 color: #1f2937 !important;
                 font-weight: 600;
             }
-            .nf-calc-btn-op:hover,
-            .nf-calc-btn-op:focus,
-            .nf-calc-btn-op:active {
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-op:hover,
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-op:focus,
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-op:active {
                 background: #f3f4f6 !important;
                 color: #1f2937 !important;
                 border-color: #d1d5db !important;
                 outline: none !important;
+                box-shadow: none !important;
             }
             .nf-calc-btn-eq {
                 grid-column: span 4;
@@ -167,13 +168,23 @@
                 background: #fef2f2 !important;
                 border-color: #fecaca !important;
             }
-            .nf-calc-btn-clr:hover, .nf-calc-btn-bsp:hover,
-            .nf-calc-btn-clr:focus, .nf-calc-btn-bsp:focus,
-            .nf-calc-btn-clr:active, .nf-calc-btn-bsp:active {
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-clr,
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-bsp {
+                color: #dc2626 !important;
+                background: #fef2f2 !important;
+                border-color: #fecaca !important;
+            }
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-clr:hover,
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-clr:focus,
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-clr:active,
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-bsp:hover,
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-bsp:focus,
+            .nf-calc-grid-${element.properties.elementUniqueKey!} button.nf-calc-btn-bsp:active {
                 background: #fef2f2 !important;
                 border-color: #fecaca !important;
                 color: #dc2626 !important;
                 outline: none !important;
+                box-shadow: none !important;
             }
         </style>
 
@@ -275,8 +286,27 @@
                                     return isFinite(r) ? r : NaN;
                                 } catch(ex) { return NaN; }
                             }
+<#--  
+                            function safeEval(expr) {
+                                try {
+                                    var e = expr
+                                        .replace(/\u00F7/g, '/')
+                                        .replace(/\u00D7/g, '*')
+                                        .replace(/\u2212/g, '-')
+                                        .replace(/[+\-*/]\s*$/, '');
+                                    e = e.replace(/(\d+\.?\d*)\s*%/g, '($1/100)');
 
-                            /* Commit result to hidden + mask inputs, then close */
+                                    var openCount  = (e.match(/\(/g) || []).length;
+                                    var closeCount = (e.match(/\)/g) || []).length;
+                                    var missing    = openCount - closeCount;
+                                    if (missing > 0) e = e + ')'.repeat(missing);
+
+                                    if (!/^[0-9+\-*/.%\s()]+$/.test(e)) return NaN;
+                                    var r = math.evaluate(e);
+                                    return isFinite(r) ? r : NaN;
+                                } catch(ex) { return NaN; }
+                            }  -->
+
                             function commitAndClose(numStr) {
                                 var num = parseFloat(numStr);
                                 if (isNaN(num)) return;
@@ -289,6 +319,7 @@
                             }
 
                             function handle(action, value) {
+                                if (state.current === "Error" && action !== "clear") return;
                                 switch(action) {
 
                                     case 'percent':
