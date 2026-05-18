@@ -202,6 +202,7 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
             jsonConfig.put("currencyRefField", getPropertyString("currencyRefField"));
             jsonConfig.put("loadBinder", generateJsonCalculationLoadBinderConf(rootForm, this, formData));
             jsonConfig.put("spellingTarget", getPropertyString("spellingTarget"));
+            jsonConfig.put("controlField", getProperty("controlField"));
 
             return jsonConfig.toString();
         } catch (Exception e) {

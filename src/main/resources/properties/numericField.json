@@ -268,6 +268,31 @@
         "name": "workflowVariable",
         "label": "@@form.numericfield.workflowVariable@@",
         "type": "textfield"
+      },
+      {
+        "label": "Control Field",
+        "type": "header"
+      },
+      {
+        "name": "controlField",
+        "label": "Control Field",
+        "type": "grid",
+        "columns": [
+            {
+              "key": "fieldId",
+              "label": "Field ID"
+            },
+            {
+              "key": "reverseValue",
+              "label": "Reverse Value",
+              "type": "truefalse",
+              "false_value": ""
+            },
+            {
+              "key": "fieldValue",
+              "label": "Field Value"
+            }
+        ]
       }
     ]
   }

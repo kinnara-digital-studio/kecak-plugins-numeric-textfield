@@ -87,6 +87,73 @@
                         });
                     }
 
+                    // handle visibility control
+                    if (o.controlField && o.controlField.length > 0) {
+                        var checkVisibility = function() {
+                            var isVisible = true;
+                            $.each(o.controlField, function(index, rule) {
+                                var targetField = target.getField(rule.fieldId);
+                                if (targetField.length > 0) {
+                                    var targetValue = "";
+                                    if (targetField.is(":checkbox, :radio")) {
+                                        var checkedVals = [];
+                                        targetField.filter(":checked").each(function() {
+                                            checkedVals.push($(this).val());
+                                        });
+                                        targetValue = checkedVals.join(";");
+                                    } else {
+                                        targetValue = targetField.val() || "";
+                                    }
+                                    
+                                    var match = false;
+                                    var ruleValue = rule.fieldValue || "";
+                                    var ruleValues = ruleValue.split(';');
+                                    
+                                    var targetValues = targetValue.split(';');
+                                    $.each(targetValues, function(i, tVal) {
+                                        if ($.inArray(tVal, ruleValues) !== -1) {
+                                            match = true;
+                                            return false; // break loop
+                                        }
+                                    });
+                                    
+                                    if (ruleValue === "" && targetValue === "") {
+                                        match = true;
+                                    }
+                                    
+                                    if (rule.reverseValue === 'true' || rule.reverseValue === true) {
+                                        match = !match;
+                                    }
+                                    
+                                    if (!match) {
+                                        isVisible = false;
+                                        return false; // break loop, AND condition
+                                    }
+                                }
+                            });
+                            
+                            var $cell = $(target).closest('.form-cell, .subform-cell');
+                            if (isVisible) {
+                                $cell.show();
+                                $cell.removeClass('section-visibility-hidden');
+                                $cell.find("input, select, textarea").prop("disabled", false);
+                            } else {
+                                $cell.hide();
+                                $cell.addClass('section-visibility-hidden');
+                                $cell.find("input, select, textarea").prop("disabled", true);
+                            }
+                        };
+                        
+                        $.each(o.controlField, function(index, rule) {
+                            var targetField = target.getField(rule.fieldId);
+                            if (targetField.length > 0) {
+                                targetField.on('change', checkVisibility);
+                            }
+                        });
+                        
+                        checkVisibility();
+                    }
+
                     // run on load 
                     $(document).ready(function() {
                         target.numericCalc(target, o);
