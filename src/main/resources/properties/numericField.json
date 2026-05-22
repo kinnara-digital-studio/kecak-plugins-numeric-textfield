@@ -93,7 +93,6 @@
         "name": "jsEquation",
         "label": "Equation",
         "type": "textfield",
-        "required": "true",
         "control_field": "useJsEquation",
         "control_value": "true"
       },
@@ -101,8 +100,6 @@
         "name": "roundNumber",
         "label": "Round Number?",
         "type": "checkbox",
-        "control_field": "useJsEquation",
-        "control_value": "true",
         "value": "",
         "options": [
           {

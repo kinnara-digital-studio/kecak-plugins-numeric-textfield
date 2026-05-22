@@ -3,6 +3,7 @@ package com.kinnarastudio.kecakplugins.numerictextfield;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.AbstractMap;
@@ -231,6 +232,83 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
     }
 
     @Override
+    public boolean continueValidation(FormData formData) {
+        if (!isControlFieldVisible(formData)) {
+            return false;
+        }
+        return super.continueValidation(formData);
+    }
+
+    private boolean isControlFieldVisible(FormData formData) {
+        Object controlFieldObj = getProperty("controlField");
+        if (controlFieldObj != null && controlFieldObj instanceof Object[]) {
+            Object[] controlFields = (Object[]) controlFieldObj;
+            if (controlFields.length == 0) {
+                return true;
+            }
+
+            boolean isVisible = true;
+            for (Object ruleObj : controlFields) {
+                if (ruleObj instanceof Map) {
+                    Map<String, Object> rule = (Map<String, Object>) ruleObj;
+                    String fieldId = (String) rule.get("fieldId");
+                    String ruleValue = (String) rule.get("fieldValue");
+                    if (ruleValue == null) ruleValue = "";
+
+                    String reverseValueStr = String.valueOf(rule.get("reverseValue"));
+                    boolean reverseValue = "true".equalsIgnoreCase(reverseValueStr);
+
+                    String[] targetValues = formData.getRequestParameterValues(fieldId);
+                    if (targetValues == null || targetValues.length == 0) {
+                        Form form = FormUtil.findRootForm(this);
+                        if (form != null) {
+                            Element targetElement = FormUtil.findElement(fieldId, form, formData);
+                            if (targetElement != null) {
+                                String val = FormUtil.getElementPropertyValue(targetElement, formData);
+                                if (val != null) {
+                                    targetValues = val.split(";");
+                                }
+                            }
+                        }
+                    }
+
+                    if (targetValues == null || targetValues.length == 0) {
+                        targetValues = new String[]{""};
+                    }
+
+                    boolean match = false;
+                    String[] ruleValues = ruleValue.split(";");
+
+                    for (String tVal : targetValues) {
+                        for (String rVal : ruleValues) {
+                            if (tVal.equals(rVal)) {
+                                match = true;
+                                break;
+                            }
+                        }
+                        if (match) break;
+                    }
+
+                    if ("".equals(ruleValue) && targetValues.length == 1 && "".equals(targetValues[0])) {
+                        match = true;
+                    }
+
+                    if (reverseValue) {
+                        match = !match;
+                    }
+
+                    if (!match) {
+                        isVisible = false;
+                        break;
+                    }
+                }
+            }
+            return isVisible;
+        }
+        return true;
+    }
+
+    @Override
     public void webService(HttpServletRequest request, HttpServletResponse response) throws IOException {
         LogUtil.info(getClass().getName(), "Executing Rest API [" + request.getRequestURI() + "] in method [" + request.getMethod() + "] contentType [" + request.getContentType() + "] as [" + WorkflowUtil.getCurrentUsername() + "]");
 
@@ -300,6 +378,22 @@ public class NumericField extends Element implements Declutter, FormBuilderPalet
                 // value from user input
                 Locale locale = getLocale(requestParameters.optString(currencyField));
                 value = determineNumber(body.optString("formatValue"), locale);
+            }
+
+            if ("true".equalsIgnoreCase(element.getPropertyString("roundNumber"))) {
+                int decimalPlaces = 0;
+                try {
+                    decimalPlaces = Integer.parseInt(element.getPropertyString("decimalPlaces"));
+                } catch (NumberFormatException ignored) {}
+
+                String roundingModeStr = element.getPropertyString("roundingMode");
+                RoundingMode mode = RoundingMode.HALF_UP;
+                if ("round_up".equals(roundingModeStr)) {
+                    mode = RoundingMode.CEILING;
+                } else if ("round_down".equals(roundingModeStr)) {
+                    mode = RoundingMode.FLOOR;
+                }
+                value = value.setScale(decimalPlaces, mode);
             }
 
             Map<String, Object> formatterPlugin = (Map<String, Object>) element.getProperty("formatterPlugin");
